@@ -268,6 +268,27 @@ function App() {
     showToast(newVal ? 'Dev Mode ON — all features unlocked' : 'Dev Mode OFF', 'info', 3000);
   };
 
+  // Dev auto-play: expose function for CDP/automated testing
+  React.useEffect(() => {
+    window._devAutoPlay = (name) => {
+      const n = name || 'Stark Labs';
+      engine.newGame(n);
+      setScreen('game');
+      unlockedFeaturesRef.current = {
+        research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
+      };
+      fanMilestonesRef.current = { '10000': false, '100000': false, '1000000': false };
+      wasPublicRef.current = false;
+      lastEventIdRef.current = null;
+    };
+    window._devLoadGame = () => {
+      if (engine.load()) {
+        setScreen('game');
+      }
+    };
+    return () => { delete window._devAutoPlay; delete window._devLoadGame; };
+  }, []);
+
   // Title screen
   if (screen === 'title') {
     const hasSave = !!localStorage.getItem('techEmpire_save');
