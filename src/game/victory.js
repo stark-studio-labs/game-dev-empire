@@ -87,9 +87,9 @@ const VICTORY_PATHS = [
     description: '60% market share — or $2B total revenue if competitors aren\'t tracked.',
     thresholds: { marketShareOrRevenue: true },
     checkCondition(state, ctx) {
-      // If competitor system tracks marketShare, use it; otherwise fallback to $2B revenue
+      // Need BOTH 60% market share AND minimum $500M revenue (prevents trivial early wins)
       if (typeof ctx.marketShare === 'number' && ctx.marketShare > 0) {
-        return ctx.marketShare >= 0.60;
+        return ctx.marketShare >= 0.60 && ctx.totalRevenue >= 500000000;
       }
       return ctx.totalRevenue >= 2000000000;
     },
