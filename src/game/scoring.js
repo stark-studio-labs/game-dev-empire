@@ -117,8 +117,11 @@ const Scoring = {
     const platGenre = this.platformGenreMod(platformId, genre);
     const bugs = this.bugRatio(devWeeks, sizeData.devWeeks, staffCount);
 
+    // Research bonus from completed tech tree items
+    const researchBonus = 1 + (typeof researchSystem !== 'undefined' ? researchSystem.getScoreBonus() : 0);
+
     const modifiers = 1 + dtBalance + timeMgmt;
-    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs;
+    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus;
 
     return {
       gameScore: Math.max(0, gameScore),
@@ -163,7 +166,7 @@ const Scoring = {
   /**
    * Compute revenue from a released game.
    */
-  computeRevenue({ reviewAvg, platformId, fans, size, totalWeek }) {
+  computeRevenue({ reviewAvg, platformId, fans, size, totalWeek, genre }) {
     const plat = PLATFORMS.find(p => p.id === platformId);
     const marketShare = plat ? getPlatformMarketShare(plat, totalWeek) : 0.1;
 
@@ -183,9 +186,14 @@ const Scoring = {
     // Fan multiplier
     const fanMult = 1 + Math.log10(Math.max(fans, 1)) * 0.3;
 
+    // Market sentiment and genre trending bonus
+    const marketMult = typeof marketSim !== 'undefined' ? marketSim.getSalesMultiplier() : 1.0;
+    const genreBonus = typeof marketSim !== 'undefined' && genre
+      ? marketSim.getGenreBonus(genre) : 1.0;
+
     // Base revenue
     const baseRevenue = 50000;
-    const totalRevenue = baseRevenue * reviewMult * sizeMult * fanMult * (marketShare * 10);
+    const totalRevenue = baseRevenue * reviewMult * sizeMult * fanMult * (marketShare * 10) * marketMult * genreBonus;
 
     // Units sold (at $40-60 per unit average)
     const avgPrice = 40 + sizeMult * 3;

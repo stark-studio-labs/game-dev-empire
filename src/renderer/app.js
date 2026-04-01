@@ -10,6 +10,10 @@ function App() {
   const [showStaff, setShowStaff] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [showFinance, setShowFinance] = useState(false);
+  const [showResearch, setShowResearch] = useState(false);
+  const [showMarket, setShowMarket] = useState(false);
+  const [pendingEvent, setPendingEvent] = useState(null);
+  const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
   const [companyName, setCompanyName] = useState('');
 
@@ -28,10 +32,19 @@ function App() {
           }
         }
       }
+
+      // Check for pending event
+      if (state.pendingEvent && !pendingEvent) {
+        setPendingEvent(state.pendingEvent);
+      }
+      // Check for event consequence
+      if (state.eventConsequence && !eventConsequence) {
+        setEventConsequence(state.eventConsequence);
+      }
     });
 
     return () => unsub();
-  }, [reviewGame, showReview]);
+  }, [reviewGame, showReview, pendingEvent, eventConsequence]);
 
   const handleNewGame = () => {
     engine.setSpeed(0);
@@ -68,6 +81,22 @@ function App() {
   const handleReviewClose = () => {
     setShowReview(false);
     setReviewGame(null);
+  };
+
+  const handleEventChoice = (optionIndex) => {
+    if (optionIndex === -1) {
+      // Dismissing consequence
+      setEventConsequence(null);
+      engine.dismissEventConsequence();
+      return;
+    }
+    // Resolve the event
+    engine.resolveEvent(optionIndex);
+    setPendingEvent(null);
+    // Consequence will be picked up by the subscribe effect
+    if (engine.state.eventConsequence) {
+      setEventConsequence(engine.state.eventConsequence);
+    }
   };
 
   // Title screen
@@ -147,7 +176,7 @@ function App() {
 
         {/* Version */}
         <div style={{ position: 'fixed', bottom: '16px', fontSize: '11px', color: '#21262d' }}>
-          v0.1.0
+          v0.2.0
         </div>
       </div>
     );
@@ -161,6 +190,10 @@ function App() {
         onSpeedChange={handleSpeedChange}
         onToggleFinance={() => setShowFinance(v => !v)}
         showFinance={showFinance}
+        onToggleResearch={() => setShowResearch(v => !v)}
+        showResearch={showResearch}
+        onToggleMarket={() => setShowMarket(v => !v)}
+        showMarket={showMarket}
       />
 
       <GameScreen
@@ -196,6 +229,28 @@ function App() {
         <FinanceDashboard
           state={gameState}
           onClose={() => setShowFinance(false)}
+        />
+      )}
+
+      {showResearch && gameState && (
+        <ResearchPanel
+          state={gameState}
+          onClose={() => setShowResearch(false)}
+        />
+      )}
+
+      {showMarket && gameState && (
+        <MarketPanel
+          state={gameState}
+          onClose={() => setShowMarket(false)}
+        />
+      )}
+
+      {(pendingEvent || eventConsequence) && (
+        <EventModal
+          event={pendingEvent}
+          consequence={eventConsequence}
+          onChoice={handleEventChoice}
         />
       )}
     </div>

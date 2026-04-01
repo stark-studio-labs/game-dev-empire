@@ -1,7 +1,7 @@
 /**
  * TopBar — Cash, fans, date, game progress, speed controls
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -77,6 +77,16 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance }) {
           </div>
         )}
 
+        {/* Market sentiment indicator */}
+        {typeof marketSim !== 'undefined' && (
+          <div style={{ textAlign: 'center', minWidth: '60px' }}>
+            <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market</div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: marketSim.getLabel().color }}>
+              {marketSim.getLabel().label}
+            </div>
+          </div>
+        )}
+
         {/* Sales indicator */}
         {state.sellingGame && (
           <div style={{ textAlign: 'center', minWidth: '80px' }}>
@@ -108,12 +118,36 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance }) {
           ))}
         </div>
 
+        {/* Research toggle (beaker icon) */}
+        <button
+          className={`speed-btn ${showResearch ? 'active' : ''}`}
+          onClick={onToggleResearch}
+          title="R&D Laboratory"
+          style={{ marginLeft: '8px', fontWeight: 700, fontSize: '14px', lineHeight: 1 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+            <path d="M5 1v5.27L2.37 11.7A2 2 0 004.1 15h7.8a2 2 0 001.73-3.3L11 6.27V1h1V0H4v1h1zm1 0h4v5.5l.07.13L13.42 12H2.58l3.35-5.37.07-.13V1zM6 10a1 1 0 110 2 1 1 0 010-2zm4-1a1 1 0 110 2 1 1 0 010-2z"/>
+          </svg>
+        </button>
+
+        {/* Market toggle (chart icon) */}
+        <button
+          className={`speed-btn ${showMarket ? 'active' : ''}`}
+          onClick={onToggleMarket}
+          title="Market Intelligence"
+          style={{ fontWeight: 700, fontSize: '14px', lineHeight: 1 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+            <path d="M1 14h14V0h-1v13H1v1zM3 12h2V7H3v5zm3 0h2V5H6v7zm3 0h2V3H9v9zm3 0h2V1h-2v11z"/>
+          </svg>
+        </button>
+
         {/* Finance toggle */}
         <button
           className={`speed-btn ${showFinance ? 'active' : ''}`}
           onClick={onToggleFinance}
           title="Finance Dashboard"
-          style={{ marginLeft: '8px', fontWeight: 700, fontSize: '13px' }}
+          style={{ fontWeight: 700, fontSize: '13px' }}
         >
           $
         </button>

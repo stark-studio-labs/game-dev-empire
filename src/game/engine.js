@@ -21,6 +21,9 @@ class GameEngine {
   /** Create a new game state */
   newGame(companyName) {
     finance.reset();
+    eventSystem.reset();
+    researchSystem.reset();
+    marketSim.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       cash: 70000,
@@ -68,6 +71,10 @@ class GameEngine {
 
       // Office upgrade offered
       upgradeAvailable: false,
+
+      // Pending event for UI
+      pendingEvent: null,
+      eventConsequence: null,
     };
 
     this._updateAvailablePlatforms();
@@ -82,6 +89,9 @@ class GameEngine {
       if (saved) {
         this.state = JSON.parse(saved);
         finance.deserialize(this.state._finance || null);
+        eventSystem.deserialize(this.state._events || null);
+        researchSystem.deserialize(this.state._research || null);
+        marketSim.deserialize(this.state._market || null);
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -96,6 +106,9 @@ class GameEngine {
   _save() {
     try {
       this.state._finance = finance.serialize();
+      this.state._events = eventSystem.serialize();
+      this.state._research = researchSystem.serialize();
+      this.state._market = marketSim.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -155,6 +168,24 @@ class GameEngine {
     // Sales tick
     if (s.sellingGame && s.salesWeeksLeft > 0) {
       this._salesTick();
+    }
+
+    // Research tick
+    const researchResult = researchSystem.tick(s);
+    if (researchResult && researchResult.completed) {
+      this._notify(`Research complete: ${researchResult.name}!`);
+    }
+
+    // Market simulation tick
+    marketSim.tick(s.totalWeeks);
+
+    // Event system tick (only when no event is pending)
+    if (!s.pendingEvent && !s.eventConsequence) {
+      const event = eventSystem.checkEvents(s);
+      if (event) {
+        s.pendingEvent = event;
+        this.setSpeed(0); // Pause for event
+      }
     }
 
     // Weekly cash snapshot
@@ -305,6 +336,7 @@ class GameEngine {
       fans: s.fans,
       size: game.size,
       totalWeek: s.totalWeeks,
+      genre: game.genre,
     });
 
     // Fans gained
@@ -393,6 +425,28 @@ class GameEngine {
       s.salesRevenue = 0;
       s.salesTotalTarget = 0;
     }
+  }
+
+  // ── Events ───────────────────────────────────────────────────
+
+  resolveEvent(optionIndex) {
+    const s = this.state;
+    if (!s.pendingEvent) return;
+
+    const consequence = eventSystem.resolveEvent(optionIndex, s);
+    s.pendingEvent = null;
+    if (consequence) {
+      s.eventConsequence = consequence;
+      this._notify(consequence.message);
+    }
+    this._emit();
+    this._save();
+  }
+
+  dismissEventConsequence() {
+    if (!this.state) return;
+    this.state.eventConsequence = null;
+    this._emit();
   }
 
   // ── Staff ────────────────────────────────────────────────────
