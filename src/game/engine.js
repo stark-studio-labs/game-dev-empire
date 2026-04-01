@@ -71,6 +71,7 @@ class GameEngine {
       // Sales tracking
       sellingGame: null,
       salesWeeksLeft: 0,
+      salesTotalWeeks: 0,
       salesRevenue: 0,
       salesTotalTarget: 0,
 
@@ -549,6 +550,7 @@ class GameEngine {
     // Start sales period
     s.sellingGame = completedGame;
     s.salesWeeksLeft = 8 + Math.floor(Math.random() * 4);
+    s.salesTotalWeeks = s.salesWeeksLeft;
     s.salesRevenue = 0;
     s.salesTotalTarget = revenueResult.totalRevenue;
 
@@ -582,7 +584,7 @@ class GameEngine {
     s.salesWeeksLeft--;
 
     // Revenue follows a curve: peak early, taper off
-    const totalSalesWeeks = 8 + 4;
+    const totalSalesWeeks = s.salesTotalWeeks || 10;
     const weekNum = totalSalesWeeks - s.salesWeeksLeft;
     const curve = Math.exp(-0.3 * (weekNum - 1)); // exponential decay
     const weekRevenue = Math.round(s.salesTotalTarget * curve * 0.25);
