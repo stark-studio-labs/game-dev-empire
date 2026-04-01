@@ -32,6 +32,13 @@ class GameEngine {
     hardwareSystem.reset();
     taxSystem.reset();
     notificationManager.reset();
+    verticalManager.reset();
+    storyteller.reset();
+    storyteller.injectEvents();
+    personalitySystem.reset();
+    techTimeline.reset();
+    ipoSystem.reset();
+    conferenceSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       cash: 70000,
@@ -132,6 +139,13 @@ class GameEngine {
         hardwareSystem.deserialize(this.state._hardware || null);
         notificationManager.deserialize(this.state._notifications || null);
         taxSystem.deserialize(this.state._taxes || null);
+        verticalManager.deserialize(this.state._verticals || null);
+        storyteller.deserialize(this.state._storyteller || null);
+        storyteller.injectEvents();
+        personalitySystem.deserialize(this.state._personalities || null);
+        techTimeline.deserialize(this.state._timeline || null);
+        ipoSystem.deserialize(this.state._ipo || null);
+        conferenceSystem.deserialize(this.state._conferences || null);
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -157,6 +171,12 @@ class GameEngine {
       this.state._hardware = hardwareSystem.serialize();
       this.state._notifications = notificationManager.serialize();
       this.state._taxes = taxSystem.serialize();
+      this.state._verticals = verticalManager.serialize();
+      this.state._storyteller = storyteller.serialize();
+      this.state._personalities = personalitySystem.serialize();
+      this.state._timeline = techTimeline.serialize();
+      this.state._ipo = ipoSystem.serialize();
+      this.state._conferences = conferenceSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -208,6 +228,8 @@ class GameEngine {
       }
       // Monthly costs
       this._monthlyExpenses();
+      // Vertical revenue tick
+      this._verticalTick();
     }
 
     // Development tick
@@ -267,9 +289,63 @@ class GameEngine {
     // Market simulation tick
     marketSim.tick(s.totalWeeks);
 
-    // Event system tick (only when no event is pending)
-    if (!s.pendingEvent && !s.eventConsequence) {
-      const event = eventSystem.checkEvents(s);
+    // Storyteller: update drama score each week
+    storyteller.update(s);
+
+    // Tech history timeline: fire year-based events
+    const timelineEvents = techTimeline.checkYear(s);
+    for (const tevt of timelineEvents) {
+      const summary = techTimeline.applyEffect(tevt, s);
+      const notifMsg = summary ? `${tevt.title}: ${summary}` : tevt.title;
+      this._notify(`📰 ${notifMsg}`);
+      notificationManager && notificationManager.addNotification && notificationManager.addNotification({
+        title: tevt.title,
+        message: tevt.desc,
+        type: 'timeline',
+        color: tevt.color || '#58a6ff',
+      }, s);
+    }
+
+    // Conference system: check for annual conference this week
+    if (!s.pendingEvent && !s.eventConsequence && !s.pendingConference) {
+      const conf = conferenceSystem.checkWeek(s);
+      if (conf) {
+        s.pendingConference = conf;
+        this.setSpeed(0);
+      }
+    }
+
+    // IPO system tick
+    if (ipoSystem.isPublic) {
+      const ipoResult = ipoSystem.tick(s);
+      if (ipoResult && ipoResult.type === 'board_meeting') {
+        s.boardMeetingResult = ipoResult;
+        if (!ipoResult.metGuidance) {
+          this._notify(`⚠️ Q${ipoResult.quarter} guidance missed! Stock dropped.`);
+        } else {
+          this._notify(`✅ Q${ipoResult.quarter} guidance beat! Stock up.`);
+        }
+      } else if (ipoResult && ipoResult.type === 'activist_investor') {
+        s.activistThreat = ipoResult.data;
+        this._notify('🚨 Activist investor has taken a stake in your company!');
+        this.setSpeed(0);
+      }
+      // Surface stock price in state for UI
+      s.stockPrice = ipoSystem.stockPrice;
+      s.isPublic = true;
+    }
+
+    // Personality tick: ambition events
+    const personalityEvents = personalitySystem.tick(s);
+    for (const pe of personalityEvents) {
+      if (pe.type === 'promotion_demand') {
+        this._notify(`${pe.staffName} is demanding a promotion or threatening to leave!`);
+      }
+    }
+
+    // Event system tick — storyteller selects the appropriate event (only when no event pending)
+    if (!s.pendingEvent && !s.eventConsequence && !s.pendingConference) {
+      const event = eventSystem.checkEvents(s, storyteller);
       if (event) {
         s.pendingEvent = event;
         this.setSpeed(0); // Pause for event
@@ -802,7 +878,7 @@ class GameEngine {
       const firstName = STAFF_FIRST_NAMES[Math.floor(Math.random() * STAFF_FIRST_NAMES.length)];
       const lastName = STAFF_LAST_NAMES[Math.floor(Math.random() * STAFF_LAST_NAMES.length)];
       const baseStat = 15 + level * 12 + Math.floor(Math.random() * 25);
-      applicants.push({
+      const applicant = {
         id: `staff_${Date.now()}_${i}`,
         name: `${firstName} ${lastName}`,
         design: baseStat + Math.floor(Math.random() * 30 - 15),
@@ -812,7 +888,9 @@ class GameEngine {
         salary: Math.round((baseStat * 150 + 3000) / 100) * 100,
         isFounder: false,
         gamesWorked: 0,
-      });
+      };
+      personalitySystem.assignTraits(applicant);
+      applicants.push(applicant);
     }
     return applicants;
   }
@@ -891,6 +969,34 @@ class GameEngine {
   }
 
   // ── Utilities ────────────────────────────────────────────────
+
+  _verticalTick() {
+    const s = this.state;
+    if (verticalManager.getActiveCount() === 0) return;
+
+    const activeVerticals = Object.keys(verticalManager.active);
+    const synergyFlags = buildSynergyFlags(activeVerticals);
+    const result = verticalManager.monthlyTick(s, synergyFlags);
+
+    // Apply synergy cost savings
+    const savings = getSynergySavings(activeVerticals);
+
+    // Apply full integration revenue bonus
+    const revenueMultiplier = getTotalBonus(activeVerticals, 'revenue');
+    const adjustedRevenue = Math.round(result.netRevenue * revenueMultiplier) + savings;
+
+    if (adjustedRevenue !== 0) {
+      s.cash += adjustedRevenue;
+      const label = adjustedRevenue >= 0 ? 'Vertical Revenue' : 'Vertical Costs';
+      finance.record(adjustedRevenue >= 0 ? 'vertical_revenue' : 'vertical_cost', adjustedRevenue, label, this._dateStr());
+      if (adjustedRevenue > 0) taxSystem.addRevenue(adjustedRevenue);
+    }
+
+    // Process vertical events
+    for (const ev of result.events) {
+      this._notify(ev.message);
+    }
+  }
 
   _monthlyExpenses() {
     const s = this.state;

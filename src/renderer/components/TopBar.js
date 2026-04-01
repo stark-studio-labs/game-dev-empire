@@ -2,7 +2,7 @@
  * TopBar — Cash, fans, date, game progress, speed controls
  * Feature icons are locked until earned (office level / staff count).
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -30,9 +30,12 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
     : null;
 
   // Feature unlock conditions
+  const totalRevenue = typeof finance !== 'undefined' ? finance.totalRevenue() : 0;
+
   const isUnlocked = {
     research:  devMode || state.level >= 2,
     hardware:  devMode || state.level >= 3,
+    verticals: devMode || (state.level >= 2 && totalRevenue >= 10000000),
     marketing: devMode || state.level >= 1,
     training:  devMode || state.level >= 1,
     morale:    devMode || state.staff.length >= 2,
@@ -44,6 +47,7 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
   const lockTooltips = {
     research:  'Unlocks at Medium Office',
     hardware:  'Unlocks at Large Office',
+    verticals: 'Unlocks at $10M revenue + Medium Office',
     marketing: 'Unlocks at Small Office',
     training:  'Unlocks at Small Office',
     morale:    'Hire your first employee',
@@ -52,6 +56,7 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
   const featureTitles = {
     research:  'R&D Laboratory',
     hardware:  'Hardware Lab',
+    verticals: 'Tech Verticals',
     marketing: 'Marketing Campaigns',
     training:  'Staff Training',
     morale:    'Studio Culture & Morale',
@@ -224,6 +229,13 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
           {renderFeatureBtn('hardware', showHardware, onToggleHardware,
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
               <path d="M5 0a.5.5 0 01.5.5V2h1V.5a.5.5 0 011 0V2h1V.5a.5.5 0 011 0V2A2.5 2.5 0 0112 4.5h1.5a.5.5 0 010 1H12v1h1.5a.5.5 0 010 1H12v1h1.5a.5.5 0 010 1H12a2.5 2.5 0 01-2.5 2.5v1.5a.5.5 0 01-1 0V12h-1v1.5a.5.5 0 01-1 0V12h-1v1.5a.5.5 0 01-1 0V12A2.5 2.5 0 012 9.5H.5a.5.5 0 010-1H2v-1H.5a.5.5 0 010-1H2v-1H.5a.5.5 0 010-1H2A2.5 2.5 0 014.5 2V.5A.5.5 0 015 0zm-.5 3.5A1.5 1.5 0 003 5v4a1.5 1.5 0 001.5 1.5h5A1.5 1.5 0 0011 9V5a1.5 1.5 0 00-1.5-1.5h-5zM5 5h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+            </svg>
+          )}
+
+          {/* Verticals (building icon) */}
+          {renderFeatureBtn('verticals', showVerticals, onToggleVerticals,
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+              <path d="M3 0v16h2V0H3zm4 2v14h2V2H7zm4-1v15h2V1h-2z"/>
             </svg>
           )}
 

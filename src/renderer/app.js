@@ -18,6 +18,7 @@ function App() {
   const [showHardware, setShowHardware] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showVerticals, setShowVerticals] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -33,6 +34,7 @@ function App() {
   const unlockedFeaturesRef = useRef({
     research: false,
     hardware: false,
+    verticals: false,
     marketing: false,
     training: false,
     morale: false,
@@ -41,9 +43,11 @@ function App() {
   // Check for newly unlocked features and show toast
   const checkFeatureUnlocks = useCallback((state) => {
     if (!state || devMode) return;
+    const totalRev = typeof finance !== 'undefined' ? finance.totalRevenue() : 0;
     const checks = {
       research:  { condition: state.level >= 2, label: 'Research Lab' },
       hardware:  { condition: state.level >= 3, label: 'Hardware Lab' },
+      verticals: { condition: state.level >= 2 && totalRev >= 10000000, label: 'Tech Verticals' },
       marketing: { condition: state.level >= 1, label: 'Marketing Campaigns' },
       training:  { condition: state.level >= 1, label: 'Staff Training' },
       morale:    { condition: state.staff.length >= 2, label: 'Studio Morale' },
@@ -121,7 +125,7 @@ function App() {
     setScreen('game');
     // Reset unlock tracking for new game
     unlockedFeaturesRef.current = {
-      research: false, hardware: false, marketing: false, training: false, morale: false,
+      research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
     };
     // Start tutorial for first-time players
     if (typeof tutorialSystem !== 'undefined') tutorialSystem.checkFirstTime();
@@ -133,8 +137,10 @@ function App() {
       // Initialize unlock tracking based on loaded state
       const s = engine.state;
       if (s) {
+        const loadedTotalRev = typeof finance !== 'undefined' ? finance.totalRevenue() : 0;
         unlockedFeaturesRef.current = {
           research: s.level >= 2, hardware: s.level >= 3,
+          verticals: s.level >= 2 && loadedTotalRev >= 10000000,
           marketing: s.level >= 1, training: s.level >= 1,
           morale: s.staff.length >= 2,
         };
@@ -333,6 +339,8 @@ function App() {
         showTraining={showTraining}
         onToggleHardware={() => setShowHardware(v => !v)}
         showHardware={showHardware}
+        onToggleVerticals={() => setShowVerticals(v => !v)}
+        showVerticals={showVerticals}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -415,6 +423,13 @@ function App() {
         <HardwarePanel
           state={gameState}
           onClose={() => setShowHardware(false)}
+        />
+      )}
+
+      {showVerticals && gameState && (
+        <VerticalPanel
+          state={gameState}
+          onClose={() => setShowVerticals(false)}
         />
       )}
 
