@@ -2,7 +2,7 @@
  * TopBar — Cash, fans, date, game progress, speed controls
  * Feature icons are locked until earned (office level / staff count).
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -238,6 +238,63 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
               <path d="M3 0v16h2V0H3zm4 2v14h2V2H7zm4-1v15h2V1h-2z"/>
             </svg>
           )}
+
+          {/* Storyteller (drama mask icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showStoryteller ? ' active' : ''}`}
+              onClick={onToggleStoryteller}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 1a7 7 0 110 14A7 7 0 018 1zM5.5 5a1 1 0 100 2 1 1 0 000-2zm5 0a1 1 0 100 2 1 1 0 000-2zm-6 5a.5.5 0 00-.09.99C5.4 11.6 6.6 12 8 12s2.6-.4 3.59-.99a.5.5 0 10-.5-.87C10.24 10.7 9.18 11 8 11s-2.24-.3-3.09-.86a.5.5 0 00-.41-.14z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">Storyteller</span>
+          </div>
+
+          {/* Timeline (clock icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showTimeline ? ' active' : ''}`}
+              onClick={onToggleTimeline}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M8 3.5a.5.5 0 00-1 0V8a.5.5 0 00.252.434l3.5 2a.5.5 0 00.496-.868L8 7.71V3.5z"/>
+                <path d="M8 16A8 8 0 108 0a8 8 0 000 16zm7-8A7 7 0 111 8a7 7 0 0114 0z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">Tech Timeline</span>
+          </div>
+
+          {/* Conference (podium icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showConference ? ' active' : ''}`}
+              onClick={onToggleConference}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M2 2v3h1V2h10v3h1V2a1 1 0 00-1-1H3a1 1 0 00-1 1zm5 4H1v1h6V6zm2 0h6v1H9V6zM1 8h14v1H1V8zm0 2h5v1H1v-1zm9 0h5v1h-5v-1zM3 12v3h2v-3H3zm6 0v3h2v-3H9z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">Conferences</span>
+          </div>
+
+          {/* IPO / Stock Market (trending icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showIPO ? ' active' : ''}`}
+              onClick={onToggleIPO}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M0 0h1v15.5a.5.5 0 00.5.5H16v-1H1V0H0zm14.817 3.113a.5.5 0 01.07.704l-4.5 5.5a.5.5 0 01-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 01-.808-.588l4-5.5a.5.5 0 01.758-.06l2.609 2.61 4.15-5.073a.5.5 0 01.704-.07z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">{ipoSystem.isPublic ? 'Stock Market' : 'IPO'}</span>
+          </div>
 
           <div className="topbar-divider" />
 

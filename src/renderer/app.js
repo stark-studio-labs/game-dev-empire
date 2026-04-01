@@ -19,6 +19,10 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showVerticals, setShowVerticals] = useState(false);
+  const [showStoryteller, setShowStoryteller] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [showConference, setShowConference] = useState(false);
+  const [showIPO, setShowIPO] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -91,12 +95,17 @@ function App() {
         setShowPhaseModal(true);
       }
 
+      // Check for pending conference
+      if (state.pendingConference && !showConference) {
+        setShowConference(true);
+      }
+
       // Check feature unlocks for toast notifications
       checkFeatureUnlocks(state);
     });
 
     return () => unsub();
-  }, [reviewGame, showReview, pendingEvent, eventConsequence, showPhaseModal, checkFeatureUnlocks]);
+  }, [reviewGame, showReview, pendingEvent, eventConsequence, showPhaseModal, showConference, checkFeatureUnlocks]);
 
   const handleNewGame = () => {
     engine.setSpeed(0);
@@ -197,6 +206,14 @@ function App() {
     // Consequence will be picked up by the subscribe effect
     if (engine.state.eventConsequence) {
       setEventConsequence(engine.state.eventConsequence);
+    }
+  };
+
+  const handleConferenceResolve = (action) => {
+    engine.resolveConference(action);
+    // Don't close panel — let user see the result; close manually
+    if (action === 'skip') {
+      setShowConference(false);
     }
   };
 
@@ -341,6 +358,14 @@ function App() {
         showHardware={showHardware}
         onToggleVerticals={() => setShowVerticals(v => !v)}
         showVerticals={showVerticals}
+        onToggleStoryteller={() => setShowStoryteller(v => !v)}
+        showStoryteller={showStoryteller}
+        onToggleTimeline={() => setShowTimeline(v => !v)}
+        showTimeline={showTimeline}
+        onToggleConference={() => setShowConference(v => !v)}
+        showConference={showConference}
+        onToggleIPO={() => setShowIPO(v => !v)}
+        showIPO={showIPO}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -430,6 +455,36 @@ function App() {
         <VerticalPanel
           state={gameState}
           onClose={() => setShowVerticals(false)}
+        />
+      )}
+
+      {showStoryteller && gameState && (
+        <StorytellerPanel
+          state={gameState}
+          onClose={() => setShowStoryteller(false)}
+        />
+      )}
+
+      {showTimeline && gameState && (
+        <TimelinePanel
+          state={gameState}
+          onClose={() => setShowTimeline(false)}
+        />
+      )}
+
+      {showConference && gameState && (
+        <ConferencePanel
+          state={gameState}
+          onClose={() => setShowConference(false)}
+          pendingConference={gameState.pendingConference || null}
+          onResolveConference={handleConferenceResolve}
+        />
+      )}
+
+      {showIPO && gameState && (
+        <IPOPanel
+          state={gameState}
+          onClose={() => setShowIPO(false)}
         />
       )}
 

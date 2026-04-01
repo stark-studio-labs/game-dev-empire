@@ -327,6 +327,11 @@ class TechTimeline {
     this.firedEvents = new Set(data.firedEvents || []);
   }
 
+  /** Alias: engine.js calls checkYear(state) — delegates to checkTimelineEvents */
+  checkYear(state) {
+    return this.checkTimelineEvents(state.year);
+  }
+
   reset() {
     this.firedEvents = new Set();
   }

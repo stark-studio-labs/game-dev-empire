@@ -349,6 +349,13 @@ class GameEngine {
       if (event) {
         s.pendingEvent = event;
         this.setSpeed(0); // Pause for event
+      } else if (s.week === 1) {
+        // Storyteller: monthly evaluateAndPick for drama-driven events
+        const storyEvent = storyteller.evaluateAndPick(s);
+        if (storyEvent) {
+          s.pendingEvent = storyEvent;
+          this.setSpeed(0);
+        }
       }
     }
 
@@ -1179,6 +1186,47 @@ class GameEngine {
     const ok = verticalManager.aiToggleOpenSource();
     if (ok) { this._emit(); this._save(); }
     return ok;
+  }
+
+  // ── IPO Actions ──────────────────────────────────────────────
+
+  goPublic() {
+    const s = this.state;
+    if (!s || !ipoSystem.isEligible(s)) return false;
+    const result = ipoSystem.goPublic(s);
+    if (result) {
+      s.cash += result.ipoRevenue;
+      s.isPublic = true;
+      s.stockPrice = result.stockPrice;
+      finance.record('ipo_revenue', result.ipoRevenue, 'IPO Proceeds', this._dateStr());
+      this._notify(`IPO successful! Raised $${this._formatNum(result.ipoRevenue)} at $${result.stockPrice}/share.`);
+      this._emit();
+      this._save();
+    }
+    return result;
+  }
+
+  // ── Conference Actions ──────────────────────────────────────
+
+  resolveConference(action) {
+    const s = this.state;
+    if (!s || !s.pendingConference) return null;
+    const result = conferenceSystem.resolve(action, s.pendingConference, s);
+    s.pendingConference = null;
+    if (result.attended) {
+      finance.record('conference', -result.cost, result.confName, this._dateStr());
+      if (result.starRecruit) {
+        personalitySystem.assignTraits(result.starRecruit);
+      }
+      for (const msg of result.outcomes) {
+        this._notify(msg);
+      }
+    }
+    s.conferenceResult = result;
+    this._emit();
+    this._save();
+    this.setSpeed(1);
+    return result;
   }
 
   /** Force save */

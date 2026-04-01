@@ -447,3 +447,4 @@ class StorytellerSystem {
 
 // Global instance
 const storytellerSystem = new StorytellerSystem();
+const storyteller = storytellerSystem; // Alias used by engine.js and events.js
