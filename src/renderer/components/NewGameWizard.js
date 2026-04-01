@@ -103,7 +103,10 @@ function NewGameWizard({ state, onStart, onCancel }) {
         {renderStepIndicator()}
 
         {/* Step 0: Title */}
-        {step === 0 && (
+        {step === 0 && (() => {
+          const franchiseInfo = title.trim() ? franchiseTracker.getFranchiseInfo(title) : null;
+          const sequelMod = title.trim() ? franchiseTracker.getSequelModifier(title, state.totalWeeks) : null;
+          return (
           <div>
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
               Game Title
@@ -120,12 +123,48 @@ function NewGameWizard({ state, onStart, onCancel }) {
               }}
               autoFocus
             />
+            {/* Sequel badge */}
+            {franchiseInfo && sequelMod && (
+              <div className="glass-card" style={{ padding: '12px', marginTop: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <span style={{
+                    fontSize: '11px', padding: '3px 8px', borderRadius: '4px',
+                    background: 'rgba(218,124,255,0.15)', color: '#da7cff', fontWeight: 600,
+                  }}>
+                    SEQUEL
+                  </span>
+                  <span style={{ fontSize: '13px', color: '#e6edf3', fontWeight: 500 }}>
+                    Entry #{sequelMod.nextEntry} in the {franchiseInfo.title} franchise
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
+                  <div>
+                    <span style={{ color: '#8b949e' }}>Modifier: </span>
+                    <span style={{
+                      fontWeight: 600,
+                      color: sequelMod.multiplier >= 1.0 ? '#3fb950' : '#f85149',
+                    }}>
+                      x{sequelMod.multiplier.toFixed(2)}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#8b949e' }}>Brand: </span>
+                    <span style={{ color: '#58a6ff' }}>{franchiseInfo.avgScore.toFixed(1)} avg</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#8b949e' }}>Games: </span>
+                    <span style={{ color: '#e6edf3' }}>{franchiseInfo.entryCount}</span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
               <button className="btn-secondary" onClick={onCancel}>Cancel</button>
               <button className="btn-accent" onClick={() => setStep(1)}>Next</button>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* Step 1: Topic */}
         {step === 1 && (

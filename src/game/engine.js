@@ -21,6 +21,8 @@ class GameEngine {
   /** Create a new game state */
   newGame(companyName) {
     finance.reset();
+    franchiseTracker.reset();
+    moraleSystem.reset();
     eventSystem.reset();
     researchSystem.reset();
     marketSim.reset();
@@ -75,6 +77,12 @@ class GameEngine {
       // Pending event for UI
       pendingEvent: null,
       eventConsequence: null,
+
+      // Publisher deal for current/last game
+      activeDeal: null,
+
+      // Morale (value cached in state for UI; system of record is moraleSystem)
+      morale: moraleSystem.getMorale(),
     };
 
     this._updateAvailablePlatforms();
@@ -89,6 +97,8 @@ class GameEngine {
       if (saved) {
         this.state = JSON.parse(saved);
         finance.deserialize(this.state._finance || null);
+        franchiseTracker.deserialize(this.state._franchise || null);
+        moraleSystem.deserialize(this.state._morale || null);
         eventSystem.deserialize(this.state._events || null);
         researchSystem.deserialize(this.state._research || null);
         marketSim.deserialize(this.state._market || null);
@@ -106,6 +116,8 @@ class GameEngine {
   _save() {
     try {
       this.state._finance = finance.serialize();
+      this.state._franchise = franchiseTracker.serialize();
+      this.state._morale = moraleSystem.serialize();
       this.state._events = eventSystem.serialize();
       this.state._research = researchSystem.serialize();
       this.state._market = marketSim.serialize();
@@ -364,6 +376,33 @@ class GameEngine {
 
     s.games.push(completedGame);
 
+    // Register with franchise tracker
+    franchiseTracker.registerGame(
+      completedGame.title, completedGame.topic, completedGame.genre,
+      completedGame.reviewAvg, completedGame.totalRevenue, s.totalWeeks
+    );
+
+    // Morale impact from game release
+    if (completedGame.reviewAvg >= 7) {
+      moraleSystem.applyEvent('game_success', s.totalWeeks);
+    } else if (completedGame.reviewAvg < 5) {
+      moraleSystem.applyEvent('game_failure', s.totalWeeks);
+    }
+    s.morale = moraleSystem.getMorale();
+
+    // Apply publisher deal if active
+    if (s.activeDeal) {
+      const dealResult = PublisherSystem.applyDeal(s.activeDeal, completedGame.totalRevenue);
+      completedGame.publisherDeal = {
+        publisherName: s.activeDeal.name,
+        advance: dealResult.advance,
+        publisherCut: dealResult.publisherCut,
+        playerRevenue: dealResult.playerRevenue,
+      };
+      // Adjust sales target to player's share only
+      completedGame.totalRevenue = dealResult.playerRevenue;
+    }
+
     // Start sales period
     s.sellingGame = completedGame;
     s.salesWeeksLeft = 8 + Math.floor(Math.random() * 4);
@@ -424,6 +463,7 @@ class GameEngine {
       s.sellingGame = null;
       s.salesRevenue = 0;
       s.salesTotalTarget = 0;
+      s.activeDeal = null;
     }
   }
 
@@ -447,6 +487,20 @@ class GameEngine {
     if (!this.state) return;
     this.state.eventConsequence = null;
     this._emit();
+  }
+
+  // ── Publisher Deals ──────────────────────────────────────────
+
+  setPublisherDeal(deal) {
+    const s = this.state;
+    s.activeDeal = deal;
+    if (deal && deal.advance > 0) {
+      s.cash += deal.advance;
+      finance.record('advance', deal.advance, `${deal.name} advance`, this._dateStr());
+      this._notify(`Signed with ${deal.name}! Advance: $${this._formatNum(deal.advance)}`);
+    }
+    this._emit();
+    this._save();
   }
 
   // ── Staff ────────────────────────────────────────────────────
@@ -495,6 +549,8 @@ class GameEngine {
       return false;
     }
     s.staff.push({ ...applicant });
+    moraleSystem.applyEvent('hire', s.totalWeeks);
+    s.morale = moraleSystem.getMorale();
     this._notify(`Hired ${applicant.name}!`);
     this._emit();
     this._save();
@@ -507,6 +563,8 @@ class GameEngine {
     if (idx < 0 || s.staff[idx].isFounder) return false;
     const name = s.staff[idx].name;
     s.staff.splice(idx, 1);
+    moraleSystem.applyEvent('fire', s.totalWeeks);
+    s.morale = moraleSystem.getMorale();
     this._notify(`${name} has left the company.`);
     this._emit();
     this._save();
@@ -552,6 +610,10 @@ class GameEngine {
     if (salaries > 0) {
       finance.record('salary', -salaries, 'Staff Salaries', this._dateStr());
     }
+
+    // Morale monthly drift
+    moraleSystem.monthlyTick(s.totalWeeks);
+    s.morale = moraleSystem.getMorale();
 
     // Bankruptcy check
     if (s.cash < 0) {

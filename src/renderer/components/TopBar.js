@@ -1,7 +1,7 @@
 /**
  * TopBar — Cash, fans, date, game progress, speed controls
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -139,6 +139,18 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
             <path d="M1 14h14V0h-1v13H1v1zM3 12h2V7H3v5zm3 0h2V5H6v7zm3 0h2V3H9v9zm3 0h2V1h-2v11z"/>
+          </svg>
+        </button>
+
+        {/* Morale toggle (people icon) */}
+        <button
+          className={`speed-btn ${showMorale ? 'active' : ''}`}
+          onClick={onToggleMorale}
+          title="Studio Culture & Morale"
+          style={{ fontWeight: 700, fontSize: '14px', lineHeight: 1 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+            <path d="M5.5 6a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm0-1a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm5 1a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm0-1a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM0 13.5A3.5 3.5 0 013.5 10h1a3.49 3.49 0 012.08.68A4 4 0 008 13.5v.5H0v-.5zm1 0v-.5a2.5 2.5 0 012.5-2.5h1a2.5 2.5 0 012.42 1.9A4 4 0 005 13.5v.5H1v-.5zM16 14h-7v-.5a3.5 3.5 0 013.5-3.5h1a3.5 3.5 0 013.5 3.5v.5zm-1-.5a2.5 2.5 0 00-2.5-2.5h-1a2.5 2.5 0 00-2.5 2.5v.5h6v-.5z"/>
           </svg>
         </button>
 

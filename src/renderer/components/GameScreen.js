@@ -119,6 +119,30 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
           )}
         </div>
 
+        {/* Morale mini-bar */}
+        {typeof moraleSystem !== 'undefined' && (() => {
+          const status = moraleSystem.getMoraleStatus();
+          const morale = moraleSystem.getMorale();
+          return (
+            <div className="glass-card" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '16px' }}>{status.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                  <span style={{ color: status.color, fontWeight: 500 }}>Morale: {status.label}</span>
+                  <span style={{ color: '#8b949e' }}>x{moraleSystem.getQualityMultiplier().toFixed(2)}</span>
+                </div>
+                <div style={{ height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', width: `${morale}%`,
+                    background: status.color, borderRadius: '2px',
+                    transition: 'width 0.4s ease',
+                  }} />
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn-secondary" onClick={onStaff} style={{ flex: 1 }}>
@@ -178,6 +202,11 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
                   <span>{formatCash(game.totalRevenue)}</span>
                   <span>Y{game.releaseYear}</span>
                 </div>
+                {game.publisherDeal && (
+                  <div style={{ fontSize: '10px', color: '#da7cff', marginTop: '2px' }}>
+                    via {game.publisherDeal.publisherName}
+                  </div>
+                )}
               </div>
             );
           })}

@@ -120,8 +120,11 @@ const Scoring = {
     // Research bonus from completed tech tree items
     const researchBonus = 1 + (typeof researchSystem !== 'undefined' ? researchSystem.getScoreBonus() : 0);
 
+    // Morale quality multiplier
+    const moraleMult = typeof moraleSystem !== 'undefined' ? moraleSystem.getQualityMultiplier() : 1.0;
+
     const modifiers = 1 + dtBalance + timeMgmt;
-    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus;
+    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult;
 
     return {
       gameScore: Math.max(0, gameScore),

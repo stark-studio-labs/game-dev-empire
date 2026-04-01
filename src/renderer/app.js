@@ -12,6 +12,9 @@ function App() {
   const [showFinance, setShowFinance] = useState(false);
   const [showResearch, setShowResearch] = useState(false);
   const [showMarket, setShowMarket] = useState(false);
+  const [showMorale, setShowMorale] = useState(false);
+  const [showPublisher, setShowPublisher] = useState(false);
+  const [publisherGame, setPublisherGame] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
@@ -80,7 +83,34 @@ function App() {
 
   const handleReviewClose = () => {
     setShowReview(false);
+    // After closing review, show publisher panel for the just-released game
+    if (reviewGame) {
+      setPublisherGame(reviewGame);
+      setShowPublisher(true);
+    }
     setReviewGame(null);
+  };
+
+  const handlePublisherDeal = (deal) => {
+    engine.setPublisherDeal(deal);
+    setShowPublisher(false);
+    setPublisherGame(null);
+    engine.setSpeed(1);
+  };
+
+  const handleSelfPublish = () => {
+    engine.setPublisherDeal(null);
+    setShowPublisher(false);
+    setPublisherGame(null);
+    engine.setSpeed(1);
+  };
+
+  const handlePublisherClose = () => {
+    // Skip = self publish
+    engine.setPublisherDeal(null);
+    setShowPublisher(false);
+    setPublisherGame(null);
+    engine.setSpeed(1);
   };
 
   const handleEventChoice = (optionIndex) => {
@@ -194,6 +224,8 @@ function App() {
         showResearch={showResearch}
         onToggleMarket={() => setShowMarket(v => !v)}
         showMarket={showMarket}
+        onToggleMorale={() => setShowMorale(v => !v)}
+        showMorale={showMorale}
       />
 
       <GameScreen
@@ -243,6 +275,23 @@ function App() {
         <MarketPanel
           state={gameState}
           onClose={() => setShowMarket(false)}
+        />
+      )}
+
+      {showMorale && gameState && (
+        <MoralePanel
+          state={gameState}
+          onClose={() => setShowMorale(false)}
+        />
+      )}
+
+      {showPublisher && publisherGame && gameState && (
+        <PublisherPanel
+          state={gameState}
+          game={publisherGame}
+          onSelectDeal={handlePublisherDeal}
+          onSelfPublish={handleSelfPublish}
+          onClose={handlePublisherClose}
         />
       )}
 
