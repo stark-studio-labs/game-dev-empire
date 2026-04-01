@@ -17,6 +17,9 @@ function App() {
   const [showTraining, setShowTraining] = useState(false);
   const [showHardware, setShowHardware] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showRemaster, setShowRemaster] = useState(false);
+  const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
@@ -251,6 +254,8 @@ function App() {
         showHardware={showHardware}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
+        onToggleSettings={() => setShowSettings(v => !v)}
+        showSettings={showSettings}
       />
 
       <GameScreen
@@ -345,6 +350,20 @@ function App() {
         <GameHistory
           state={gameState}
           onClose={() => setShowHistory(false)}
+          onRemaster={(g) => { setRemasterGame(g); setShowHistory(false); setShowRemaster(true); }}
+        />
+      )}
+
+      {showSettings && (
+        <SettingsPanel onClose={() => setShowSettings(false)} />
+      )}
+
+      {showRemaster && remasterGame && gameState && (
+        <RemasterWizard
+          state={gameState}
+          game={remasterGame}
+          onStart={() => { setShowRemaster(false); setRemasterGame(null); engine.setSpeed(1); }}
+          onCancel={() => { setShowRemaster(false); setRemasterGame(null); }}
         />
       )}
 
@@ -370,11 +389,24 @@ function App() {
             {gameState.gameOverReason === 'victory' ? (
               <>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#127942;</div>
+                {gameState.victoryPath && (
+                  <div style={{
+                    fontSize: '12px', color: '#58a6ff', textTransform: 'uppercase',
+                    letterSpacing: '2px', marginBottom: '8px', fontWeight: 600,
+                  }}>
+                    {gameState.victoryPath}
+                  </div>
+                )}
                 <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#3fb950', marginBottom: '12px' }}>
                   LEGENDARY STUDIO!
                 </h2>
                 <p style={{ fontSize: '15px', color: '#c9d1d9', marginBottom: '8px' }}>
-                  You reached $500M total revenue and 10M fans.
+                  {gameState.victoryPath === 'Brand Empire' && '50M fans and 10 critically acclaimed games.'}
+                  {gameState.victoryPath === 'Innovation Leader' && '3 moonshot AAA titles redefined the industry.'}
+                  {gameState.victoryPath === 'Market Dominator' && '15 games spanning 5 genres — you own every market.'}
+                  {gameState.victoryPath === 'Financial Titan' && '$1 billion in total revenue. A true empire.'}
+                  {gameState.victoryPath === 'Industry Kingmaker' && 'Hardware dominance — you set the standard.'}
+                  {!gameState.victoryPath && 'You built a legendary gaming empire!'}
                 </p>
                 <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
                   Your studio will be remembered forever in gaming history.
@@ -387,7 +419,7 @@ function App() {
                   BANKRUPT
                 </h2>
                 <p style={{ fontSize: '15px', color: '#c9d1d9', marginBottom: '8px' }}>
-                  Your studio ran out of money for 12 consecutive weeks.
+                  Your studio ran out of money for too long.
                 </p>
                 <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
                   The dream is over... but you can always try again.
