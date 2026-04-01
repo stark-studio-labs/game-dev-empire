@@ -1,5 +1,5 @@
-name: Brand / Creative Asset Request
-description: Request brand assets, icons, audio, art, or other creative deliverables from the CCO team
+name: Tech Empire — Brand Asset Request
+description: Request visual/audio assets for Tech Empire game. Include detailed specs so CCO team can produce production-quality output on first pass.
 title: "[BRAND] "
 labels: ["brand-request", "creative"]
 assignees:
@@ -8,26 +8,27 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Creative Asset Request
-        Use this form to request brand assets from the CCO / Creative Studio team.
-        Requests are auto-tagged for review by the creative team.
+        ## Tech Empire — Creative Asset Request
+        **Quality bar:** Every asset must be production-ready for a Steam Early Access game.
+        Not wireframes. Not placeholders. Final art that players will see.
+
+        **Brand anchors:** Dark theme (#0d1117), accent green (#4ade80) + blue (#58a6ff),
+        Inter font, Apple-premium feel + Bloomberg data density.
 
   - type: dropdown
     id: asset-type
     attributes:
       label: Asset Type
-      description: What kind of creative asset do you need?
       options:
-        - Icon / Logo
-        - UI Art / Illustration
-        - Character Art / Avatar
-        - Background / Scene Art
-        - Audio / Sound Effect
-        - Music / Soundtrack
+        - Game Icon (platform, vertical, genre, etc.)
+        - Office Illustration (game background art)
+        - Character Avatar (staff, critic, NPC)
+        - UI Element (button, badge, card art)
+        - Screen Illustration (splash, victory, game over)
+        - Logo / Wordmark
+        - Audio — Sound Effect
+        - Audio — Music Track
         - Animation / Motion
-        - Brand Guidelines
-        - Marketing Asset (Store page, trailer, etc.)
-        - Other
     validations:
       required: true
 
@@ -36,63 +37,110 @@ body:
     attributes:
       label: Priority
       options:
-        - P0 — Blocking (can't ship without it)
-        - P1 — High (needed this sprint)
-        - P2 — Medium (needed this month)
-        - P3 — Low (nice to have)
+        - P0 — Blocking ship (game won't launch without this)
+        - P1 — Needed for alpha (next DMG build)
+        - P2 — Needed for Steam Early Access
+        - P3 — Polish (nice to have)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: art-style
+    attributes:
+      label: Art Style Required
+      description: What visual style should this asset use?
+      options:
+        - Detailed Illustration (office backgrounds, victory screens — rich, layered, atmospheric)
+        - Icon/Symbol (platform icons, vertical icons — recognizable at 16px AND 128px)
+        - Character Portrait (staff avatars — expressive, diverse, personality-driven)
+        - UI Component (badges, buttons — crisp, pixel-perfect, dark theme)
+        - Splash/Hero Art (full-screen, cinematic, high-impact)
+        - Audio (N/A for visual style)
     validations:
       required: true
 
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: Describe the asset you need. Include dimensions, style, colors, mood, reference images.
+      label: Detailed Description
+      description: |
+        Be EXTREMELY specific. Describe exactly what the asset shows, the mood, the context in-game,
+        and what makes it feel premium. The more detail here, the better the output.
       placeholder: |
-        Example: "21 platform console icons for the game. Each should be 128x128 SVG.
-        Style: flat/minimal, dark theme compatible. Similar to the Nintendo/Xbox/PlayStation
-        silhouettes but with our own fictional console names."
+        BAD: "An icon for the PC platform"
+
+        GOOD: "A 128x128 icon representing a gaming PC. Should show a stylized desktop tower
+        with RGB lighting glow, a monitor with a game screenshot visible on screen, and subtle
+        circuit-board pattern in the background. Dark background (#0d1117), primary stroke color
+        #58a6ff, accent glow #4ade80. Must be recognizable at 16x16 in the TopBar AND detailed
+        at 128x128 in the platform selection wizard. Style: isometric, slight 3D depth, not flat
+        wireframe. Think: Apple product render quality applied to a gaming PC icon."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Where This Appears In-Game
+      description: Describe exactly where in the game this asset will be displayed and at what sizes.
+      placeholder: |
+        - TopBar icon button: 16x16 (must be recognizable at this size)
+        - Platform selection wizard: 128x128 with name label below
+        - Game history table: 24x24 inline with platform name
+        - Review screen: 48x48 next to platform info
     validations:
       required: true
 
   - type: textarea
     id: specs
     attributes:
-      label: Technical Specs
-      description: Format, dimensions, file type, color space, etc.
+      label: Technical Specifications
+      description: Exact dimensions, format, color requirements, and variants needed.
       placeholder: |
-        Format: SVG preferred, PNG fallback
-        Dimensions: 128x128
-        Color: Must work on #0d1117 dark background
-        Variants: Normal + hover state
+        Primary format: SVG (vector, scalable)
+        Fallback: PNG at 128x128, 64x64, 32x32, 16x16
+        Color mode: Dark theme compatible (must work on #0d1117 background)
+        Primary colors: #58a6ff (blue), #4ade80 (green), #e6edf3 (white text)
+        Variants needed: Normal state + Hover state (slightly brighter/glowing)
+        Accessibility: Must pass WCAG AA contrast on dark background
+    validations:
+      required: true
 
   - type: textarea
     id: references
     attributes:
-      label: References / Inspiration
-      description: Links to reference images, similar styles, or mood boards
+      label: Visual References (REQUIRED)
+      description: |
+        Link to 2-3 reference images showing the quality level and style you expect.
+        Without references, the output WILL miss the mark.
       placeholder: |
-        - Game Dev Tycoon console icons style
-        - Apple SF Symbols aesthetic
-        - Figma link: ...
+        Style reference: [Game Dev Tycoon console icons](https://store.steampowered.com/app/239820/)
+        Quality reference: [Linear.app sidebar icons](https://linear.app)
+        Mood reference: [Apple product page dark mode](https://apple.com/macbook-pro)
+    validations:
+      required: true
 
-  - type: input
-    id: deadline
+  - type: textarea
+    id: do-not
     attributes:
-      label: Needed By
-      description: Target date for this asset
-      placeholder: "2026-04-15"
+      label: What This Should NOT Be
+      description: Explicitly state what to avoid. This prevents the most common mistakes.
+      placeholder: |
+        - NOT a flat wireframe/outline drawing
+        - NOT generic clip-art style
+        - NOT a single-color line icon (needs depth, shading, or glow)
+        - NOT text-heavy (icon should communicate without text)
+        - NOT skeuomorphic/realistic photo — stylized illustration only
 
   - type: dropdown
-    id: project
+    id: needs-variants
     attributes:
-      label: Project
+      label: Does this need multiple variants?
       options:
-        - Tech Empire (game-dev-empire)
-        - Sims 4 Mod Manager
-        - Stark Labs Website
-        - Stark Framework
-        - Other Stark Labs Project
-        - OpenClaw / Corporate
+        - "No — single asset"
+        - "Yes — light/dark variants"
+        - "Yes — normal/hover/active states"
+        - "Yes — multiple sizes (16/32/64/128)"
+        - "Yes — themed variants (one per era/office level)"
     validations:
       required: true
