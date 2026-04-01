@@ -373,8 +373,8 @@ class VerticalManager {
     const targetCalls = Math.round(Math.pow(ai.modelQuality, 1.5) * 500);
     ai.apiCallsMonthly = Math.round(ai.apiCallsMonthly * 0.7 + targetCalls * 0.3); // smooth
 
-    // Revenue: closed model charges per API call
-    const revenue = ai.isOpen ? 0 : Math.round(ai.apiCallsMonthly * 0.001);
+    // Revenue: closed model charges per API call ($0.50 per call)
+    const revenue = ai.isOpen ? 0 : Math.round(ai.apiCallsMonthly * 0.50);
 
     // Safety drift
     if (ai.trainingBudget > 200000 && !ai.isOpen) {

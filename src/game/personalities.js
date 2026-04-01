@@ -105,7 +105,7 @@ const TRAIT_CHEMISTRY = {
   'team_player+loyal': 8,
   'perfectionist+mentor': 10,
   'creative_rebel+ambitious': 8,
-  'loyal+team_player': 8,
+  // 'loyal+team_player': 8,  // removed — duplicate of team_player+loyal (getChemistry checks both orderings)
 };
 
 class PersonalitySystem {
