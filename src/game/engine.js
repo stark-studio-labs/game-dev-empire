@@ -34,7 +34,6 @@ class GameEngine {
     notificationManager.reset();
     verticalManager.reset();
     storyteller.reset();
-    storyteller.injectEvents();
     personalitySystem.reset();
     techTimeline.reset();
     ipoSystem.reset();
@@ -106,6 +105,16 @@ class GameEngine {
       // Bankruptcy tracking
       negativeWeeks: 0, // consecutive weeks with cash < -100K
 
+      // Conference system
+      pendingConference: null,
+      conferenceResult: null,
+
+      // IPO / public company
+      isPublic: false,
+      stockPrice: 0,
+      boardMeetingResult: null,
+      activistThreat: null,
+
       // Win/lose state
       gameOver: false,
       gameOverReason: null,  // 'victory' | 'bankruptcy'
@@ -141,7 +150,6 @@ class GameEngine {
         taxSystem.deserialize(this.state._taxes || null);
         verticalManager.deserialize(this.state._verticals || null);
         storyteller.deserialize(this.state._storyteller || null);
-        storyteller.injectEvents();
         personalitySystem.deserialize(this.state._personalities || null);
         techTimeline.deserialize(this.state._timeline || null);
         ipoSystem.deserialize(this.state._ipo || null);
@@ -298,12 +306,7 @@ class GameEngine {
       const summary = techTimeline.applyEffect(tevt, s);
       const notifMsg = summary ? `${tevt.title}: ${summary}` : tevt.title;
       this._notify(`📰 ${notifMsg}`);
-      notificationManager && notificationManager.addNotification && notificationManager.addNotification({
-        title: tevt.title,
-        message: tevt.desc,
-        type: 'timeline',
-        color: tevt.color || '#58a6ff',
-      }, s);
+      notificationManager.add('info', tevt.title, tevt.desc, s);
     }
 
     // Conference system: check for annual conference this week
@@ -1195,7 +1198,7 @@ class GameEngine {
     if (!s || !ipoSystem.isEligible(s)) return false;
     const result = ipoSystem.goPublic(s);
     if (result) {
-      s.cash += result.ipoRevenue;
+      // ipoSystem.goPublic() already added cash — just record + update state surface
       s.isPublic = true;
       s.stockPrice = result.stockPrice;
       finance.record('ipo_revenue', result.ipoRevenue, 'IPO Proceeds', this._dateStr());

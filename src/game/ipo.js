@@ -208,6 +208,11 @@ class IPOSystem {
     return Math.round(this.stockPrice * this.playerShares);
   }
 
+  /** Alias used by IPOPanel */
+  getPlayerValue() {
+    return this.getPlayerEquityValue();
+  }
+
   serialize() {
     return {
       isPublic: this.isPublic,

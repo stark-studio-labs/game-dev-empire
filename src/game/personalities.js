@@ -202,6 +202,29 @@ class PersonalitySystem {
     return PERSONALITY_TRAITS;
   }
 
+  /**
+   * Weekly tick: check for promotion demands from ambitious staff.
+   * Returns array of events: [{ type: 'promotion_demand', staffName, staffId }]
+   */
+  tick(state) {
+    const events = [];
+    if (!state || !state.staff) return events;
+    // Only fire on week 1 of each month
+    if (state.week !== 1) return events;
+
+    for (const member of state.staff) {
+      if (!member.traits || member.isFounder) continue;
+      if (member.traits.includes('ambitious')) {
+        const avgStat = (member.design + member.tech + member.speed + member.research) / 4;
+        const expectedSalary = Math.round(avgStat * 50);
+        if (member.salary < expectedSalary * 0.7 && Math.random() < 0.10) {
+          events.push({ type: 'promotion_demand', staffName: member.name, staffId: member.id });
+        }
+      }
+    }
+    return events;
+  }
+
   serialize() {
     return {};
   }
