@@ -7,9 +7,9 @@ class GameEngine {
   constructor() {
     this.state = null;
     this.tickInterval = null;
-    this.speed = 0; // 0=paused, 1=1x, 2=2x, 4=4x
+    this.speed = 0; // 0=paused, 1=1x, 2=2x, 4=4x, 8=8x
     this.listeners = [];
-    this.TICK_MS = 2000; // base tick speed in ms (1x) — 1 year ≈ 96s at 1x for deliberate pacing
+    this.TICK_MS = 5000; // base tick speed in ms (1x) — 1 year ≈ 4 min for deliberate pacing
   }
 
   /** Date string helper for finance records */

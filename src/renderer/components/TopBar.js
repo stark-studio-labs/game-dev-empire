@@ -23,6 +23,7 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
     { value: 1, label: '1x' },
     { value: 2, label: '2x' },
     { value: 4, label: '4x' },
+    { value: 8, label: '8x' },
   ];
 
   const devProgress = state.devPhase !== null
