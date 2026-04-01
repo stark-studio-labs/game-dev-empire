@@ -1,7 +1,7 @@
 /**
  * IPOPanel -- IPO eligibility, go public button, stock price, board rating, stock chart.
  */
-function IPOPanel({ state, onClose }) {
+function IPOPanel({ state, onClose, bellRing }) {
   if (!state) return null;
 
   React.useEffect(() => {
@@ -33,7 +33,8 @@ function IPOPanel({ state, onClose }) {
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal-content" style={{ maxWidth: '520px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {bellRing && <span className="animate-bell-ring" style={{ display: 'inline-block', transformOrigin: 'top center' }}>&#128276;</span>}
             {isPublic ? 'Stock Market' : 'IPO'}
           </h2>
           <button className="btn-secondary" onClick={onClose} style={{ padding: '6px 12px', fontSize: '13px' }}>Close</button>
@@ -54,7 +55,7 @@ function IPOPanel({ state, onClose }) {
 
         {!isPublic && eligible && (
           <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: '#3fb950', marginBottom: '12px' }}>
+            <div className="animate-glow" style={{ fontSize: '16px', fontWeight: 600, color: '#3fb950', marginBottom: '12px' }}>
               IPO Eligible!
             </div>
             <div style={{ fontSize: '13px', color: '#c9d1d9', marginBottom: '16px' }}>

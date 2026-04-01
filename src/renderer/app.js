@@ -23,6 +23,7 @@ function App() {
   const [showTimeline, setShowTimeline] = useState(false);
   const [showConference, setShowConference] = useState(false);
   const [showIPO, setShowIPO] = useState(false);
+  const [showVictory, setShowVictory] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -33,6 +34,18 @@ function App() {
   const [companyName, setCompanyName] = useState('');
   const [showPhaseModal, setShowPhaseModal] = useState(false);
   const [devMode, setDevMode] = useState(settingsSystem.devMode);
+
+  // Micro-animation states
+  const [screenShake, setScreenShake] = React.useState(false);
+  const [fanMilestoneGlow, setFanMilestoneGlow] = React.useState(false);
+  const [ipoBellRing, setIpoBellRing] = React.useState(false);
+
+  // Track fan milestones for confetti + glow (10K, 100K, 1M)
+  const fanMilestonesRef = useRef({ '10000': false, '100000': false, '1000000': false });
+  // Track if IPO just happened
+  const wasPublicRef = useRef(false);
+  // Track market crash events
+  const lastEventIdRef = useRef(null);
 
   // Track which features have been unlocked (to show toast only once)
   const unlockedFeaturesRef = useRef({
@@ -102,6 +115,32 @@ function App() {
 
       // Check feature unlocks for toast notifications
       checkFeatureUnlocks(state);
+
+      // ── Fan milestone confetti + glow (10K, 100K, 1M) ──
+      const fanThresholds = [10000, 100000, 1000000];
+      for (const threshold of fanThresholds) {
+        if (state.fans >= threshold && !fanMilestonesRef.current[String(threshold)]) {
+          fanMilestonesRef.current[String(threshold)] = true;
+          setFanMilestoneGlow(true);
+          setTimeout(() => setFanMilestoneGlow(false), 6000);
+        }
+      }
+
+      // ── IPO bell ring ──
+      if (state.isPublic && !wasPublicRef.current) {
+        wasPublicRef.current = true;
+        setIpoBellRing(true);
+        setTimeout(() => setIpoBellRing(false), 800);
+      }
+
+      // ── Market crash camera shake ──
+      if (state.pendingEvent && state.pendingEvent.id === 'market_crash' && lastEventIdRef.current !== 'market_crash') {
+        lastEventIdRef.current = state.pendingEvent.id;
+        setScreenShake(true);
+        setTimeout(() => setScreenShake(false), 600);
+      } else if (!state.pendingEvent) {
+        lastEventIdRef.current = null;
+      }
     });
 
     return () => unsub();
@@ -136,6 +175,10 @@ function App() {
     unlockedFeaturesRef.current = {
       research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
     };
+    // Reset animation tracking for new game
+    fanMilestonesRef.current = { '10000': false, '100000': false, '1000000': false };
+    wasPublicRef.current = false;
+    lastEventIdRef.current = null;
     // Start tutorial for first-time players
     if (typeof tutorialSystem !== 'undefined') tutorialSystem.checkFirstTime();
   };
@@ -338,7 +381,7 @@ function App() {
 
   // Game screen
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className={screenShake ? 'animate-shake' : ''} style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TopBar
         state={gameState}
         onSpeedChange={handleSpeedChange}
@@ -366,6 +409,8 @@ function App() {
         showConference={showConference}
         onToggleIPO={() => setShowIPO(v => !v)}
         showIPO={showIPO}
+        onToggleVictory={() => setShowVictory(v => !v)}
+        showVictory={showVictory}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -378,6 +423,7 @@ function App() {
         onNewGame={handleNewGame}
         onStaff={() => setShowStaff(true)}
         onUpgrade={handleUpgrade}
+        fanMilestoneGlow={fanMilestoneGlow}
       />
 
       {showWizard && gameState && (
@@ -485,6 +531,14 @@ function App() {
         <IPOPanel
           state={gameState}
           onClose={() => setShowIPO(false)}
+          bellRing={ipoBellRing}
+        />
+      )}
+
+      {showVictory && gameState && (
+        <VictoryTracker
+          state={gameState}
+          onClose={() => setShowVictory(false)}
         />
       )}
 

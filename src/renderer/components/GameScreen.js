@@ -1,11 +1,25 @@
 /**
  * GameScreen — Main game view with office, staff, actions, notifications, game history
  */
-function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
+function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) {
   if (!state) return null;
 
   const officeClass = ['office-garage', 'office-small', 'office-medium', 'office-large'][state.level];
   const officeEmoji = ['\uD83C\uDFE0', '\uD83C\uDFE2', '\uD83C\uDFEC', '\uD83C\uDFEF'][state.level];
+
+  // Track office level for slide-expand animation on upgrade
+  const prevLevelRef = React.useRef(state.level);
+  const [officeAnimating, setOfficeAnimating] = React.useState(false);
+
+  React.useEffect(() => {
+    if (state.level > prevLevelRef.current) {
+      setOfficeAnimating(true);
+      const timer = setTimeout(() => setOfficeAnimating(false), 800);
+      prevLevelRef.current = state.level;
+      return () => clearTimeout(timer);
+    }
+    prevLevelRef.current = state.level;
+  }, [state.level]);
 
   const formatCash = (n) => {
     if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
@@ -16,11 +30,11 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
   const canStartGame = !state.currentGame && !state.sellingGame;
 
   return (
-    <div className={officeClass} style={{ flex: 1, display: 'flex', gap: '12px', padding: '0 12px 12px' }}>
+    <div className={`${officeClass} ${officeAnimating ? 'animate-slide-expand' : ''}`} style={{ flex: 1, display: 'flex', gap: '12px', padding: '0 12px 12px' }}>
       {/* Left panel — Office view + actions */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Office visualization */}
-        <div className="glass-card" style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div className={`glass-card ${fanMilestoneGlow ? 'animate-glow animate-confetti' : ''}`} style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: fanMilestoneGlow ? 'visible' : 'hidden' }}>
           {/* Office background icon */}
           <div style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.4 }}>
             {officeEmoji}
