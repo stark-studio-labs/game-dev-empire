@@ -6,6 +6,12 @@ function ResearchPanel({ state, onClose }) {
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [notification, setNotification] = React.useState(null);
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   if (!state) return null;
 
   const labUnlocked = researchSystem.isLabUnlocked(state.level);
@@ -66,22 +72,15 @@ function ResearchPanel({ state, onClose }) {
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'none', border: 'none', color: '#8b949e', fontSize: '20px',
-              cursor: 'pointer', padding: '4px 8px',
-            }}
+            className="modal-close-btn"
           >
-            x
+            ×
           </button>
         </div>
 
         {/* Lab not unlocked warning */}
         {!labUnlocked && (
-          <div style={{
-            padding: '20px', borderRadius: '10px', textAlign: 'center',
-            background: 'rgba(248, 81, 73, 0.1)', border: '1px solid rgba(248, 81, 73, 0.3)',
-            marginBottom: '16px',
-          }}>
+          <div className="alert alert--danger">
             <div style={{ fontSize: '16px', fontWeight: 600, color: '#f85149', marginBottom: '4px' }}>
               R&D Lab Locked
             </div>
@@ -96,7 +95,7 @@ function ResearchPanel({ state, onClose }) {
           <div className="glass-card" style={{ padding: '16px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <div>
-                <div style={{ fontSize: '11px', color: '#58a6ff', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <div className="panel-header">
                   Currently Researching
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: 600, color: '#e6edf3' }}>
@@ -125,18 +124,16 @@ function ResearchPanel({ state, onClose }) {
         {/* Category tabs */}
         <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap' }}>
           <button
-            className={`speed-btn ${selectedCategory === 'All' ? 'active' : ''}`}
+            className={`btn-tab${selectedCategory === 'All' ? ' btn-tab--active' : ''}`}
             onClick={() => setSelectedCategory('All')}
-            style={{ fontSize: '12px' }}
           >
             All
           </button>
           {RESEARCH_CATEGORIES.map(cat => (
             <button
               key={cat}
-              className={`speed-btn ${selectedCategory === cat ? 'active' : ''}`}
+              className={`btn-tab${selectedCategory === cat ? ' btn-tab--active' : ''}`}
               onClick={() => setSelectedCategory(cat)}
-              style={{ fontSize: '12px' }}
             >
               {cat} ({grouped[cat].filter(i => i.completed).length}/{grouped[cat].length})
             </button>
@@ -163,15 +160,7 @@ function ResearchPanel({ state, onClose }) {
                   return (
                     <div
                       key={item.id}
-                      className="glass-card"
-                      style={{
-                        padding: '12px 14px',
-                        opacity: isLocked ? 0.4 : 1,
-                        border: isActive ? '1px solid #58a6ff' : isDone ? '1px solid #3fb95044' : '1px solid rgba(255,255,255,0.08)',
-                        cursor: !isLocked && !isDone && !isActive && !researchSystem.currentResearch ? 'pointer' : 'default',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
+                      className={`research-item${isActive ? ' research-item--active' : ''}${isDone ? ' research-item--done' : ''}${isLocked ? ' research-item--locked' : ''}`}
                       onClick={() => {
                         if (!isLocked && !isDone && !isActive && labUnlocked) {
                           handleStartResearch(item.id);
@@ -180,12 +169,7 @@ function ResearchPanel({ state, onClose }) {
                     >
                       {/* Completed badge */}
                       {isDone && (
-                        <div style={{
-                          position: 'absolute', top: '8px', right: '8px',
-                          width: '20px', height: '20px', borderRadius: '50%',
-                          background: '#3fb950', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '12px', color: '#fff', fontWeight: 700,
-                        }}>
+                        <div className="research-item__badge">
                           +
                         </div>
                       )}

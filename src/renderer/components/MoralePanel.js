@@ -6,6 +6,12 @@ function MoralePanel({ state, onClose }) {
 
   const [tab, setTab] = React.useState('overview'); // overview | perks | history
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const morale = moraleSystem.getMorale();
   const status = moraleSystem.getMoraleStatus();
   const qualityMult = moraleSystem.getQualityMultiplier();

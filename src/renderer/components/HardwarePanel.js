@@ -11,6 +11,12 @@ function HardwarePanel({ state, onClose }) {
   const [controllerTier, setControllerTier] = React.useState(1);
   const [retailPrice, setRetailPrice] = React.useState(299);
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const formatCash = (n) => {
     if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';

@@ -3,13 +3,19 @@
  * Appears after review scores are shown, before sales begin.
  */
 function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
-  if (!state || !game) return null;
-
   const [selectedId, setSelectedId] = React.useState(null);
   const [negotiatingId, setNegotiatingId] = React.useState(null);
   const [negRound, setNegRound] = React.useState(0);       // 0 = making offer, 1 = counter shown
   const [negSlider, setNegSlider] = React.useState(0);     // -3 to +3: advance tilt
   const [counterSlider, setCounterSlider] = React.useState(0); // publisher's counter position
+
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  if (!state || !game) return null;
 
   const expectedRevenue = game.totalRevenue || 0;
   const deals = PublisherSystem.getAvailableDeals(state.games, game.genre, expectedRevenue);
@@ -87,7 +93,7 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '11px', color: '#8b949e' }}>Expected Revenue</div>
+            <div className="panel-header">Expected Revenue</div>
             <div style={{ fontSize: '16px', fontWeight: 700, color: '#3fb950' }}>{formatCash(expectedRevenue)}</div>
           </div>
         </div>
@@ -116,7 +122,7 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', color: '#8b949e' }}>You Keep</div>
+              <div className="panel-header">You Keep</div>
               <div style={{ fontSize: '16px', fontWeight: 700, color: '#3fb950' }}>100%</div>
             </div>
           </div>
@@ -150,7 +156,7 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: deal.color }} />
                         <span style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>{deal.name}</span>
                         {deal.genreMatch && (
-                          <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', background: 'rgba(63,185,80,0.15)', color: '#3fb950' }}>
+                          <span className="badge badge--green">
                             Genre Match
                           </span>
                         )}
@@ -158,22 +164,22 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
                       <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '8px' }}>{deal.tagline}</div>
                       <div style={{ display: 'flex', gap: '16px' }}>
                         <div>
-                          <div style={{ fontSize: '10px', color: '#8b949e' }}>Advance</div>
+                          <div className="panel-header">Advance</div>
                           <div style={{ fontSize: '13px', fontWeight: 600, color: '#d29922' }}>{formatCash(deal.advance)}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: '10px', color: '#8b949e' }}>Their Cut</div>
+                          <div className="panel-header">Their Cut</div>
                           <div style={{ fontSize: '13px', fontWeight: 600, color: '#f85149' }}>{Math.round(deal.effectiveRoyaltyCut * 100)}%</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: '10px', color: '#8b949e' }}>You Keep</div>
+                          <div className="panel-header">You Keep</div>
                           <div style={{ fontSize: '13px', fontWeight: 600, color: '#3fb950' }}>{Math.round(deal.playerRevShare * 100)}%</div>
                         </div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', minWidth: '90px' }}>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '10px', color: '#8b949e' }}>Est. Your Rev</div>
+                        <div className="panel-header">Est. Your Rev</div>
                         <div style={{ fontSize: '16px', fontWeight: 700, color: '#3fb950' }}>{formatCash(deal.estimatedPlayerRevenue)}</div>
                       </div>
                       {!isNeg && (
@@ -197,9 +203,9 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
 
                       {negRound === 1 && counterTerms && (
                         <div style={{ display: 'flex', gap: '16px', marginBottom: '10px', padding: '8px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>Counter Advance</div><div style={{ fontSize: '13px', color: '#d29922', fontWeight: 600 }}>{formatCash(counterTerms.advance)}</div></div>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>Their Cut</div><div style={{ fontSize: '13px', color: '#f85149', fontWeight: 600 }}>{Math.round(counterTerms.royaltyCut * 100)}%</div></div>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>You Keep</div><div style={{ fontSize: '13px', color: '#3fb950', fontWeight: 600 }}>{Math.round(counterTerms.playerShare * 100)}%</div></div>
+                          <div><div className="panel-header">Counter Advance</div><div style={{ fontSize: '13px', color: '#d29922', fontWeight: 600 }}>{formatCash(counterTerms.advance)}</div></div>
+                          <div><div className="panel-header">Their Cut</div><div style={{ fontSize: '13px', color: '#f85149', fontWeight: 600 }}>{Math.round(counterTerms.royaltyCut * 100)}%</div></div>
+                          <div><div className="panel-header">You Keep</div><div style={{ fontSize: '13px', color: '#3fb950', fontWeight: 600 }}>{Math.round(counterTerms.playerShare * 100)}%</div></div>
                           <button className="btn-accent" style={{ fontSize: '11px', padding: '4px 12px', alignSelf: 'center' }} onClick={() => acceptCounter(deal)}>Accept Counter</button>
                         </div>
                       )}
@@ -210,9 +216,9 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
                       <input type="range" min="-3" max="3" step="1" value={negSlider} onChange={e => setNegSlider(parseInt(e.target.value))} style={{ width: '100%', marginBottom: '8px' }} />
                       {negTerms && (
                         <div style={{ display: 'flex', gap: '16px', marginBottom: '10px' }}>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>Your Offer: Advance</div><div style={{ fontSize: '13px', color: '#d29922', fontWeight: 600 }}>{formatCash(negTerms.advance)}</div></div>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>Their Cut</div><div style={{ fontSize: '13px', color: '#f85149', fontWeight: 600 }}>{Math.round(negTerms.royaltyCut * 100)}%</div></div>
-                          <div><div style={{ fontSize: '10px', color: '#8b949e' }}>You Keep</div><div style={{ fontSize: '13px', color: '#3fb950', fontWeight: 600 }}>{Math.round(negTerms.playerShare * 100)}%</div></div>
+                          <div><div className="panel-header">Your Offer: Advance</div><div style={{ fontSize: '13px', color: '#d29922', fontWeight: 600 }}>{formatCash(negTerms.advance)}</div></div>
+                          <div><div className="panel-header">Their Cut</div><div style={{ fontSize: '13px', color: '#f85149', fontWeight: 600 }}>{Math.round(negTerms.royaltyCut * 100)}%</div></div>
+                          <div><div className="panel-header">You Keep</div><div style={{ fontSize: '13px', color: '#3fb950', fontWeight: 600 }}>{Math.round(negTerms.playerShare * 100)}%</div></div>
                         </div>
                       )}
                       <div style={{ display: 'flex', gap: '8px' }}>

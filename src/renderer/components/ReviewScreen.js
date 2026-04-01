@@ -8,6 +8,12 @@ function ReviewScreen({ game, onClose }) {
   const [revealed, setRevealed] = React.useState(0);
 
   React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  React.useEffect(() => {
     if (revealed < 4) {
       const timer = setTimeout(() => setRevealed(r => r + 1), 600);
       return () => clearTimeout(timer);

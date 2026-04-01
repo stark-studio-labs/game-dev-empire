@@ -52,7 +52,7 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
           {/* Current activity */}
           {state.currentGame && (
             <div className="glass-card" style={{ padding: '16px', width: '100%', maxWidth: '400px' }}>
-              <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+              <div className="panel-header" style={{ marginBottom: '4px' }}>
                 Now Developing
               </div>
               <div style={{ fontSize: '16px', fontWeight: 600, color: '#e6edf3', marginBottom: '4px' }}>
@@ -67,7 +67,7 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
                 {(typeof DEV_PHASES !== 'undefined' ? DEV_PHASES : []).map((phase, i) => (
                   <React.Fragment key={i}>
                     <div className={`phase-dot ${i < state.devPhase ? 'complete' : i === state.devPhase ? 'active' : ''}`} />
-                    <span style={{ fontSize: '11px', color: i === state.devPhase ? '#58a6ff' : '#484f58' }}>
+                    <span style={{ fontSize: '11px', color: i === state.devPhase ? '#58a6ff' : 'var(--color-text-tertiary)' }}>
                       {phase.name}
                     </span>
                     {i < 2 && <div style={{ flex: 1, height: '1px', background: i < state.devPhase ? '#3fb950' : 'rgba(255,255,255,0.08)' }} />}
@@ -91,7 +91,7 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
           {/* Sales activity */}
           {state.sellingGame && !state.currentGame && (
             <div className="glass-card" style={{ padding: '16px', width: '100%', maxWidth: '400px' }}>
-              <div style={{ fontSize: '11px', color: '#3fb950', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+              <div className="panel-header" style={{ color: '#3fb950', marginBottom: '4px' }}>
                 Now Selling
               </div>
               <div style={{ fontSize: '16px', fontWeight: 600, color: '#e6edf3' }}>
@@ -161,13 +161,13 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
         {/* Notifications */}
         {state.notifications.length > 0 && (
           <div className="glass-card" style={{ padding: '12px', maxHeight: '200px', overflowY: 'auto' }}>
-            <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+            <div className="panel-header" style={{ marginBottom: '8px' }}>
               Notifications
             </div>
             {state.notifications.slice().reverse().slice(0, 5).map(n => (
               <div key={n.id} style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: '12px' }}>
                 <span style={{ color: '#c9d1d9' }}>{n.message}</span>
-                <div style={{ fontSize: '10px', color: '#484f58', marginTop: '2px' }}>{n.time}</div>
+                <div style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', marginTop: '2px' }}>{n.time}</div>
               </div>
             ))}
           </div>
@@ -175,11 +175,11 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
 
         {/* Game History */}
         <div className="glass-card" style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+          <div className="panel-header" style={{ marginBottom: '8px' }}>
             Game History ({state.games.length})
           </div>
           {state.games.length === 0 && (
-            <div style={{ fontSize: '13px', color: '#484f58', textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ fontSize: '13px', color: 'var(--color-text-tertiary)', textAlign: 'center', padding: '20px 0' }}>
               No games made yet
             </div>
           )}
@@ -213,13 +213,6 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
         </div>
       </div>
 
-      {/* CSS animation for working staff */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.4); }
-          50% { box-shadow: 0 0 0 8px rgba(63, 185, 80, 0); }
-        }
-      `}</style>
     </div>
   );
 }

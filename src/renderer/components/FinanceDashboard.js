@@ -3,6 +3,12 @@
  * Toggled via the $ button in the TopBar.
  */
 function FinanceDashboard({ state, onClose }) {
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const formatCash = (n) => {
     const abs = Math.abs(n);
     let s;

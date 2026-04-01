@@ -2,6 +2,12 @@
  * MarketPanel — Market sentiment display, trending genres, history chart
  */
 function MarketPanel({ state, onClose }) {
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   if (!state) return null;
 
   const label = typeof marketSim !== 'undefined' && marketSim ? marketSim.getLabel() : { color: '#8b949e', label: 'Unknown' };

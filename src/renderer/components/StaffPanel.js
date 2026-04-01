@@ -5,6 +5,12 @@ function StaffPanel({ state, onClose }) {
   const [tab, setTab] = React.useState('roster'); // roster | hire
   const [applicants, setApplicants] = React.useState(null);
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const generateApplicants = () => {
     setApplicants(engine.generateApplicants(4));
     setTab('hire');
@@ -29,6 +35,13 @@ function StaffPanel({ state, onClose }) {
   const canHire = state.staff.length < office.maxStaff && state.level >= 1;
   const isDeveloping = !!state.currentGame;
 
+  const COLOR_CLASS = {
+    '#da7cff': 'stat-fill--purple',
+    '#58a6ff': 'stat-fill--blue',
+    '#3fb950': 'stat-fill--green',
+    '#d29922': 'stat-fill--yellow',
+  };
+
   const StatBar = ({ value, max, color, label }) => (
     <div style={{ marginBottom: '4px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '2px' }}>
@@ -36,7 +49,7 @@ function StaffPanel({ state, onClose }) {
         <span style={{ color: '#c9d1d9', fontWeight: 500 }}>{Math.round(value)}</span>
       </div>
       <div className="stat-bar">
-        <div className="stat-fill" style={{ width: `${Math.min(100, (value / max) * 100)}%`, background: color }} />
+        <div className={`stat-fill ${COLOR_CLASS[color] || ''}`} style={{ width: `${Math.min(100, (value / max) * 100)}%` }} />
       </div>
     </div>
   );
@@ -90,10 +103,7 @@ function StaffPanel({ state, onClose }) {
             {member.genreSpecialties && Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
                 {Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).map(([genre, pts]) => (
-                  <span key={genre} style={{
-                    fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
-                    background: 'rgba(88,166,255,0.15)', color: '#58a6ff',
-                  }}>
+                  <span key={genre} className="badge badge--blue">
                     {genre} +20%
                   </span>
                 ))}
@@ -146,8 +156,7 @@ function StaffPanel({ state, onClose }) {
           <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#e6edf3' }}>Staff</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
-              className={`btn-secondary ${tab === 'roster' ? '' : ''}`}
-              style={tab === 'roster' ? { borderColor: '#58a6ff', color: '#58a6ff' } : {}}
+              className={`btn-tab${tab === 'roster' ? ' btn-tab--active' : ''}`}
               onClick={() => setTab('roster')}
             >
               Roster ({state.staff.length}/{office.maxStaff})

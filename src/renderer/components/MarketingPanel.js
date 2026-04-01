@@ -5,6 +5,12 @@
 function MarketingPanel({ state, onClose }) {
   const [tab, setTab] = React.useState('campaigns'); // campaigns | history
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const campaignTypes = marketingSystem.getCampaignTypes();
   const activeCampaigns = marketingSystem.getActiveCampaigns();
   const currentHype = marketingSystem.getHype();

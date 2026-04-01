@@ -9,6 +9,12 @@ function SettingsPanel({ onClose }) {
   const [defaultSpeed, setDefaultSpeed] = React.useState(settingsSystem.defaultSpeed);
   const [saved, setSaved] = React.useState(false);
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const handleSave = () => {
     settingsSystem.setDifficulty(difficulty);
     settingsSystem.setAutosaveFreq(autosaveFreq);

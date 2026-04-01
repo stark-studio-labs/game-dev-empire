@@ -13,6 +13,12 @@ function GameHistory({ state, onClose, onRemaster }) {
   const [filterRevenueMin, setFilterRevenueMin] = React.useState(0);
   const [selectedGame, setSelectedGame] = React.useState(null);
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const formatCash = (n) => {
     if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
@@ -94,7 +100,7 @@ function GameHistory({ state, onClose, onRemaster }) {
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
             <div>
-              <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+              <div className="panel-header" style={{ marginBottom: '4px' }}>
                 Game Detail
               </div>
               <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e6edf3', margin: 0 }}>{g.title}</h2>
@@ -150,7 +156,7 @@ function GameHistory({ state, onClose, onRemaster }) {
           {/* Publisher deal info */}
           {g.publisherDeal && (
             <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px' }}>
-              <div style={{ fontSize: '11px', color: '#da7cff', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              <div className="panel-header" style={{ color: '#da7cff', marginBottom: '6px' }}>
                 Publisher Deal
               </div>
               <div style={{ fontSize: '13px', color: '#e6edf3' }}>
@@ -165,7 +171,7 @@ function GameHistory({ state, onClose, onRemaster }) {
           {/* Franchise / sequel info */}
           {sameTopicGenre.length > 0 && (
             <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px' }}>
-              <div style={{ fontSize: '11px', color: '#58a6ff', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              <div className="panel-header" style={{ color: '#58a6ff', marginBottom: '6px' }}>
                 Related Games ({g.topic} / {g.genre})
               </div>
               {sameTopicGenre.map((og, i) => (
@@ -206,20 +212,12 @@ function GameHistory({ state, onClose, onRemaster }) {
       <div className="modal-content" style={{ maxWidth: '800px', maxHeight: '90vh' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+            <div className="panel-header" style={{ marginBottom: '4px' }}>
               Studio Archive
             </div>
             <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e6edf3', margin: 0 }}>Game History</h2>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none', border: 'none', color: '#8b949e',
-              fontSize: '24px', cursor: 'pointer', padding: '4px 8px', lineHeight: 1,
-            }}
-          >
-            x
-          </button>
+          <button className="modal-close-btn" onClick={onClose}>×</button>
         </div>
 
         {/* Stats summary */}
@@ -263,7 +261,7 @@ function GameHistory({ state, onClose, onRemaster }) {
         {/* Score trend line (CSS-based) */}
         {scoreTrend.length >= 2 && (
           <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px' }}>
-            <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+            <div className="panel-header" style={{ marginBottom: '8px' }}>
               Score Trend
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px' }}>
@@ -303,10 +301,6 @@ function GameHistory({ state, onClose, onRemaster }) {
             <select
               value={filterGenre}
               onChange={e => setFilterGenre(e.target.value)}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#c9d1d9', borderRadius: '6px', padding: '4px 8px', fontSize: '12px',
-              }}
             >
               <option value="all">All Genres</option>
               {genres.map(g => <option key={g} value={g}>{g}</option>)}
@@ -318,10 +312,7 @@ function GameHistory({ state, onClose, onRemaster }) {
               type="number" min="0" max="10" step="0.5"
               value={filterScoreMin}
               onChange={e => setFilterScoreMin(parseFloat(e.target.value) || 0)}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#c9d1d9', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '70px',
-              }}
+              style={{ width: '70px' }}
             />
           </div>
           <div>
@@ -330,10 +321,7 @@ function GameHistory({ state, onClose, onRemaster }) {
               type="number" min="0" max="10" step="0.5"
               value={filterScoreMax}
               onChange={e => setFilterScoreMax(parseFloat(e.target.value) || 10)}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#c9d1d9', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', width: '70px',
-              }}
+              style={{ width: '70px' }}
             />
           </div>
           <div>
@@ -341,10 +329,6 @@ function GameHistory({ state, onClose, onRemaster }) {
             <select
               value={filterRevenueMin}
               onChange={e => setFilterRevenueMin(parseInt(e.target.value))}
-              style={{
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#c9d1d9', borderRadius: '6px', padding: '4px 8px', fontSize: '12px',
-              }}
             >
               <option value="0">Any</option>
               <option value="10000">$10K+</option>
@@ -406,14 +390,12 @@ function GameHistory({ state, onClose, onRemaster }) {
                   return (
                     <tr
                       key={i}
+                      className="table-row-hover"
                       onClick={() => setSelectedGame(g)}
                       style={{
                         borderBottom: '1px solid rgba(255,255,255,0.03)',
                         cursor: 'pointer',
-                        transition: 'background 0.15s',
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       <td style={{ padding: '8px 6px', color: '#e6edf3', fontWeight: 500 }}>{g.title}</td>
                       <td style={{ padding: '8px 6px', color: '#8b949e' }}>{g.topic}</td>

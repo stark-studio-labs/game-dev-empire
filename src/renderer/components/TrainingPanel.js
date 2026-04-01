@@ -8,6 +8,12 @@ function TrainingPanel({ state, onClose }) {
   const [statChoice, setStatChoice] = React.useState('design');
   const [tab, setTab] = React.useState('courses'); // courses | active | history
 
+  React.useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
   const courses = trainingSystem.getCourses();
   const activeTraining = trainingSystem.getActiveTraining();
   const history = trainingSystem.getHistory();
@@ -50,6 +56,13 @@ function TrainingPanel({ state, onClose }) {
     }
   };
 
+  const COLOR_CLASS = {
+    '#da7cff': 'stat-fill--purple',
+    '#58a6ff': 'stat-fill--blue',
+    '#3fb950': 'stat-fill--green',
+    '#d29922': 'stat-fill--yellow',
+  };
+
   const StatBar = ({ value, max, color, label, projected }) => (
     <div style={{ marginBottom: '4px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '2px' }}>
@@ -64,7 +77,7 @@ function TrainingPanel({ state, onClose }) {
         </span>
       </div>
       <div className="stat-bar" style={{ position: 'relative' }}>
-        <div className="stat-fill" style={{ width: `${Math.min(100, (value / max) * 100)}%`, background: color }} />
+        <div className={`stat-fill ${COLOR_CLASS[color] || ''}`} style={{ width: `${Math.min(100, (value / max) * 100)}%` }} />
         {projected !== undefined && projected > value && (
           <div style={{
             position: 'absolute', top: 0, left: `${Math.min(100, (value / max) * 100)}%`,
@@ -102,8 +115,7 @@ function TrainingPanel({ state, onClose }) {
             {['courses', 'active', 'history'].map(t => (
               <button
                 key={t}
-                className="btn-secondary"
-                style={tab === t ? { borderColor: '#58a6ff', color: '#58a6ff' } : {}}
+                className={`btn-tab${tab === t ? ' btn-tab--active' : ''}`}
                 onClick={() => setTab(t)}
               >
                 {t === 'courses' ? 'Courses' : t === 'active' ? `Active (${activeTraining.length})` : 'History'}
@@ -155,10 +167,7 @@ function TrainingPanel({ state, onClose }) {
                   {Object.keys(course.statBoosts).length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                       {Object.entries(course.statBoosts).map(([stat, val]) => (
-                        <span key={stat} style={{
-                          fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
-                          background: 'rgba(63,185,80,0.15)', color: '#3fb950',
-                        }}>
+                        <span key={stat} className="badge badge--green">
                           +{val} {stat}
                         </span>
                       ))}
@@ -166,10 +175,7 @@ function TrainingPanel({ state, onClose }) {
                   )}
                   {course.special && (
                     <div style={{ marginTop: '4px' }}>
-                      <span style={{
-                        fontSize: '10px', padding: '2px 6px', borderRadius: '4px',
-                        background: 'rgba(218,124,255,0.15)', color: '#da7cff',
-                      }}>
+                      <span className="badge badge--purple">
                         {course.special === 'team_lead' ? 'Unlocks Team Lead' :
                          course.special === 'genre_specialty' ? '+25 Genre Specialty' :
                          course.special === 'networking' ? 'Networking Event' :
@@ -249,7 +255,7 @@ function TrainingPanel({ state, onClose }) {
                 {/* Skill comparison */}
                 {selectedStaffObj && projection && (
                   <div style={{ marginTop: '12px' }}>
-                    <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div className="panel-header" style={{ marginBottom: '8px' }}>
                       Skill Projection for {selectedStaffObj.name}
                     </div>
                     <StatBar value={selectedStaffObj.design} max={200} color="#da7cff" label="Design" projected={projection.design} />
