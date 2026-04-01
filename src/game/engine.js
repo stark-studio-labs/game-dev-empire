@@ -26,6 +26,12 @@ class GameEngine {
     eventSystem.reset();
     researchSystem.reset();
     marketSim.reset();
+    energySystem.reset();
+    marketingSystem.reset();
+    trainingSystem.reset();
+    hardwareSystem.reset();
+    taxSystem.reset();
+    notificationManager.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       cash: 70000,
@@ -102,6 +108,12 @@ class GameEngine {
         eventSystem.deserialize(this.state._events || null);
         researchSystem.deserialize(this.state._research || null);
         marketSim.deserialize(this.state._market || null);
+        energySystem.deserialize(this.state._energy || null);
+        marketingSystem.deserialize(this.state._marketing || null);
+        trainingSystem.deserialize(this.state._training || null);
+        hardwareSystem.deserialize(this.state._hardware || null);
+        notificationManager.deserialize(this.state._notifications || null);
+        taxSystem.deserialize(this.state._taxes || null);
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -121,6 +133,12 @@ class GameEngine {
       this.state._events = eventSystem.serialize();
       this.state._research = researchSystem.serialize();
       this.state._market = marketSim.serialize();
+      this.state._energy = energySystem.serialize();
+      this.state._marketing = marketingSystem.serialize();
+      this.state._training = trainingSystem.serialize();
+      this.state._hardware = hardwareSystem.serialize();
+      this.state._notifications = notificationManager.serialize();
+      this.state._taxes = taxSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -182,6 +200,43 @@ class GameEngine {
       this._salesTick();
     }
 
+    // Energy system tick
+    const isDeveloping = !!(s.currentGame && s.devPhase !== null);
+    const energyEvents = energySystem.weeklyTick(s.staff, isDeveloping, false);
+    for (const ev of energyEvents) {
+      if (ev.type === 'sick') {
+        this._notify(`${ev.name} called in sick from exhaustion!`);
+      } else if (ev.type === 'sick_return') {
+        this._notify(`${ev.name} is back from sick leave.`);
+      } else if (ev.type === 'vacation_return') {
+        this._notify(`${ev.name} returned from vacation (fully rested)!`);
+      }
+    }
+
+    // Marketing system tick
+    const marketingEvents = marketingSystem.weeklyTick();
+    for (const ev of marketingEvents) {
+      if (ev.type === 'campaign_complete') {
+        this._notify(`${ev.name} campaign complete! +${ev.hype} hype`);
+      }
+    }
+
+    // Training tick
+    const trainingCompleted = trainingSystem.tick(s);
+    for (const tc of trainingCompleted) {
+      const trainedStaff = s.staff.find(m => m.id === tc.staffId);
+      this._notify(`${trainedStaff ? trainedStaff.name : 'Staff'} completed ${tc.courseName}!`);
+    }
+
+    // Hardware sales tick (only if player has consoles)
+    if (s.level >= 3) {
+      const hwRevenue = hardwareSystem.tick(s.totalWeeks);
+      if (hwRevenue > 0) {
+        s.cash += hwRevenue;
+        finance.record('hardware_revenue', hwRevenue, 'Console Sales', this._dateStr());
+      }
+    }
+
     // Research tick
     const researchResult = researchSystem.tick(s);
     if (researchResult && researchResult.completed) {
@@ -198,6 +253,14 @@ class GameEngine {
         s.pendingEvent = event;
         this.setSpeed(0); // Pause for event
       }
+    }
+
+    // Tax system tick (quarterly)
+    const taxResult = taxSystem.tick(s);
+    if (taxResult) {
+      s.cash -= taxResult.taxBill;
+      finance.record('tax', -taxResult.taxBill, `Q${taxResult.quarter} Corporate Tax`, this._dateStr());
+      this._notify(`Q${taxResult.quarter} taxes due: $${this._formatNum(taxResult.taxBill)} (${(taxResult.taxRate * 100).toFixed(0)}% rate)`);
     }
 
     // Weekly cash snapshot
@@ -274,8 +337,15 @@ class GameEngine {
     const sizeData = GAME_SIZES[s.currentGame.size];
     const weeksPerPhase = Math.ceil(sizeData.devWeeks / 3);
 
-    // Each staff member generates points
+    // Each staff member generates points (modified by energy)
     s.staff.forEach(member => {
+      // Skip staff in training -- they are unavailable
+      if (trainingSystem.isTraining(member.id)) return;
+
+      // Energy-based productivity multiplier
+      const energyMult = energySystem.getProductivityMultiplier(member.id);
+      if (energyMult <= 0) return; // On vacation or sick -- no contribution
+
       for (let ai = 0; ai < 3; ai++) {
         const aspectIdx = s.devPhase * 3 + ai;
         const aspectName = phase.aspects[ai];
@@ -283,8 +353,8 @@ class GameEngine {
         const sliderPct = (s.devSliders[aspectIdx] || 33) / 100;
 
         const speedFactor = 0.8 + member.speed * 0.004;
-        const designPts = member.design * sliderPct * ratio.design * speedFactor * (ratio.basePoints / 40);
-        const techPts = member.tech * sliderPct * ratio.tech * speedFactor * (ratio.basePoints / 40);
+        const designPts = member.design * sliderPct * ratio.design * speedFactor * (ratio.basePoints / 40) * energyMult;
+        const techPts = member.tech * sliderPct * ratio.tech * speedFactor * (ratio.basePoints / 40) * energyMult;
 
         s.devDesign += designPts;
         s.devTech += techPts;
@@ -351,12 +421,26 @@ class GameEngine {
       genre: game.genre,
     });
 
-    // Fans gained
-    const newFans = Scoring.fansGained(reviewResult.average, s.fans);
+    // Marketing hype bonus (applied to revenue before fans)
+    const marketingResult = marketingSystem.onGameRelease();
+    revenueResult.totalRevenue = Math.round(revenueResult.totalRevenue * marketingResult.salesMultiplier);
+    if (marketingResult.totalHype > 0) {
+      this._notify(`Marketing hype (${marketingResult.totalHype}) boosted sales by ${marketingResult.salesMultiplier.toFixed(2)}x!`);
+    }
+
+    // Fans gained (includes marketing fan bonus)
+    const newFans = Scoring.fansGained(reviewResult.average, s.fans) + marketingResult.fanBonus;
     s.fans += newFans;
 
     // Track genre usage
     s.genreUsage[game.genre] = (s.genreUsage[game.genre] || 0) + 1;
+
+    // Generate critic personality reviews (4 random critics)
+    const selectedCritics = selectCritics(4);
+    const criticReviews = generateCriticReviews(reviewResult.average, { ...game, size: game.size }, selectedCritics);
+    // Override generic reviews with critic scores
+    const criticScores = criticReviews.map(cr => cr.score);
+    const criticAvg = Math.round((criticScores.reduce((a, b) => a + b, 0) / criticScores.length) * 10) / 10;
 
     // Build completed game record
     const completedGame = {
@@ -365,8 +449,9 @@ class GameEngine {
       designPoints: Math.round(s.devDesign),
       techPoints: Math.round(s.devTech),
       gameScore: Math.round(scoreResult.gameScore * 10) / 10,
-      reviews: reviewResult.reviews,
-      reviewAvg: reviewResult.average,
+      reviews: criticScores,
+      reviewAvg: criticAvg,
+      criticReviews,
       totalRevenue: revenueResult.totalRevenue,
       unitsSold: revenueResult.unitsSold,
       fansGained: newFans,
@@ -375,6 +460,11 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+
+    // Notification center: game release + review scores + milestone check
+    notificationManager.onGameRelease(completedGame, s);
+    notificationManager.onReviewScores(completedGame, s);
+    notificationManager.checkMilestones(s);
 
     // Register with franchise tracker
     franchiseTracker.registerGame(
@@ -448,6 +538,7 @@ class GameEngine {
     s.cash += weekRevenue;
     if (weekRevenue > 0) {
       finance.record('revenue', weekRevenue, s.sellingGame.title, this._dateStr());
+      taxSystem.addRevenue(weekRevenue);
     }
 
     if (s.salesWeeksLeft <= 0) {
@@ -457,6 +548,7 @@ class GameEngine {
       s.salesRevenue += remaining;
       if (remaining > 0) {
         finance.record('revenue', remaining, s.sellingGame.title, this._dateStr());
+        taxSystem.addRevenue(remaining);
       }
 
       this._notify(`"${s.sellingGame.title}" finished selling: $${this._formatNum(s.salesRevenue)} total revenue!`);
@@ -552,6 +644,7 @@ class GameEngine {
     moraleSystem.applyEvent('hire', s.totalWeeks);
     s.morale = moraleSystem.getMorale();
     this._notify(`Hired ${applicant.name}!`);
+    notificationManager.onStaffHired(applicant.name, s);
     this._emit();
     this._save();
     return true;
@@ -563,12 +656,28 @@ class GameEngine {
     if (idx < 0 || s.staff[idx].isFounder) return false;
     const name = s.staff[idx].name;
     s.staff.splice(idx, 1);
+    energySystem.removeStaff(staffId);
     moraleSystem.applyEvent('fire', s.totalWeeks);
     s.morale = moraleSystem.getMorale();
     this._notify(`${name} has left the company.`);
+    notificationManager.onStaffFired(name, s);
     this._emit();
     this._save();
     return true;
+  }
+
+  sendStaffOnVacation(staffId) {
+    const s = this.state;
+    const member = s.staff.find(m => m.id === staffId);
+    if (!member) return false;
+
+    if (energySystem.sendOnVacation(staffId)) {
+      this._notify(`${member.name} is going on vacation!`);
+      this._emit();
+      this._save();
+      return true;
+    }
+    return false;
   }
 
   // ── Office Upgrade ───────────────────────────────────────────
@@ -591,6 +700,7 @@ class GameEngine {
     s.level++;
     s.upgradeAvailable = false;
     this._notify(`Upgraded to ${OFFICE_LEVELS[s.level].name}!`);
+    notificationManager.onOfficeUpgrade(OFFICE_LEVELS[s.level].name, s);
     this._emit();
     this._save();
     return true;
@@ -609,6 +719,7 @@ class GameEngine {
     }
     if (salaries > 0) {
       finance.record('salary', -salaries, 'Staff Salaries', this._dateStr());
+      taxSystem.addSalarySpending(salaries);
     }
 
     // Morale monthly drift

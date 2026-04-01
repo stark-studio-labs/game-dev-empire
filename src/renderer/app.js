@@ -13,6 +13,7 @@ function App() {
   const [showResearch, setShowResearch] = useState(false);
   const [showMarket, setShowMarket] = useState(false);
   const [showMorale, setShowMorale] = useState(false);
+  const [showMarketing, setShowMarketing] = useState(false);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
@@ -226,6 +227,8 @@ function App() {
         showMarket={showMarket}
         onToggleMorale={() => setShowMorale(v => !v)}
         showMorale={showMorale}
+        onToggleMarketing={() => setShowMarketing(v => !v)}
+        showMarketing={showMarketing}
       />
 
       <GameScreen
@@ -282,6 +285,13 @@ function App() {
         <MoralePanel
           state={gameState}
           onClose={() => setShowMorale(false)}
+        />
+      )}
+
+      {showMarketing && gameState && (
+        <MarketingPanel
+          state={gameState}
+          onClose={() => setShowMarketing(false)}
         />
       )}
 
