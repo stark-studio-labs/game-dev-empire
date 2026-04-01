@@ -14,6 +14,8 @@ function App() {
   const [showMarket, setShowMarket] = useState(false);
   const [showMorale, setShowMorale] = useState(false);
   const [showMarketing, setShowMarketing] = useState(false);
+  const [showTraining, setShowTraining] = useState(false);
+  const [showHardware, setShowHardware] = useState(false);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
@@ -229,6 +231,10 @@ function App() {
         showMorale={showMorale}
         onToggleMarketing={() => setShowMarketing(v => !v)}
         showMarketing={showMarketing}
+        onToggleTraining={() => setShowTraining(v => !v)}
+        showTraining={showTraining}
+        onToggleHardware={() => setShowHardware(v => !v)}
+        showHardware={showHardware}
       />
 
       <GameScreen
@@ -292,6 +298,20 @@ function App() {
         <MarketingPanel
           state={gameState}
           onClose={() => setShowMarketing(false)}
+        />
+      )}
+
+      {showTraining && gameState && (
+        <TrainingPanel
+          state={gameState}
+          onClose={() => setShowTraining(false)}
+        />
+      )}
+
+      {showHardware && gameState && (
+        <HardwarePanel
+          state={gameState}
+          onClose={() => setShowHardware(false)}
         />
       )}
 
