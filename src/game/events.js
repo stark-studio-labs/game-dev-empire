@@ -356,6 +356,200 @@ const GAME_EVENTS = [
       },
     ],
   },
+
+  // ── Employee Drama ─────────────────────────────────────────────
+  {
+    id: 'dev_poached',
+    title: 'Talent Poaching Attempt',
+    text: 'A rival studio has been quietly approaching your best developer with a lucrative offer: double their salary and a lead role on a high-profile project. They came to you first out of loyalty — but they\'re clearly tempted.',
+    triggerCondition: (s) => s.staff.length >= 3 && s.year >= 2,
+    cooldownWeeks: 100,
+    options: [
+      {
+        label: 'Match the offer with a raise',
+        description: 'Show them they\'re valued. Cost: significant, but retention is worth it.',
+        consequence: { adjustCash: -8000, adjustMorale: 5, message: 'They stayed! Word spread that you reward loyalty. Team morale got a boost.' },
+      },
+      {
+        label: 'Let them go, hire fresh talent',
+        description: 'Sometimes change is healthy. Wish them well and start recruiting.',
+        consequence: { adjustCash: -3000, adjustMorale: -10, message: 'They left. The team feels uneasy. Recruiting costs are adding up.' },
+      },
+      {
+        label: 'Counter with equity and flex time',
+        description: 'Offer something money can\'t fully buy — ownership and autonomy.',
+        consequence: { adjustCash: 0, adjustMorale: 8, adjustFans: 0, message: 'They\'re staying! The equity offer created a new level of commitment across the whole team.' },
+      },
+    ],
+  },
+  {
+    id: 'raise_demand',
+    title: 'Raise Demand',
+    text: 'Your most experienced developer just requested a formal meeting. They\'ve been tracking market rates and feel they\'re significantly underpaid for their contribution. They\'re calm, professional — and clearly serious.',
+    triggerCondition: (s) => s.staff.length >= 2 && s.fans > 2000,
+    cooldownWeeks: 80,
+    options: [
+      {
+        label: 'Grant the full raise',
+        description: 'Acknowledge their worth and pay accordingly.',
+        consequence: { adjustCash: -12000, adjustMorale: 12, message: 'Loyalty rewarded. The entire team noticed and morale jumped across the board.' },
+      },
+      {
+        label: 'Negotiate to a 20% bump',
+        description: 'Meet in the middle. It\'s fair and affordable.',
+        consequence: { adjustCash: -6000, adjustMorale: 3, message: 'They accepted the partial raise. Not thrilled, but they\'re staying.' },
+      },
+      {
+        label: 'Decline — budget is tight',
+        description: 'Be honest about the financial reality.',
+        consequence: { adjustCash: 0, adjustMorale: -15, message: 'They\'re visibly unhappy. Word got out. The team is quietly looking at job boards.' },
+      },
+    ],
+  },
+  {
+    id: 'creative_fight',
+    title: 'Creative Disagreement',
+    text: 'Two of your senior developers have reached an impasse on the current game\'s design direction. The tech lead wants a systems-driven experience. The lead designer wants a narrative-focused one. Both are digging in. Development is grinding to a halt.',
+    triggerCondition: (s) => s.staff.length >= 3 && s.currentGame !== null,
+    cooldownWeeks: 90,
+    options: [
+      {
+        label: 'Side with the tech lead\'s vision',
+        description: 'Systems depth will resonate with hardcore players.',
+        consequence: { adjustCash: 0, adjustMorale: -5, message: 'Direction set. The designer is quiet but the game is moving forward.' },
+      },
+      {
+        label: 'Side with the designer\'s vision',
+        description: 'Story-driven games reach broader audiences.',
+        consequence: { adjustCash: 0, adjustMorale: -5, message: 'Direction set. The tech lead is grumbling but respects the call.' },
+      },
+      {
+        label: 'Hold a team vote and commit to the result',
+        description: 'Let the whole studio decide. Democracy takes time but builds buy-in.',
+        consequence: { adjustCash: 0, adjustMorale: 10, message: 'The vote happened. Everyone accepts the result because they were part of the process.' },
+      },
+    ],
+  },
+  {
+    id: 'side_project_viral',
+    title: 'Side Project Goes Viral',
+    text: 'One of your developers built a tiny two-hour game in their spare time "just for fun" and posted it online. It now has 200K downloads in 48 hours, glowing reviews, and multiple gaming journalists are asking about your studio.',
+    triggerCondition: (s) => s.staff.length >= 2 && s.year >= 2,
+    cooldownWeeks: 180,
+    options: [
+      {
+        label: 'Celebrate and give them a cash bonus',
+        description: 'Reward initiative. This is exactly the kind of passion you want.',
+        consequence: { adjustCash: -3000, adjustMorale: 15, adjustFans: 2000, message: 'Bonus given. The developer is energized and the team is inspired.' },
+      },
+      {
+        label: 'Recruit it into the official pipeline',
+        description: 'Turn the viral hit into a full product under the studio banner.',
+        consequence: { adjustCash: 0, adjustMorale: 10, adjustFans: 8000, message: 'The community loves that you\'re expanding it. Significant fan and attention boost.' },
+      },
+      {
+        label: 'Ask them to focus on studio projects',
+        description: 'Side projects divide attention. Gently redirect their energy.',
+        consequence: { adjustCash: 0, adjustMorale: -8, message: 'They nodded but looked deflated. The viral moment passed without follow-through.' },
+      },
+    ],
+  },
+  {
+    id: 'burnout_leave',
+    title: 'Burnout Leave Request',
+    text: 'Your most senior developer sent you a private message: they\'re burnt out and need two weeks of mental health leave. They\'ve been running on empty for months. They apologize for the timing and promise to make it up, but they\'re not really asking — they\'re telling you.',
+    triggerCondition: (s) => s.staff.length >= 2 && s.morale < 50,
+    cooldownWeeks: 100,
+    options: [
+      {
+        label: 'Fully support them — paid leave, no questions',
+        description: 'Their wellbeing comes first. Cover their work, no exceptions.',
+        consequence: { adjustCash: -5000, adjustMorale: 12, message: 'They came back refreshed and grateful. The team noticed how you handled it.' },
+      },
+      {
+        label: 'Approve leave, redistribute the work',
+        description: 'The project continues, the team absorbs the workload.',
+        consequence: { adjustCash: 0, adjustMorale: -5, message: 'Leave approved, but the extra workload is straining the rest of the team.' },
+      },
+      {
+        label: 'Deny it — the deadline can\'t slip',
+        description: 'You need everyone on deck right now.',
+        consequence: { adjustCash: 0, adjustMorale: -20, message: 'They showed up, but barely. Three others started job searching the same day.' },
+      },
+    ],
+  },
+  {
+    id: 'new_skill_learned',
+    title: 'Developer Leveled Up',
+    text: 'One of your team members has been quietly learning a new game engine in their evenings and weekends. They just completed an advanced certification — entirely self-funded — and they\'re excited to apply it. They\'re asking for a chance to use it on the next project.',
+    triggerCondition: (s) => s.staff.length >= 2 && s.year >= 1,
+    cooldownWeeks: 120,
+    options: [
+      {
+        label: 'Sponsor their next certification and promote them',
+        description: 'Invest in their growth. It pays dividends.',
+        consequence: { adjustCash: -2000, adjustMorale: 10, message: 'They\'re thriving. Word spread that your studio invests in people.' },
+      },
+      {
+        label: 'Acknowledge it publicly and give them a new responsibility',
+        description: 'Recognition costs nothing and means everything.',
+        consequence: { adjustCash: 0, adjustMorale: 7, message: 'A quick shoutout in the team meeting went a long way. Morale is up.' },
+      },
+      {
+        label: 'Note it for the next performance review',
+        description: 'It\'s good but you\'ll address it through the formal process.',
+        consequence: { adjustCash: 0, adjustMorale: -3, message: 'The bureaucratic response was deflating. They still appreciated the note — barely.' },
+      },
+    ],
+  },
+  {
+    id: 'team_celebration',
+    title: 'Team Wants to Celebrate',
+    text: 'The reviews are in and your latest game hit a new quality high for the studio. The team is electric — people are hugging in the hallway, someone put a party hat on the office monitor. They\'re looking at you waiting for the signal.',
+    triggerCondition: (s) => s.games.length >= 2 && s.games[s.games.length - 1] && s.games[s.games.length - 1].reviewAvg >= 7.5,
+    cooldownWeeks: 100,
+    options: [
+      {
+        label: 'Throw a full studio party — your treat',
+        description: 'Go big. This moment deserves it.',
+        consequence: { adjustCash: -5000, adjustMorale: 22, adjustFans: 1000, message: 'Epic party. Photos circulated online. The team is fully recharged.' },
+      },
+      {
+        label: 'Team dinner on the company',
+        description: 'Meaningful, personal, within budget.',
+        consequence: { adjustCash: -1500, adjustMorale: 13, message: 'Great dinner. Real conversations happened. Team cohesion strengthened.' },
+      },
+      {
+        label: 'Post a heartfelt thank-you to the team',
+        description: 'Words matter. A sincere message costs nothing.',
+        consequence: { adjustCash: 0, adjustMorale: 6, message: 'The message was well-received. Small gesture, real impact.' },
+      },
+    ],
+  },
+  {
+    id: 'office_prank',
+    title: 'Prank War Escalation',
+    text: 'It started small: someone wrapped a coworker\'s keyboard in foil. Then a desk was rearranged into the hallway. Now someone has replaced every desktop wallpaper with a photo of the office manager\'s dog wearing a tuxedo. It\'s funny — but it\'s getting out of hand.',
+    triggerCondition: (s) => s.staff.length >= 3 && s.morale >= 50,
+    cooldownWeeks: 150,
+    options: [
+      {
+        label: 'Embrace the chaos — it\'s good culture',
+        description: 'Laughter is a productivity tool. Let it play out.',
+        consequence: { adjustCash: 0, adjustMorale: 10, message: 'The prank war peaked gloriously and faded. Team bonding: maximized.' },
+      },
+      {
+        label: 'Set clear limits but join in the fun',
+        description: 'Have one good laugh then redirect the energy.',
+        consequence: { adjustCash: 0, adjustMorale: 5, message: 'You pulled off the final prank yourself. Perfect leadership moment.' },
+      },
+      {
+        label: 'Send a professional environment memo',
+        description: 'Keep focus. This is a workplace.',
+        consequence: { adjustCash: 0, adjustMorale: -5, message: 'The memo was mocked quietly for a week. The energy drained from the room.' },
+      },
+    ],
+  },
 ];
 
 /**
@@ -423,6 +617,10 @@ class EventSystem {
     // Apply consequences
     if (consequence.adjustCash) state.cash += consequence.adjustCash;
     if (consequence.adjustFans) state.fans = Math.max(0, state.fans + consequence.adjustFans);
+    if (consequence.adjustMorale && typeof moraleSystem !== 'undefined') {
+      moraleSystem.applyEvent('custom', state.totalWeeks, consequence.adjustMorale);
+      state.morale = moraleSystem.getMorale();
+    }
 
     // Log to history
     this.eventHistory.push({

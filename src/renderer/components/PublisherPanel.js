@@ -6,6 +6,10 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
   if (!state || !game) return null;
 
   const [selectedId, setSelectedId] = React.useState(null);
+  const [negotiatingId, setNegotiatingId] = React.useState(null);
+  const [negRound, setNegRound] = React.useState(0);       // 0 = making offer, 1 = counter shown
+  const [negSlider, setNegSlider] = React.useState(0);     // -3 to +3: advance tilt
+  const [counterSlider, setCounterSlider] = React.useState(0); // publisher's counter position
 
   const expectedRevenue = game.totalRevenue || 0;
   const deals = PublisherSystem.getAvailableDeals(state.games, game.genre, expectedRevenue);
@@ -25,6 +29,49 @@ function PublisherPanel({ state, game, onSelectDeal, onSelfPublish, onClose }) {
       const deal = deals.find(d => d.id === selectedId);
       if (deal) onSelectDeal(deal);
     }
+  };
+
+  // Negotiation helpers
+  const getNegotiatedTerms = (deal, sliderVal) => {
+    const advanceMult = 1 + sliderVal * 0.15; // each step ±15% advance
+    const royaltyDelta = sliderVal * 0.03;     // each step ±3% royalty cut
+    const newAdvance = Math.round(deal.advance * advanceMult);
+    const newRoyalty = Math.min(0.75, Math.max(0.05, deal.effectiveRoyaltyCut + royaltyDelta));
+    const newPlayerShare = 1 - newRoyalty;
+    const newPlayerRev = Math.round(expectedRevenue * newPlayerShare);
+    return { advance: newAdvance, royaltyCut: newRoyalty, playerShare: newPlayerShare, playerRev: newPlayerRev };
+  };
+
+  const handleMakeOffer = (deal) => {
+    if (negRound === 0) {
+      // Publisher counters: pushes slider halfway back toward 0
+      const counter = Math.round(negSlider * 0.5);
+      setCounterSlider(counter);
+      setNegRound(1);
+    } else {
+      // Round 2: accept final negotiated terms
+      const terms = getNegotiatedTerms(deal, negSlider);
+      const finalDeal = {
+        ...deal,
+        advance: terms.advance,
+        effectiveRoyaltyCut: terms.royaltyCut,
+        playerRevShare: terms.playerShare,
+        estimatedPlayerRevenue: terms.playerRev,
+      };
+      onSelectDeal(finalDeal);
+    }
+  };
+
+  const acceptCounter = (deal) => {
+    const terms = getNegotiatedTerms(deal, counterSlider);
+    const finalDeal = {
+      ...deal,
+      advance: terms.advance,
+      effectiveRoyaltyCut: terms.royaltyCut,
+      playerRevShare: terms.playerShare,
+      estimatedPlayerRevenue: terms.playerRev,
+    };
+    onSelectDeal(finalDeal);
   };
 
   return (

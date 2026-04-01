@@ -358,6 +358,9 @@ function App() {
 
       <TutorialOverlay />
 
+      {/* Global Toast notifications */}
+      <ToastContainer />
+
       {/* Victory / Game Over Modal */}
       {gameState && gameState.gameOver && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>

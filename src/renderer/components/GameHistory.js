@@ -2,7 +2,7 @@
  * GameHistory — Full-page view of all released games with sorting,
  * filtering, detail view, stats summary, and score trend line.
  */
-function GameHistory({ state, onClose }) {
+function GameHistory({ state, onClose, onRemaster }) {
   if (!state) return null;
 
   const [sortField, setSortField] = React.useState('releaseYear');
@@ -176,11 +176,21 @@ function GameHistory({ state, onClose }) {
             </div>
           )}
 
-          {/* Back button */}
+          {/* Actions */}
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className="btn-secondary" onClick={() => setSelectedGame(null)} style={{ flex: 1 }}>
               Back to History
             </button>
+            {onRemaster && !state.currentGame && (state.year - g.releaseYear) >= 5 && (
+              <button
+                className="btn-secondary"
+                onClick={() => { onRemaster(g); onClose(); }}
+                style={{ flex: 1, color: '#da7cff', borderColor: 'rgba(218,124,255,0.3)' }}
+                title={`Remaster: ~${Math.round(30)}% of original dev cost, targets new platforms`}
+              >
+                Remaster
+              </button>
+            )}
             <button className="btn-accent" onClick={onClose} style={{ flex: 1 }}>
               Close
             </button>

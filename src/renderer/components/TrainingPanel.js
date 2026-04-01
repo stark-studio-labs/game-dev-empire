@@ -28,7 +28,7 @@ function TrainingPanel({ state, onClose }) {
     if (!course) return;
 
     if (state.cash < course.cost) {
-      alert('Not enough cash!');
+      showToast('Not enough cash for training!', 'error');
       return;
     }
 
@@ -43,6 +43,8 @@ function TrainingPanel({ state, onClose }) {
       finance.record('training', -course.cost, `Training: ${course.name}`, engine._dateStr());
       engine._emit();
       engine._save();
+      const staffName = state.staff.find(s => s.id === selectedStaff)?.name || 'Staff';
+      showToast(`${staffName} enrolled in ${course.name}`, 'success');
       setSelectedStaff(null);
       setSelectedCourse(null);
     }

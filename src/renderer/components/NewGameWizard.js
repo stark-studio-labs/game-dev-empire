@@ -8,8 +8,16 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const [topic, setTopic] = React.useState(null);
   const [genre, setGenre] = React.useState(null);
   const [audience, setAudience] = React.useState('Everyone');
-  const [platformId, setPlatformId] = React.useState(null);
+  const [platformIds, setPlatformIds] = React.useState([]);
   const [size, setSize] = React.useState('Small');
+
+  const togglePlatform = (id) => {
+    setPlatformIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= 3) return prev; // max 3 platforms
+      return [...prev, id];
+    });
+  };
   const [sliders, setSliders] = React.useState([33,33,33, 33,33,33, 33,33,33]);
 
   const availableSizes = engine.getAvailableSizes();
@@ -66,7 +74,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
       topic,
       genre,
       audience,
-      platformId,
+      platformIds,
       size,
       sliders,
     };
@@ -272,21 +280,27 @@ function NewGameWizard({ state, onStart, onCancel }) {
               ))}
             </div>
 
-            {/* Platform */}
-            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
-              Platform
+            {/* Platform (multi-select, max 3) */}
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+              Platforms <span style={{ color: '#484f58' }}>(select 1–3)</span>
             </label>
+            {platformIds.length > 1 && (
+              <div style={{ fontSize: '11px', color: '#d29922', marginBottom: '8px' }}>
+                +{Math.round(50 * (platformIds.length - 1))}% dev time for {platformIds.length} platforms
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
               {availablePlatforms.map(p => {
                 const genreIdx = GENRES.indexOf(genre);
                 const compat = genreIdx >= 0 ? getCompat(p.genreW[genreIdx]) : null;
-                const share = getPlatformMarketShare(p, state.totalWeeks);
+                const selected = platformIds.includes(p.id);
+                const disabled = !selected && platformIds.length >= 3;
                 return (
                   <div
                     key={p.id}
-                    className={`selection-item ${platformId === p.id ? 'selected' : ''}`}
-                    onClick={() => setPlatformId(p.id)}
-                    style={{ padding: '10px', textAlign: 'left' }}
+                    className={`selection-item ${selected ? 'selected' : ''}`}
+                    onClick={() => !disabled && togglePlatform(p.id)}
+                    style={{ padding: '10px', textAlign: 'left', opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
                   >
                     <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.name}</div>
                     <div style={{ fontSize: '11px', color: '#8b949e' }}>{p.company}</div>
@@ -301,7 +315,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
               <button className="btn-secondary" onClick={() => setStep(2)}>Back</button>
-              <button className="btn-accent" onClick={() => setStep(4)} disabled={!platformId}>Next</button>
+              <button className="btn-accent" onClick={() => setStep(4)} disabled={platformIds.length === 0}>Next</button>
             </div>
           </div>
         )}

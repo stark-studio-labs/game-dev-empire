@@ -99,7 +99,12 @@ class GameEngine {
 
       // Win/lose state
       gameOver: false,
-      gameOverReason: null, // 'victory' | 'bankruptcy'
+      gameOverReason: null,  // 'victory' | 'bankruptcy'
+      victoryPath: null,     // which of the 5 victory paths was achieved
+
+      // Victory tracking counters
+      gamesHighScore: 0,     // games with reviewAvg >= 8.5
+      moonshots: 0,          // AAA games with reviewAvg >= 9.5
     };
 
     this._updateAvailablePlatforms();
@@ -292,7 +297,7 @@ class GameEngine {
     // Bankruptcy check: cash < -$100K for 12+ consecutive weeks
     if (s.cash < -100000) {
       s.negativeWeeks++;
-      if (s.negativeWeeks >= 12 && !s.gameOver) {
+      if (s.negativeWeeks >= settingsSystem.getBankruptcyWeeks() && !s.gameOver) {
         s.gameOver = true;
         s.gameOverReason = 'bankruptcy';
         this.setSpeed(0);
@@ -302,12 +307,23 @@ class GameEngine {
       s.negativeWeeks = 0;
     }
 
-    // Win condition: $500M total revenue + 10M fans
-    if (!s.gameOver && finance.totalRevenue() >= 500000000 && s.fans >= 10000000) {
-      s.gameOver = true;
-      s.gameOverReason = 'victory';
-      this.setSpeed(0);
-      this._notify('LEGENDARY! You built a gaming empire!');
+    // Victory conditions: 5 Civ-style paths
+    if (!s.gameOver) {
+      const totalRev = finance.totalRevenue();
+      const genreCount = Object.keys(s.genreUsage).length;
+
+      if (s.fans >= 50000000 && (s.gamesHighScore || 0) >= 10) {
+        this._triggerVictory('Brand Empire', 'BRAND EMPIRE! Your studio is a cultural icon!');
+      } else if ((s.moonshots || 0) >= 3) {
+        this._triggerVictory('Innovation Leader', 'INNOVATION LEADER! You redefined the industry!');
+      } else if (s.games.length >= 15 && genreCount >= 5) {
+        this._triggerVictory('Market Dominator', 'MARKET DOMINATOR! You own every genre!');
+      } else if (totalRev >= 1000000000) {
+        this._triggerVictory('Financial Titan', 'FINANCIAL TITAN! A billion-dollar empire!');
+      } else if (s.level >= 3 && s.games.length >= 5 &&
+          hardwareSystem.consoles.reduce((sum, c) => sum + (c.revenue || 0), 0) >= 50000000) {
+        this._triggerVictory('Industry Kingmaker', 'INDUSTRY KINGMAKER! You set the standard!');
+      }
     }
 
     // Notification center: periodic milestone check (every 4 weeks)
@@ -328,8 +344,8 @@ class GameEngine {
 
     this._emit();
 
-    // Auto-save every 12 weeks (3 months)
-    if (s.totalWeeks % 12 === 0) {
+    // Auto-save per settings frequency
+    if (s.totalWeeks % settingsSystem.autosaveFreq === 0) {
       this._save();
     }
   }
@@ -345,10 +361,20 @@ class GameEngine {
     const s = this.state;
     const sizeData = GAME_SIZES[config.size];
 
-    // Pay platform license + dev cost
-    const plat = PLATFORMS.find(p => p.id === config.platformId);
-    const licenseFee = plat ? plat.licenseFee : 0;
-    const cost = licenseFee + sizeData.cost;
+    // Support both platformIds (array) and legacy platformId (string)
+    const platformIds = config.platformIds || (config.platformId ? [config.platformId] : []);
+    const numPlatforms = Math.max(1, platformIds.length);
+
+    // License fee is paid per platform
+    let licenseFee = 0;
+    for (const pid of platformIds) {
+      const plat = PLATFORMS.find(p => p.id === pid);
+      if (plat) licenseFee += plat.licenseFee;
+    }
+
+    // Remaster cost override: 30% of base dev cost
+    const devCost = config.isRemaster ? Math.round(sizeData.cost * 0.3) : sizeData.cost;
+    const cost = licenseFee + devCost;
     if (s.cash < cost) {
       this._notify('Not enough cash to start development!');
       return false;
@@ -357,18 +383,26 @@ class GameEngine {
     if (licenseFee > 0) {
       finance.record('license', -licenseFee, config.title, this._dateStr());
     }
-    if (sizeData.cost > 0) {
-      finance.record('dev_cost', -sizeData.cost, config.title, this._dateStr());
+    if (devCost > 0) {
+      finance.record('dev_cost', -devCost, config.title, this._dateStr());
     }
+
+    // Dev time multiplier: each extra platform adds 50%; remasters take 50% of normal time
+    const basePlatformMult = 1 + 0.5 * (numPlatforms - 1);
+    const platformMultiplier = config.isRemaster ? basePlatformMult * 0.5 : basePlatformMult;
 
     s.currentGame = {
       title: config.title,
       topic: config.topic,
       genre: config.genre,
       audience: config.audience,
-      platformId: config.platformId,
+      platformId: platformIds[0] || config.platformId,
+      platformIds,
+      platformMultiplier,
       size: config.size,
       startWeek: s.totalWeeks,
+      isRemaster: config.isRemaster || false,
+      remasterBonus: config.remasterBonus || 0,
     };
 
     s.devSliders = config.sliders;
@@ -387,7 +421,12 @@ class GameEngine {
     const s = this.state;
     const phase = DEV_PHASES[s.devPhase];
     const sizeData = GAME_SIZES[s.currentGame.size];
-    const weeksPerPhase = Math.ceil(sizeData.devWeeks / 3);
+    const platformMult = s.currentGame.platformMultiplier || 1;
+    const weeksPerPhase = Math.ceil((sizeData.devWeeks / 3) * platformMult);
+
+    // Team lead bonus: +10% productivity for all staff if any team lead is working
+    const hasTeamLead = s.staff.some(m => m.isTeamLead && !trainingSystem.isTraining(m.id));
+    const teamLeadBonus = hasTeamLead ? 1.1 : 1.0;
 
     // Each staff member generates points (modified by energy)
     s.staff.forEach(member => {
@@ -398,6 +437,11 @@ class GameEngine {
       const energyMult = energySystem.getProductivityMultiplier(member.id);
       if (energyMult <= 0) return; // On vacation or sick -- no contribution
 
+      // Genre specialty: +20% quality if staff has 25+ specialty points in current genre
+      const genreSpec = (member.genreSpecialties && s.currentGame.genre)
+        ? (member.genreSpecialties[s.currentGame.genre] || 0) : 0;
+      const specialtyMult = genreSpec >= 25 ? 1.2 : 1.0;
+
       for (let ai = 0; ai < 3; ai++) {
         const aspectIdx = s.devPhase * 3 + ai;
         const aspectName = phase.aspects[ai];
@@ -405,8 +449,8 @@ class GameEngine {
         const sliderPct = (s.devSliders[aspectIdx] || 33) / 100;
 
         const speedFactor = 0.8 + member.speed * 0.004;
-        const designPts = member.design * sliderPct * ratio.design * speedFactor * (ratio.basePoints / 40) * energyMult;
-        const techPts = member.tech * sliderPct * ratio.tech * speedFactor * (ratio.basePoints / 40) * energyMult;
+        const designPts = member.design * sliderPct * ratio.design * speedFactor * (ratio.basePoints / 40) * energyMult * teamLeadBonus * specialtyMult;
+        const techPts = member.tech * sliderPct * ratio.tech * speedFactor * (ratio.basePoints / 40) * energyMult * teamLeadBonus * specialtyMult;
 
         s.devDesign += designPts;
         s.devTech += techPts;
@@ -465,15 +509,32 @@ class GameEngine {
       s.topScore = scoreResult.gameScore;
     }
 
-    // Compute revenue
-    const revenueResult = Scoring.computeRevenue({
-      reviewAvg: reviewResult.average,
-      platformId: game.platformId,
-      fans: s.fans,
-      size: game.size,
-      totalWeek: s.totalWeeks,
-      genre: game.genre,
-    });
+    // Compute revenue across all platforms (multi-platform support)
+    const platformList = (game.platformIds && game.platformIds.length > 0) ? game.platformIds : [game.platformId];
+    let totalRevRaw = 0;
+    let totalUnitsRaw = 0;
+    for (const pid of platformList) {
+      const pr = Scoring.computeRevenue({
+        reviewAvg: reviewResult.average,
+        platformId: pid,
+        fans: s.fans,
+        size: game.size,
+        totalWeek: s.totalWeeks,
+        genre: game.genre,
+      });
+      totalRevRaw += pr.totalRevenue;
+      totalUnitsRaw += pr.unitsSold;
+    }
+
+    // Apply difficulty revenue multiplier
+    totalRevRaw = Math.round(totalRevRaw * settingsSystem.getRevenueMultiplier());
+
+    // Apply remaster nostalgia bonus (remasterBonus 0-10 adds up to 10% revenue)
+    if (game.isRemaster && game.remasterBonus > 0) {
+      totalRevRaw = Math.round(totalRevRaw * (1 + game.remasterBonus / 100));
+    }
+
+    const revenueResult = { totalRevenue: totalRevRaw, unitsSold: totalUnitsRaw };
 
     // Marketing hype bonus (applied to revenue before fans)
     const marketingResult = marketingSystem.onGameRelease();
@@ -514,6 +575,10 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+
+    // Track victory counters
+    if (criticAvg >= 8.5) s.gamesHighScore = (s.gamesHighScore || 0) + 1;
+    if (game.size === 'AAA' && criticAvg >= 9.5) s.moonshots = (s.moonshots || 0) + 1;
 
     // Notification center: game release + review scores + milestone check
     notificationManager.onGameRelease(completedGame, s);
@@ -648,6 +713,32 @@ class GameEngine {
     }
     this._emit();
     this._save();
+  }
+
+  /** Trigger a named victory path and stop the game */
+  _triggerVictory(path, message) {
+    const s = this.state;
+    s.gameOver = true;
+    s.gameOverReason = 'victory';
+    s.victoryPath = path;
+    this.setSpeed(0);
+    this._notify(message);
+  }
+
+  /** Start a remaster of a previously released game on new platforms */
+  startRemaster(originalGame, newPlatformIds) {
+    const remasterInfo = franchiseTracker.getRemasterScore(originalGame.title, this.state.totalWeeks);
+    return this.startGame({
+      title: `${originalGame.title}: Remastered`,
+      topic: originalGame.topic,
+      genre: originalGame.genre,
+      audience: originalGame.audience,
+      platformIds: newPlatformIds,
+      size: originalGame.size,
+      sliders: Array(9).fill(33),
+      isRemaster: true,
+      remasterBonus: remasterInfo ? remasterInfo.score : 0,
+    });
   }
 
   // ── Staff ────────────────────────────────────────────────────

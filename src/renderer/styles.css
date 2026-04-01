@@ -517,3 +517,71 @@ select {
 .stat-fill--high {
   box-shadow: 0 0 6px rgba(88, 166, 255, 0.4);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Shared UI Component Library — Toast, Modal, Tooltip animations
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+
+.ui-toast {
+  animation: uiToastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ui-toast--exit {
+  animation: uiToastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes uiToastSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes uiToastSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+
+/* ── Modal exit animations ──────────────────────────────────────────────── */
+
+@keyframes uiModalFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes uiModalSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+
+.ui-tooltip {
+  animation: uiTooltipFadeIn 0.15s ease;
+}
+
+@keyframes uiTooltipFadeIn {
+  from { opacity: 0; transform: translate(-50%, -100%) scale(0.95); }
+  to   { opacity: 1; }
+}

@@ -82,9 +82,23 @@ function StaffPanel({ state, onClose }) {
             <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
               {member.name}
               {member.isFounder && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>Founder</span>}
+              {member.isTeamLead && <span style={{ fontSize: '11px', color: '#d29922', marginLeft: '8px' }}>&#9812; Lead +10%</span>}
               {isOnVacation && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>On Vacation</span>}
               {isSick && <span style={{ fontSize: '11px', color: '#f85149', marginLeft: '8px' }}>Sick</span>}
             </div>
+            {/* Genre specialties */}
+            {member.genreSpecialties && Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
+                {Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).map(([genre, pts]) => (
+                  <span key={genre} style={{
+                    fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
+                    background: 'rgba(88,166,255,0.15)', color: '#58a6ff',
+                  }}>
+                    {genre} +20%
+                  </span>
+                ))}
+              </div>
+            )}
             {member.salary > 0 && (
               <div style={{ fontSize: '11px', color: '#8b949e' }}>
                 Salary: ${member.salary.toLocaleString()}/mo
