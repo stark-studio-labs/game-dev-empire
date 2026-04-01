@@ -1,0 +1,537 @@
+/**
+ * Tech Empire — Core Game Engine
+ * Tick-based simulation: 1 tick = 1 game week.
+ */
+
+class GameEngine {
+  constructor() {
+    this.state = null;
+    this.tickInterval = null;
+    this.speed = 0; // 0=paused, 1=1x, 2=2x, 4=4x
+    this.listeners = [];
+    this.TICK_MS = 800; // base tick speed in ms (1x)
+  }
+
+  /** Create a new game state */
+  newGame(companyName) {
+    this.state = {
+      companyName: companyName || 'Indie Studio',
+      cash: 70000,
+      fans: 0,
+      level: 0, // index into OFFICE_LEVELS
+      week: 1,
+      month: 1,
+      year: 1,
+      totalWeeks: 0,
+
+      // Staff
+      staff: [
+        this._createFounder(),
+      ],
+
+      // Game history
+      games: [],
+      currentGame: null,
+
+      // Scoring history (GDT top-score tracking)
+      topScore: 0,
+      topScoreDelta: 0,
+
+      // Genre usage tracking (for frequency penalty)
+      genreUsage: {},
+
+      // Notifications queue
+      notifications: [],
+
+      // Game phase (null if not developing)
+      devPhase: null,       // 0, 1, 2 or null
+      devProgress: 0,       // 0-100 within current phase
+      devDesign: 0,
+      devTech: 0,
+      devSliders: null,     // 9 values set by the wizard
+
+      // Sales tracking
+      sellingGame: null,
+      salesWeeksLeft: 0,
+      salesRevenue: 0,
+      salesTotalTarget: 0,
+
+      // Available platforms cache
+      availablePlatforms: [],
+
+      // Office upgrade offered
+      upgradeAvailable: false,
+    };
+
+    this._updateAvailablePlatforms();
+    this._emit();
+    this._save();
+  }
+
+  /** Load from localStorage */
+  load() {
+    try {
+      const saved = localStorage.getItem('techEmpire_save');
+      if (saved) {
+        this.state = JSON.parse(saved);
+        this._updateAvailablePlatforms();
+        this._emit();
+        return true;
+      }
+    } catch (e) {
+      console.error('Failed to load save:', e);
+    }
+    return false;
+  }
+
+  /** Save to localStorage */
+  _save() {
+    try {
+      localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
+    } catch (e) {
+      console.error('Failed to save:', e);
+    }
+  }
+
+  /** Subscribe to state changes */
+  subscribe(fn) {
+    this.listeners.push(fn);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== fn);
+    };
+  }
+
+  _emit() {
+    this.listeners.forEach(fn => fn({ ...this.state }));
+  }
+
+  /** Set game speed */
+  setSpeed(speed) {
+    this.speed = speed;
+    if (this.tickInterval) {
+      clearInterval(this.tickInterval);
+      this.tickInterval = null;
+    }
+    if (speed > 0) {
+      const ms = this.TICK_MS / speed;
+      this.tickInterval = setInterval(() => this.tick(), ms);
+    }
+    this._emit();
+  }
+
+  /** Advance one game week */
+  tick() {
+    if (!this.state) return;
+    const s = this.state;
+
+    // Advance date
+    s.week++;
+    s.totalWeeks++;
+    if (s.week > 4) {
+      s.week = 1;
+      s.month++;
+      if (s.month > 12) {
+        s.month = 1;
+        s.year++;
+      }
+      // Monthly costs
+      this._monthlyExpenses();
+    }
+
+    // Development tick
+    if (s.currentGame && s.devPhase !== null) {
+      this._devTick();
+    }
+
+    // Sales tick
+    if (s.sellingGame && s.salesWeeksLeft > 0) {
+      this._salesTick();
+    }
+
+    // Check office upgrade
+    this._checkUpgrade();
+
+    // Update available platforms
+    if (s.totalWeeks % 4 === 0) {
+      this._updateAvailablePlatforms();
+    }
+
+    this._emit();
+
+    // Auto-save every 12 weeks (3 months)
+    if (s.totalWeeks % 12 === 0) {
+      this._save();
+    }
+  }
+
+  // ── Development ──────────────────────────────────────────────
+
+  /**
+   * Start developing a new game.
+   * config: { title, topic, genre, audience, platformId, size, sliders }
+   * sliders: array of 9 values (0-100) for each aspect
+   */
+  startGame(config) {
+    const s = this.state;
+    const sizeData = GAME_SIZES[config.size];
+
+    // Pay platform license + dev cost
+    const plat = PLATFORMS.find(p => p.id === config.platformId);
+    const cost = (plat ? plat.licenseFee : 0) + sizeData.cost;
+    if (s.cash < cost) {
+      this._notify('Not enough cash to start development!');
+      return false;
+    }
+    s.cash -= cost;
+
+    s.currentGame = {
+      title: config.title,
+      topic: config.topic,
+      genre: config.genre,
+      audience: config.audience,
+      platformId: config.platformId,
+      size: config.size,
+      startWeek: s.totalWeeks,
+    };
+
+    s.devSliders = config.sliders;
+    s.devPhase = 0;
+    s.devProgress = 0;
+    s.devDesign = 0;
+    s.devTech = 0;
+
+    this._notify(`Started developing "${config.title}"!`);
+    this._emit();
+    return true;
+  }
+
+  /** Process one development tick */
+  _devTick() {
+    const s = this.state;
+    const phase = DEV_PHASES[s.devPhase];
+    const sizeData = GAME_SIZES[s.currentGame.size];
+    const weeksPerPhase = Math.ceil(sizeData.devWeeks / 3);
+
+    // Each staff member generates points
+    s.staff.forEach(member => {
+      for (let ai = 0; ai < 3; ai++) {
+        const aspectIdx = s.devPhase * 3 + ai;
+        const aspectName = phase.aspects[ai];
+        const ratio = ASPECT_RATIOS[aspectName];
+        const sliderPct = (s.devSliders[aspectIdx] || 33) / 100;
+
+        const speedFactor = 0.8 + member.speed * 0.004;
+        const designPts = member.design * sliderPct * ratio.design * speedFactor * (ratio.basePoints / 40);
+        const techPts = member.tech * sliderPct * ratio.tech * speedFactor * (ratio.basePoints / 40);
+
+        s.devDesign += designPts;
+        s.devTech += techPts;
+      }
+    });
+
+    // Progress within phase
+    s.devProgress += (100 / weeksPerPhase);
+
+    // Phase complete?
+    if (s.devProgress >= 100) {
+      if (s.devPhase < 2) {
+        s.devPhase++;
+        s.devProgress = 0;
+        this._notify(`Phase ${s.devPhase + 1} started for "${s.currentGame.title}"`);
+      } else {
+        // Development complete — release the game
+        this._releaseGame();
+      }
+    }
+  }
+
+  /** Release a completed game */
+  _releaseGame() {
+    const s = this.state;
+    const game = s.currentGame;
+    const devWeeks = s.totalWeeks - game.startWeek;
+
+    // Compute score
+    const scoreResult = Scoring.computeGameScore({
+      design: s.devDesign,
+      tech: s.devTech,
+      genre: game.genre,
+      topic: game.topic,
+      audience: game.audience,
+      platformId: game.platformId,
+      size: game.size,
+      sliders: s.devSliders,
+      devWeeks,
+      staffCount: s.staff.length,
+    });
+
+    // Compute reviews (relative to personal best)
+    const reviewResult = Scoring.computeReviewScores(
+      scoreResult.gameScore,
+      s.topScore,
+      s.topScoreDelta,
+      s.year
+    );
+
+    // Update top score if new personal best
+    if (scoreResult.gameScore > s.topScore) {
+      s.topScoreDelta = scoreResult.gameScore - s.topScore;
+      s.topScore = scoreResult.gameScore;
+    }
+
+    // Compute revenue
+    const revenueResult = Scoring.computeRevenue({
+      reviewAvg: reviewResult.average,
+      platformId: game.platformId,
+      fans: s.fans,
+      size: game.size,
+      totalWeek: s.totalWeeks,
+    });
+
+    // Fans gained
+    const newFans = Scoring.fansGained(reviewResult.average, s.fans);
+    s.fans += newFans;
+
+    // Track genre usage
+    s.genreUsage[game.genre] = (s.genreUsage[game.genre] || 0) + 1;
+
+    // Build completed game record
+    const completedGame = {
+      ...game,
+      devWeeks,
+      designPoints: Math.round(s.devDesign),
+      techPoints: Math.round(s.devTech),
+      gameScore: Math.round(scoreResult.gameScore * 10) / 10,
+      reviews: reviewResult.reviews,
+      reviewAvg: reviewResult.average,
+      totalRevenue: revenueResult.totalRevenue,
+      unitsSold: revenueResult.unitsSold,
+      fansGained: newFans,
+      releaseYear: s.year,
+      releaseMonth: s.month,
+    };
+
+    s.games.push(completedGame);
+
+    // Start sales period
+    s.sellingGame = completedGame;
+    s.salesWeeksLeft = 8 + Math.floor(Math.random() * 4);
+    s.salesRevenue = 0;
+    s.salesTotalTarget = revenueResult.totalRevenue;
+
+    // Clear dev state
+    s.currentGame = null;
+    s.devPhase = null;
+    s.devProgress = 0;
+    s.devDesign = 0;
+    s.devTech = 0;
+    s.devSliders = null;
+
+    // Pause for review
+    this.setSpeed(0);
+
+    // Train staff slightly from experience
+    s.staff.forEach(member => {
+      member.design += Math.random() * 3 + 1;
+      member.tech += Math.random() * 3 + 1;
+      member.speed += Math.random() * 0.5;
+      member.gamesWorked++;
+    });
+
+    this._emit();
+    this._save();
+  }
+
+  // ── Sales ────────────────────────────────────────────────────
+
+  _salesTick() {
+    const s = this.state;
+    s.salesWeeksLeft--;
+
+    // Revenue follows a curve: peak early, taper off
+    const totalSalesWeeks = 8 + 4;
+    const weekNum = totalSalesWeeks - s.salesWeeksLeft;
+    const curve = Math.exp(-0.3 * (weekNum - 1)); // exponential decay
+    const weekRevenue = Math.round(s.salesTotalTarget * curve * 0.25);
+
+    s.salesRevenue += weekRevenue;
+    s.cash += weekRevenue;
+
+    if (s.salesWeeksLeft <= 0) {
+      // Final sales — ensure we hit target
+      const remaining = Math.max(0, s.salesTotalTarget - s.salesRevenue);
+      s.cash += remaining;
+      s.salesRevenue += remaining;
+
+      this._notify(`"${s.sellingGame.title}" finished selling: $${this._formatNum(s.salesRevenue)} total revenue!`);
+      s.sellingGame = null;
+      s.salesRevenue = 0;
+      s.salesTotalTarget = 0;
+    }
+  }
+
+  // ── Staff ────────────────────────────────────────────────────
+
+  _createFounder() {
+    return {
+      id: 'founder',
+      name: 'You',
+      design: 30 + Math.floor(Math.random() * 20),
+      tech: 30 + Math.floor(Math.random() * 20),
+      speed: 40 + Math.floor(Math.random() * 15),
+      research: 20 + Math.floor(Math.random() * 10),
+      salary: 0,
+      isFounder: true,
+      gamesWorked: 0,
+    };
+  }
+
+  generateApplicants(count = 3) {
+    const applicants = [];
+    const level = this.state.level;
+    for (let i = 0; i < count; i++) {
+      const firstName = STAFF_FIRST_NAMES[Math.floor(Math.random() * STAFF_FIRST_NAMES.length)];
+      const lastName = STAFF_LAST_NAMES[Math.floor(Math.random() * STAFF_LAST_NAMES.length)];
+      const baseStat = 15 + level * 12 + Math.floor(Math.random() * 25);
+      applicants.push({
+        id: `staff_${Date.now()}_${i}`,
+        name: `${firstName} ${lastName}`,
+        design: baseStat + Math.floor(Math.random() * 30 - 15),
+        tech: baseStat + Math.floor(Math.random() * 30 - 15),
+        speed: 30 + Math.floor(Math.random() * 30),
+        research: 10 + Math.floor(Math.random() * 20),
+        salary: Math.round((baseStat * 150 + 3000) / 100) * 100,
+        isFounder: false,
+        gamesWorked: 0,
+      });
+    }
+    return applicants;
+  }
+
+  hireStaff(applicant) {
+    const s = this.state;
+    const office = OFFICE_LEVELS[s.level];
+    if (s.staff.length >= office.maxStaff) {
+      this._notify('Office is full! Upgrade to hire more staff.');
+      return false;
+    }
+    s.staff.push({ ...applicant });
+    this._notify(`Hired ${applicant.name}!`);
+    this._emit();
+    this._save();
+    return true;
+  }
+
+  fireStaff(staffId) {
+    const s = this.state;
+    const idx = s.staff.findIndex(m => m.id === staffId);
+    if (idx < 0 || s.staff[idx].isFounder) return false;
+    const name = s.staff[idx].name;
+    s.staff.splice(idx, 1);
+    this._notify(`${name} has left the company.`);
+    this._emit();
+    this._save();
+    return true;
+  }
+
+  // ── Office Upgrade ───────────────────────────────────────────
+
+  _checkUpgrade() {
+    const s = this.state;
+    if (s.level >= OFFICE_LEVELS.length - 1) return;
+    const next = OFFICE_LEVELS[s.level + 1];
+    if (s.cash >= next.unlockCash && s.year >= next.unlockYear) {
+      s.upgradeAvailable = true;
+    }
+  }
+
+  upgradeOffice() {
+    const s = this.state;
+    if (s.level >= OFFICE_LEVELS.length - 1) return false;
+    const next = OFFICE_LEVELS[s.level + 1];
+    if (s.cash < next.unlockCash || s.year < next.unlockYear) return false;
+
+    s.level++;
+    s.upgradeAvailable = false;
+    this._notify(`Upgraded to ${OFFICE_LEVELS[s.level].name}!`);
+    this._emit();
+    this._save();
+    return true;
+  }
+
+  // ── Utilities ────────────────────────────────────────────────
+
+  _monthlyExpenses() {
+    const s = this.state;
+    const officeRent = [0, 5000, 12000, 25000][s.level] || 0;
+    const salaries = s.staff.reduce((sum, m) => sum + (m.salary || 0), 0);
+    const total = officeRent + salaries;
+    s.cash -= total;
+
+    // Bankruptcy check
+    if (s.cash < 0) {
+      this._notify('WARNING: You are running out of money!');
+    }
+  }
+
+  _updateAvailablePlatforms() {
+    if (!this.state) return;
+    this.state.availablePlatforms = PLATFORMS.filter(p =>
+      isPlatformAvailable(p, this.state.totalWeeks)
+    );
+  }
+
+  _notify(msg) {
+    if (!this.state) return;
+    this.state.notifications.push({
+      id: Date.now(),
+      message: msg,
+      time: `Y${this.state.year} M${this.state.month} W${this.state.week}`,
+    });
+    // Keep last 20
+    if (this.state.notifications.length > 20) {
+      this.state.notifications = this.state.notifications.slice(-20);
+    }
+  }
+
+  clearNotification(id) {
+    if (!this.state) return;
+    this.state.notifications = this.state.notifications.filter(n => n.id !== id);
+    this._emit();
+  }
+
+  _formatNum(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+    return n.toString();
+  }
+
+  /** Get available game sizes for current office */
+  getAvailableSizes() {
+    if (!this.state) return [];
+    return OFFICE_LEVELS[this.state.level].sizes;
+  }
+
+  /** Force save */
+  save() {
+    this._save();
+  }
+
+  /** Get the date string */
+  getDateString() {
+    if (!this.state) return '';
+    return `Year ${this.state.year}, Month ${this.state.month}, Week ${this.state.week}`;
+  }
+
+  /** Cleanup on destroy */
+  destroy() {
+    if (this.tickInterval) {
+      clearInterval(this.tickInterval);
+      this.tickInterval = null;
+    }
+    this.listeners = [];
+  }
+}
+
+// Global engine instance
+const engine = new GameEngine();

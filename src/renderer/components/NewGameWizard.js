@@ -1,0 +1,327 @@
+/**
+ * NewGameWizard — Step-by-step game creation:
+ * 1. Topic → 2. Genre → 3. Platform + Audience + Size → 4. Slider allocation → 5. Confirm
+ */
+function NewGameWizard({ state, onStart, onCancel }) {
+  const [step, setStep] = React.useState(0);
+  const [title, setTitle] = React.useState('');
+  const [topic, setTopic] = React.useState(null);
+  const [genre, setGenre] = React.useState(null);
+  const [audience, setAudience] = React.useState('Everyone');
+  const [platformId, setPlatformId] = React.useState(null);
+  const [size, setSize] = React.useState('Small');
+  const [sliders, setSliders] = React.useState([33,33,33, 33,33,33, 33,33,33]);
+
+  const availableSizes = engine.getAvailableSizes();
+  const availablePlatforms = state.availablePlatforms || [];
+
+  // Compatibility indicator
+  const getCompat = (val) => {
+    if (val >= 1.0) return { label: '+++', color: '#3fb950' };
+    if (val >= 0.9) return { label: '++', color: '#56d364' };
+    if (val >= 0.8) return { label: '+', color: '#8b949e' };
+    if (val >= 0.7) return { label: '-', color: '#d29922' };
+    return { label: '--', color: '#f85149' };
+  };
+
+  const updateSlider = (phaseIdx, aspectIdx, value) => {
+    const idx = phaseIdx * 3 + aspectIdx;
+    const newSliders = [...sliders];
+
+    // Within a phase, the 3 sliders must sum to ~100
+    // Adjust the other two proportionally
+    const otherIndices = [0, 1, 2].filter(i => i !== aspectIdx).map(i => phaseIdx * 3 + i);
+    const oldVal = newSliders[idx];
+    const diff = value - oldVal;
+    const othersSum = otherIndices.reduce((s, i) => s + newSliders[i], 0);
+
+    newSliders[idx] = value;
+
+    if (othersSum > 0) {
+      otherIndices.forEach(i => {
+        newSliders[i] = Math.max(5, Math.round(newSliders[i] - diff * (newSliders[i] / othersSum)));
+      });
+    } else {
+      otherIndices.forEach(i => {
+        newSliders[i] = Math.round((100 - value) / 2);
+      });
+    }
+
+    // Normalize phase to 100
+    const phaseStart = phaseIdx * 3;
+    const phaseSum = newSliders[phaseStart] + newSliders[phaseStart + 1] + newSliders[phaseStart + 2];
+    if (phaseSum > 0 && phaseSum !== 100) {
+      const factor = 100 / phaseSum;
+      for (let i = 0; i < 3; i++) {
+        newSliders[phaseStart + i] = Math.max(5, Math.round(newSliders[phaseStart + i] * factor));
+      }
+    }
+
+    setSliders(newSliders);
+  };
+
+  const handleConfirm = () => {
+    const config = {
+      title: title || `${topic} ${genre}`,
+      topic,
+      genre,
+      audience,
+      platformId,
+      size,
+      sliders,
+    };
+    onStart(config);
+  };
+
+  const renderStepIndicator = () => (
+    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
+      {['Title', 'Topic', 'Genre', 'Platform', 'Sliders'].map((label, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '12px', fontWeight: 600,
+            background: i === step ? 'rgba(88,166,255,0.2)' : i < step ? 'rgba(63,185,80,0.2)' : 'rgba(255,255,255,0.05)',
+            color: i === step ? '#58a6ff' : i < step ? '#3fb950' : '#484f58',
+            border: `1px solid ${i === step ? '#58a6ff' : i < step ? '#3fb950' : 'rgba(255,255,255,0.08)'}`,
+          }}>
+            {i < step ? '\u2713' : i + 1}
+          </div>
+          <span style={{ fontSize: '12px', color: i === step ? '#e6edf3' : '#484f58' }}>{label}</span>
+          {i < 4 && <span style={{ color: '#30363d', margin: '0 2px' }}>\u2014</span>}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content" style={{ maxWidth: step === 4 ? '700px' : '550px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#e6edf3', marginBottom: '8px' }}>
+          New Game
+        </h2>
+        {renderStepIndicator()}
+
+        {/* Step 0: Title */}
+        {step === 0 && (
+          <div>
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+              Game Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="Enter a game title..."
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: '8px',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                color: '#e6edf3', fontSize: '15px', outline: 'none',
+              }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
+              <button className="btn-secondary" onClick={onCancel}>Cancel</button>
+              <button className="btn-accent" onClick={() => setStep(1)}>Next</button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 1: Topic */}
+        {step === 1 && (
+          <div>
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '12px' }}>
+              Choose Topic
+            </label>
+            <div className="selection-grid" style={{ maxHeight: '400px', overflowY: 'auto', padding: '2px' }}>
+              {TOPICS.map(t => (
+                <div
+                  key={t.name}
+                  className={`selection-item ${topic === t.name ? 'selected' : ''}`}
+                  onClick={() => setTopic(t.name)}
+                >
+                  {t.name}
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+              <button className="btn-secondary" onClick={() => setStep(0)}>Back</button>
+              <button className="btn-accent" onClick={() => setStep(2)} disabled={!topic}>Next</button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Genre */}
+        {step === 2 && (
+          <div>
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '12px' }}>
+              Choose Genre
+              {topic && <span style={{ color: '#58a6ff' }}> (for {topic})</span>}
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+              {GENRES.map(g => {
+                const topicData = TOPICS.find(t => t.name === topic);
+                const genreIdx = GENRES.indexOf(g);
+                const compat = topicData ? getCompat(topicData.genreW[genreIdx]) : null;
+                return (
+                  <div
+                    key={g}
+                    className={`selection-item ${genre === g ? 'selected' : ''}`}
+                    onClick={() => setGenre(g)}
+                    style={{ padding: '14px', position: 'relative' }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '14px' }}>{g}</div>
+                    {compat && (
+                      <div style={{ fontSize: '12px', color: compat.color, marginTop: '4px' }}>
+                        {compat.label}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+              <button className="btn-secondary" onClick={() => setStep(1)}>Back</button>
+              <button className="btn-accent" onClick={() => setStep(3)} disabled={!genre}>Next</button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Platform + Audience + Size */}
+        {step === 3 && (
+          <div>
+            {/* Audience */}
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+              Target Audience
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              {AUDIENCES.map(a => {
+                const topicData = TOPICS.find(t => t.name === topic);
+                const audIdx = AUDIENCES.indexOf(a);
+                const compat = topicData ? getCompat(topicData.audienceW[audIdx]) : null;
+                return (
+                  <div
+                    key={a}
+                    className={`selection-item ${audience === a ? 'selected' : ''}`}
+                    onClick={() => setAudience(a)}
+                    style={{ flex: 1, padding: '12px' }}
+                  >
+                    <div style={{ fontWeight: 600 }}>{a}</div>
+                    {compat && <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Game Size */}
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+              Game Size
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              {availableSizes.map(s => (
+                <div
+                  key={s}
+                  className={`selection-item ${size === s ? 'selected' : ''}`}
+                  onClick={() => setSize(s)}
+                  style={{ flex: 1, padding: '12px' }}
+                >
+                  <div style={{ fontWeight: 600 }}>{s}</div>
+                  <div style={{ fontSize: '11px', color: '#8b949e' }}>
+                    {GAME_SIZES[s].devWeeks}w / ${(GAME_SIZES[s].cost / 1000).toFixed(0)}K
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Platform */}
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+              Platform
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+              {availablePlatforms.map(p => {
+                const genreIdx = GENRES.indexOf(genre);
+                const compat = genreIdx >= 0 ? getCompat(p.genreW[genreIdx]) : null;
+                const share = getPlatformMarketShare(p, state.totalWeeks);
+                return (
+                  <div
+                    key={p.id}
+                    className={`selection-item ${platformId === p.id ? 'selected' : ''}`}
+                    onClick={() => setPlatformId(p.id)}
+                    style={{ padding: '10px', textAlign: 'left' }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.name}</div>
+                    <div style={{ fontSize: '11px', color: '#8b949e' }}>{p.company}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                      {compat && <span style={{ fontSize: '11px', color: compat.color }}>{compat.label}</span>}
+                      <span style={{ fontSize: '11px', color: '#8b949e' }}>${(p.licenseFee/1000).toFixed(0)}K</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+              <button className="btn-secondary" onClick={() => setStep(2)}>Back</button>
+              <button className="btn-accent" onClick={() => setStep(4)} disabled={!platformId}>Next</button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Slider Allocation */}
+        {step === 4 && (
+          <div>
+            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '16px' }}>
+              Allocate Development Focus (each phase must sum to ~100%)
+            </label>
+
+            {DEV_PHASES.map((phase, pi) => {
+              const importance = GENRE_IMPORTANCE[genre] || [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
+              return (
+                <div key={pi} className="glass-card" style={{ padding: '16px', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3', marginBottom: '12px' }}>
+                    {phase.name}
+                  </div>
+                  {phase.aspects.map((aspect, ai) => {
+                    const idx = pi * 3 + ai;
+                    const imp = importance[idx];
+                    const impLabel = imp >= 0.9 ? 'Important' : imp <= 0.1 ? 'Restricted' : '';
+                    const impColor = imp >= 0.9 ? '#3fb950' : imp <= 0.1 ? '#f85149' : '';
+                    return (
+                      <div key={ai} style={{ marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '13px', color: '#c9d1d9' }}>{aspect}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {impLabel && (
+                              <span style={{ fontSize: '11px', color: impColor, fontWeight: 500 }}>{impLabel}</span>
+                            )}
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#58a6ff', minWidth: '32px', textAlign: 'right' }}>
+                              {sliders[idx]}%
+                            </span>
+                          </div>
+                        </div>
+                        <input
+                          type="range"
+                          min="5"
+                          max="80"
+                          value={sliders[idx]}
+                          onChange={e => updateSlider(pi, ai, parseInt(e.target.value))}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+              <button className="btn-secondary" onClick={() => setStep(3)}>Back</button>
+              <button className="btn-accent" onClick={handleConfirm}>
+                Start Development
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech Empire</title>
+  <script src="https://cdn.tailwindcss.com/4"></script>
+  <script src="https://unpkg.com/react@19/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@19/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-[#0d1117] text-gray-200 overflow-hidden select-none">
+  <div id="root"></div>
+
+  <!-- Game engine (plain JS, no JSX needed) -->
+  <script src="../game/data.js"></script>
+  <script src="../game/scoring.js"></script>
+  <script src="../game/engine.js"></script>
+
+  <!-- React components (JSX via Babel) -->
+  <script type="text/babel" src="components/TopBar.js"></script>
+  <script type="text/babel" src="components/NewGameWizard.js"></script>
+  <script type="text/babel" src="components/ReviewScreen.js"></script>
+  <script type="text/babel" src="components/StaffPanel.js"></script>
+  <script type="text/babel" src="components/GameScreen.js"></script>
+  <script type="text/babel" src="app.js"></script>
+</body>
+</html>

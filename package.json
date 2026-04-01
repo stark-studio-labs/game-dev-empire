@@ -1,0 +1,15 @@
+{
+  "name": "tech-empire",
+  "version": "0.1.0",
+  "description": "Tech Empire — A game dev tycoon simulator by Stark Labs",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "author": "Stark Labs <studio@starklabs.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^35.0.0"
+  }
+}
