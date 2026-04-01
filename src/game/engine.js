@@ -241,6 +241,7 @@ class GameEngine {
     const researchResult = researchSystem.tick(s);
     if (researchResult && researchResult.completed) {
       this._notify(`Research complete: ${researchResult.name}!`);
+      notificationManager.onResearchComplete(researchResult.name, s);
     }
 
     // Market simulation tick
@@ -261,6 +262,12 @@ class GameEngine {
       s.cash -= taxResult.taxBill;
       finance.record('tax', -taxResult.taxBill, `Q${taxResult.quarter} Corporate Tax`, this._dateStr());
       this._notify(`Q${taxResult.quarter} taxes due: $${this._formatNum(taxResult.taxBill)} (${(taxResult.taxRate * 100).toFixed(0)}% rate)`);
+      notificationManager.onExpenseDue(taxResult.taxBill, `Q${taxResult.quarter} Corporate Tax`, s);
+    }
+
+    // Notification center: periodic milestone check (every 4 weeks)
+    if (s.totalWeeks % 4 === 0) {
+      notificationManager.checkMilestones(s);
     }
 
     // Weekly cash snapshot

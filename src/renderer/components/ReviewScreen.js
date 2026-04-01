@@ -1,5 +1,6 @@
 /**
- * ReviewScreen — Shows 4 reviewer scores after game release
+ * ReviewScreen — Shows 4 critic reviews after game release
+ * Now with critic personalities, avatars, and flavor quotes.
  */
 function ReviewScreen({ game, onClose }) {
   if (!game) return null;
@@ -7,15 +8,25 @@ function ReviewScreen({ game, onClose }) {
   const [revealed, setRevealed] = React.useState(0);
 
   React.useEffect(() => {
-    // Reveal scores one at a time
     if (revealed < 4) {
       const timer = setTimeout(() => setRevealed(r => r + 1), 600);
       return () => clearTimeout(timer);
     }
   }, [revealed]);
 
-  const reviewerNames = ['GamePro Weekly', 'Digital Arts Magazine', 'IndieScope', 'TechGamer'];
-  const reviewerAvatars = ['GP', 'DA', 'IS', 'TG'];
+  const hasCritics = game.criticReviews && game.criticReviews.length > 0;
+  const reviewerNames = hasCritics
+    ? game.criticReviews.map(cr => cr.critic.name)
+    : ['GamePro Weekly', 'Digital Arts Magazine', 'IndieScope', 'TechGamer'];
+  const reviewerAvatars = hasCritics
+    ? game.criticReviews.map(cr => cr.critic.avatar)
+    : ['GP', 'DA', 'IS', 'TG'];
+  const reviewerTitles = hasCritics
+    ? game.criticReviews.map(cr => cr.critic.title)
+    : ['', '', '', ''];
+  const reviewerQuotes = hasCritics
+    ? game.criticReviews.map(cr => cr.quote)
+    : ['', '', '', ''];
 
   const getScoreColor = (score) => {
     if (score >= 9) return '#3fb950';
@@ -32,7 +43,7 @@ function ReviewScreen({ game, onClose }) {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '500px', textAlign: 'center' }}>
+      <div className="modal-content" style={{ maxWidth: '560px', textAlign: 'center' }}>
         <div style={{ fontSize: '12px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
           Game Review
         </div>
@@ -58,24 +69,43 @@ function ReviewScreen({ game, onClose }) {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                 <div style={{
-                  width: '32px', height: '32px', borderRadius: '50%',
+                  width: '36px', height: '36px', borderRadius: '50%',
                   background: 'rgba(88,166,255,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 700, color: '#58a6ff',
+                  fontSize: hasCritics ? '18px' : '11px', fontWeight: 700, color: '#58a6ff',
                 }}>
                   {reviewerAvatars[i]}
                 </div>
-                <div style={{ fontSize: '12px', color: '#8b949e', textAlign: 'left' }}>
-                  {reviewerNames[i]}
+                <div style={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '12px', color: '#e6edf3', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {reviewerNames[i]}
+                  </div>
+                  {reviewerTitles[i] && (
+                    <div style={{ fontSize: '10px', color: '#8b949e', fontStyle: 'italic' }}>
+                      {reviewerTitles[i]}
+                    </div>
+                  )}
                 </div>
               </div>
               <div style={{
                 fontSize: '36px',
                 fontWeight: 700,
                 color: i < revealed ? getScoreColor(score) : '#30363d',
+                marginBottom: reviewerQuotes[i] ? '8px' : '0',
               }}>
                 {i < revealed ? score.toFixed(1) : '?'}
               </div>
+              {i < revealed && reviewerQuotes[i] && (
+                <div style={{
+                  fontSize: '11px',
+                  color: '#8b949e',
+                  fontStyle: 'italic',
+                  lineHeight: 1.4,
+                  padding: '0 4px',
+                }}>
+                  {reviewerQuotes[i]}
+                </div>
+              )}
             </div>
           ))}
         </div>

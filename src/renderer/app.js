@@ -16,6 +16,7 @@ function App() {
   const [showMarketing, setShowMarketing] = useState(false);
   const [showTraining, setShowTraining] = useState(false);
   const [showHardware, setShowHardware] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
@@ -72,6 +73,8 @@ function App() {
     const name = companyName.trim() || 'Indie Studio';
     engine.newGame(name);
     setScreen('game');
+    // Start tutorial for first-time players
+    tutorialSystem.checkFirstTime();
   };
 
   const handleLoadGame = () => {
@@ -207,9 +210,20 @@ function App() {
           </button>
         )}
 
+        {/* Replay Tutorial */}
+        {localStorage.getItem('techEmpire_tutorialComplete') && (
+          <button
+            className="btn-secondary"
+            onClick={() => { localStorage.removeItem('techEmpire_tutorialComplete'); }}
+            style={{ width: '360px', padding: '10px', fontSize: '13px', marginTop: '8px', opacity: 0.6 }}
+          >
+            Reset Tutorial
+          </button>
+        )}
+
         {/* Version */}
         <div style={{ position: 'fixed', bottom: '16px', fontSize: '11px', color: '#21262d' }}>
-          v0.2.0
+          v0.3.0
         </div>
       </div>
     );
@@ -235,6 +249,8 @@ function App() {
         showTraining={showTraining}
         onToggleHardware={() => setShowHardware(v => !v)}
         showHardware={showHardware}
+        onToggleHistory={() => setShowHistory(v => !v)}
+        showHistory={showHistory}
       />
 
       <GameScreen
@@ -325,6 +341,13 @@ function App() {
         />
       )}
 
+      {showHistory && gameState && (
+        <GameHistory
+          state={gameState}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
+
       {(pendingEvent || eventConsequence) && (
         <EventModal
           event={pendingEvent}
@@ -332,6 +355,8 @@ function App() {
           onChoice={handleEventChoice}
         />
       )}
+
+      <TutorialOverlay />
     </div>
   );
 }

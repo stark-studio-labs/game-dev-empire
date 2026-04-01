@@ -31,6 +31,8 @@ function FinanceDashboard({ state, onClose }) {
     office_rent: { label: 'Office Rent',       color: '#da7cff' },
     dev_cost:    { label: 'Dev Costs',         color: '#ff9800' },
     license:     { label: 'Platform Licenses', color: '#79c0ff' },
+    marketing:   { label: 'Marketing',         color: '#d29922' },
+    tax:         { label: 'Corporate Taxes',   color: '#f85149' },
   };
   const totalExpAmt = Object.values(expenses).reduce((a, b) => a + b, 0) || 1;
 
@@ -207,6 +209,98 @@ function FinanceDashboard({ state, onClose }) {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Tax History */}
+        <div style={{ ...panel, marginTop: '16px' }}>
+          <div style={sectionLabel}>Tax History</div>
+          {(() => {
+            const taxHist = taxSystem.taxHistory;
+            const currentRate = taxSystem.getTaxRate(OFFICE_LEVELS[state.level].name);
+            const totalPaid = taxSystem.totalTaxesPaid();
+
+            return (
+              <>
+                {/* Current tax rate indicator */}
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{
+                    flex: 1, textAlign: 'center', padding: '10px',
+                    background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Tax Rate</div>
+                    <div style={{ fontSize: '17px', fontWeight: 700, color: currentRate > 0 ? '#f85149' : '#3fb950' }}>
+                      {(currentRate * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                  <div style={{
+                    flex: 1, textAlign: 'center', padding: '10px',
+                    background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Total Taxes Paid</div>
+                    <div style={{ fontSize: '17px', fontWeight: 700, color: '#f85149' }}>
+                      {formatCash(totalPaid)}
+                    </div>
+                  </div>
+                  <div style={{
+                    flex: 1, textAlign: 'center', padding: '10px',
+                    background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Office Level</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
+                      {OFFICE_LEVELS[state.level].name}
+                    </div>
+                  </div>
+                </div>
+
+                {taxHist.length === 0 ? (
+                  <div style={{ color: '#8b949e', fontSize: '13px', textAlign: 'center', padding: '12px 0' }}>
+                    {currentRate === 0 ? 'Garage-level companies pay no taxes!' : 'No tax assessments yet — taxes are calculated quarterly.'}
+                  </div>
+                ) : (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                        <th style={{ textAlign: 'left', color: '#8b949e', fontWeight: 500, padding: '0 0 6px 0' }}>Quarter</th>
+                        <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 6px 0' }}>Revenue</th>
+                        <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 6px 0' }}>Deductions</th>
+                        <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 6px 0' }}>Taxable</th>
+                        <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 6px 0' }}>Tax Bill</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {taxHist.slice(-8).map((rec) => (
+                        <tr key={rec.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <td style={{ padding: '6px 0', color: '#c9d1d9' }}>Q{rec.quarter}</td>
+                          <td style={{ padding: '6px 0', textAlign: 'right', color: '#3fb950' }}>{formatCash(rec.grossRevenue)}</td>
+                          <td style={{ padding: '6px 0', textAlign: 'right', color: '#58a6ff' }}>{formatCash(rec.deductions.total)}</td>
+                          <td style={{ padding: '6px 0', textAlign: 'right', color: '#d29922' }}>{formatCash(rec.taxableIncome)}</td>
+                          <td style={{ padding: '6px 0', textAlign: 'right', color: '#f85149', fontWeight: 600 }}>{formatCash(rec.taxBill)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {/* Deduction guide */}
+                <div style={{
+                  marginTop: '12px', padding: '10px', borderRadius: '8px',
+                  background: 'rgba(88,166,255,0.06)', border: '1px solid rgba(88,166,255,0.1)',
+                }}>
+                  <div style={{ fontSize: '10px', color: '#58a6ff', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Tax Deductions
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '11px', color: '#8b949e' }}>
+                    <span>R&D: 50%</span>
+                    <span>Marketing: 25%</span>
+                    <span>Salaries: 100%</span>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>
