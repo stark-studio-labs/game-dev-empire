@@ -1,0 +1,98 @@
+name: Brand / Creative Asset Request
+description: Request brand assets, icons, audio, art, or other creative deliverables from the CCO team
+title: "[BRAND] "
+labels: ["brand-request", "creative"]
+assignees:
+  - shadowstarrk
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Creative Asset Request
+        Use this form to request brand assets from the CCO / Creative Studio team.
+        Requests are auto-tagged for review by the creative team.
+
+  - type: dropdown
+    id: asset-type
+    attributes:
+      label: Asset Type
+      description: What kind of creative asset do you need?
+      options:
+        - Icon / Logo
+        - UI Art / Illustration
+        - Character Art / Avatar
+        - Background / Scene Art
+        - Audio / Sound Effect
+        - Music / Soundtrack
+        - Animation / Motion
+        - Brand Guidelines
+        - Marketing Asset (Store page, trailer, etc.)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 — Blocking (can't ship without it)
+        - P1 — High (needed this sprint)
+        - P2 — Medium (needed this month)
+        - P3 — Low (nice to have)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the asset you need. Include dimensions, style, colors, mood, reference images.
+      placeholder: |
+        Example: "21 platform console icons for the game. Each should be 128x128 SVG.
+        Style: flat/minimal, dark theme compatible. Similar to the Nintendo/Xbox/PlayStation
+        silhouettes but with our own fictional console names."
+    validations:
+      required: true
+
+  - type: textarea
+    id: specs
+    attributes:
+      label: Technical Specs
+      description: Format, dimensions, file type, color space, etc.
+      placeholder: |
+        Format: SVG preferred, PNG fallback
+        Dimensions: 128x128
+        Color: Must work on #0d1117 dark background
+        Variants: Normal + hover state
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References / Inspiration
+      description: Links to reference images, similar styles, or mood boards
+      placeholder: |
+        - Game Dev Tycoon console icons style
+        - Apple SF Symbols aesthetic
+        - Figma link: ...
+
+  - type: input
+    id: deadline
+    attributes:
+      label: Needed By
+      description: Target date for this asset
+      placeholder: "2026-04-15"
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project
+      options:
+        - Tech Empire (game-dev-empire)
+        - Sims 4 Mod Manager
+        - Stark Labs Website
+        - Stark Framework
+        - Other Stark Labs Project
+        - OpenClaw / Corporate
+    validations:
+      required: true
