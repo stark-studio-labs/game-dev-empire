@@ -1,0 +1,214 @@
+/**
+ * FinanceDashboard — Cash trend, revenue per game, expense breakdown
+ * Toggled via the $ button in the TopBar.
+ */
+function FinanceDashboard({ state, onClose }) {
+  const formatCash = (n) => {
+    const abs = Math.abs(n);
+    let s;
+    if (abs >= 1000000) s = '$' + (abs / 1000000).toFixed(2) + 'M';
+    else if (abs >= 1000) s = '$' + (abs / 1000).toFixed(1) + 'K';
+    else s = '$' + abs.toLocaleString();
+    return n < 0 ? '-' + s : s;
+  };
+
+  // Pull live data from the global finance tracker
+  const history = finance.cashHistory;
+  const revenueByGame = finance.revenueByGame();
+  const expenses = finance.expensesByCategory();
+  const totalRev = finance.totalRevenue();
+  const totalExp = finance.totalExpenses();
+  const netProfit = totalRev - totalExp;
+
+  // Cash trend bar chart — last 24 snapshots
+  const chartPoints = history.slice(-24);
+  const cashValues = chartPoints.map(p => p.cash);
+  const maxAbs = Math.max(...cashValues.map(Math.abs), 1);
+
+  // Expense breakdown bars
+  const expLabels = {
+    salary:      { label: 'Salaries',         color: '#58a6ff' },
+    office_rent: { label: 'Office Rent',       color: '#da7cff' },
+    dev_cost:    { label: 'Dev Costs',         color: '#ff9800' },
+    license:     { label: 'Platform Licenses', color: '#79c0ff' },
+  };
+  const totalExpAmt = Object.values(expenses).reduce((a, b) => a + b, 0) || 1;
+
+  const sectionLabel = {
+    fontSize: '11px',
+    color: '#8b949e',
+    textTransform: 'uppercase',
+    letterSpacing: '0.8px',
+    fontWeight: 600,
+    marginBottom: '12px',
+  };
+
+  const panel = {
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '10px',
+    padding: '16px',
+  };
+
+  return (
+    <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{
+        background: '#161b22',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '28px',
+        width: '90%',
+        maxWidth: '900px',
+        maxHeight: '88vh',
+        overflowY: 'auto',
+        animation: 'slideUp 0.25s ease',
+      }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: '#e6edf3' }}>Finance Dashboard</div>
+            <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '2px' }}>{state.companyName}</div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', color: '#8b949e', fontSize: '20px', cursor: 'pointer', lineHeight: 1 }}
+          >×</button>
+        </div>
+
+        {/* Summary row */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+          {[
+            { label: 'Cash', value: formatCash(state.cash), color: state.cash >= 0 ? '#3fb950' : '#f85149' },
+            { label: 'Total Revenue', value: formatCash(totalRev), color: '#3fb950' },
+            { label: 'Total Expenses', value: formatCash(totalExp), color: '#f85149' },
+            { label: 'Net Profit', value: formatCash(netProfit), color: netProfit >= 0 ? '#3fb950' : '#f85149' },
+          ].map(({ label, value, color }) => (
+            <div key={label} style={{ ...panel, flex: 1, textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>{label}</div>
+              <div style={{ fontSize: '17px', fontWeight: 700, color }}>{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main content: 2-column */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+
+          {/* Cash Over Time */}
+          <div style={panel}>
+            <div style={sectionLabel}>Cash Over Time</div>
+            {chartPoints.length === 0 ? (
+              <div style={{ color: '#8b949e', fontSize: '13px', textAlign: 'center', padding: '40px 0' }}>
+                No data yet — start playing!
+              </div>
+            ) : (
+              <>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  gap: '2px',
+                  height: '120px',
+                  padding: '0 0 4px 0',
+                }}>
+                  {chartPoints.map((point, i) => {
+                    const heightPct = Math.max(2, (Math.abs(point.cash) / maxAbs) * 100);
+                    const color = point.cash >= 0 ? '#3fb950' : '#f85149';
+                    return (
+                      <div
+                        key={i}
+                        title={`W${point.week}: ${formatCash(point.cash)}`}
+                        style={{
+                          flex: 1,
+                          height: `${heightPct}%`,
+                          background: color,
+                          borderRadius: '2px 2px 0 0',
+                          opacity: 0.75 + (i / chartPoints.length) * 0.25,
+                          cursor: 'default',
+                          transition: 'opacity 0.15s',
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#484f58', marginTop: '4px' }}>
+                  <span>←{chartPoints.length}w ago</span>
+                  <span>Now</span>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Expense Breakdown */}
+          <div style={panel}>
+            <div style={sectionLabel}>Expense Breakdown</div>
+            {totalExpAmt === 1 ? (
+              <div style={{ color: '#8b949e', fontSize: '13px', textAlign: 'center', padding: '40px 0' }}>
+                No expenses yet
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {Object.entries(expLabels).map(([key, { label, color }]) => {
+                  const amount = expenses[key] || 0;
+                  const pct = totalExpAmt > 0 ? (amount / totalExpAmt) * 100 : 0;
+                  return (
+                    <div key={key}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                        <span style={{ color: '#c9d1d9' }}>{label}</span>
+                        <span style={{ color: '#8b949e' }}>{formatCash(amount)} ({pct.toFixed(0)}%)</span>
+                      </div>
+                      <div style={{ height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                        <div style={{
+                          height: '100%',
+                          width: `${pct}%`,
+                          background: color,
+                          borderRadius: '3px',
+                          transition: 'width 0.4s ease',
+                        }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Revenue per Game */}
+        <div style={panel}>
+          <div style={sectionLabel}>Revenue per Game</div>
+          {revenueByGame.length === 0 ? (
+            <div style={{ color: '#8b949e', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>
+              No games sold yet
+            </div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                  <th style={{ textAlign: 'left', color: '#8b949e', fontWeight: 500, padding: '0 0 8px 0' }}>Game</th>
+                  <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 8px 0' }}>Revenue</th>
+                  <th style={{ textAlign: 'right', color: '#8b949e', fontWeight: 500, padding: '0 0 8px 0' }}>Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueByGame.map(({ title, total }, i) => {
+                  const share = totalRev > 0 ? (total / totalRev) * 100 : 0;
+                  return (
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '8px 0', color: '#e6edf3' }}>{title}</td>
+                      <td style={{ padding: '8px 0', textAlign: 'right', color: '#3fb950', fontWeight: 600 }}>
+                        {formatCash(total)}
+                      </td>
+                      <td style={{ padding: '8px 0', textAlign: 'right', color: '#8b949e' }}>
+                        {share.toFixed(1)}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -12,8 +12,15 @@ class GameEngine {
     this.TICK_MS = 800; // base tick speed in ms (1x)
   }
 
+  /** Date string helper for finance records */
+  _dateStr() {
+    const s = this.state;
+    return `Y${s.year} M${s.month} W${s.week}`;
+  }
+
   /** Create a new game state */
   newGame(companyName) {
+    finance.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       cash: 70000,
@@ -74,6 +81,7 @@ class GameEngine {
       const saved = localStorage.getItem('techEmpire_save');
       if (saved) {
         this.state = JSON.parse(saved);
+        finance.deserialize(this.state._finance || null);
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -87,6 +95,7 @@ class GameEngine {
   /** Save to localStorage */
   _save() {
     try {
+      this.state._finance = finance.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -148,6 +157,9 @@ class GameEngine {
       this._salesTick();
     }
 
+    // Weekly cash snapshot
+    finance.snapshotCash(s.totalWeeks, s.cash);
+
     // Check office upgrade
     this._checkUpgrade();
 
@@ -177,12 +189,19 @@ class GameEngine {
 
     // Pay platform license + dev cost
     const plat = PLATFORMS.find(p => p.id === config.platformId);
-    const cost = (plat ? plat.licenseFee : 0) + sizeData.cost;
+    const licenseFee = plat ? plat.licenseFee : 0;
+    const cost = licenseFee + sizeData.cost;
     if (s.cash < cost) {
       this._notify('Not enough cash to start development!');
       return false;
     }
     s.cash -= cost;
+    if (licenseFee > 0) {
+      finance.record('license', -licenseFee, config.title, this._dateStr());
+    }
+    if (sizeData.cost > 0) {
+      finance.record('dev_cost', -sizeData.cost, config.title, this._dateStr());
+    }
 
     s.currentGame = {
       title: config.title,
@@ -356,12 +375,18 @@ class GameEngine {
 
     s.salesRevenue += weekRevenue;
     s.cash += weekRevenue;
+    if (weekRevenue > 0) {
+      finance.record('revenue', weekRevenue, s.sellingGame.title, this._dateStr());
+    }
 
     if (s.salesWeeksLeft <= 0) {
       // Final sales — ensure we hit target
       const remaining = Math.max(0, s.salesTotalTarget - s.salesRevenue);
       s.cash += remaining;
       s.salesRevenue += remaining;
+      if (remaining > 0) {
+        finance.record('revenue', remaining, s.sellingGame.title, this._dateStr());
+      }
 
       this._notify(`"${s.sellingGame.title}" finished selling: $${this._formatNum(s.salesRevenue)} total revenue!`);
       s.sellingGame = null;
@@ -467,6 +492,12 @@ class GameEngine {
     const salaries = s.staff.reduce((sum, m) => sum + (m.salary || 0), 0);
     const total = officeRent + salaries;
     s.cash -= total;
+    if (officeRent > 0) {
+      finance.record('office_rent', -officeRent, 'Office Rent', this._dateStr());
+    }
+    if (salaries > 0) {
+      finance.record('salary', -salaries, 'Staff Salaries', this._dateStr());
+    }
 
     // Bankruptcy check
     if (s.cash < 0) {

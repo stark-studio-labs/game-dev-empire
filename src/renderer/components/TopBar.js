@@ -1,7 +1,7 @@
 /**
  * TopBar — Cash, fans, date, game progress, speed controls
  */
-function TopBar({ state, onSpeedChange }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -107,6 +107,16 @@ function TopBar({ state, onSpeedChange }) {
             </button>
           ))}
         </div>
+
+        {/* Finance toggle */}
+        <button
+          className={`speed-btn ${showFinance ? 'active' : ''}`}
+          onClick={onToggleFinance}
+          title="Finance Dashboard"
+          style={{ marginLeft: '8px', fontWeight: 700, fontSize: '13px' }}
+        >
+          $
+        </button>
       </div>
     </div>
   );

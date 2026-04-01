@@ -9,6 +9,7 @@ function App() {
   const [showWizard, setShowWizard] = useState(false);
   const [showStaff, setShowStaff] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  const [showFinance, setShowFinance] = useState(false);
   const [reviewGame, setReviewGame] = useState(null);
   const [companyName, setCompanyName] = useState('');
 
@@ -158,6 +159,8 @@ function App() {
       <TopBar
         state={gameState}
         onSpeedChange={handleSpeedChange}
+        onToggleFinance={() => setShowFinance(v => !v)}
+        showFinance={showFinance}
       />
 
       <GameScreen
@@ -186,6 +189,13 @@ function App() {
         <ReviewScreen
           game={reviewGame}
           onClose={handleReviewClose}
+        />
+      )}
+
+      {showFinance && gameState && (
+        <FinanceDashboard
+          state={gameState}
+          onClose={() => setShowFinance(false)}
         />
       )}
     </div>
