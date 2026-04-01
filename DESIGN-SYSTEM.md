@@ -48,7 +48,7 @@ Three zones that never compete for space:
 | Victory screens | PNG | 1280x800 | Cinematic, one per victory type |
 | Game over screen | PNG | 1280x800 | Dramatic but not depressing |
 
-**Production method:** AI-generated via Imagen 3 (Victor's Gemini 3 Pro), then refined.
+**Production method:** Generate with Nano Banana Pro (`gemini-3-pro-image-preview`) for finals or Nano Banana 2 (`gemini-3.1-flash-image-preview`) for fast previews, then refine.
 **Quality bar:** Must have warmth, imperfection, and personality. NOT wireframes. NOT flat vectors.
 
 ### Tier 2 — SVG Illustration Library (consistency + scalability)
@@ -62,7 +62,7 @@ Three zones that never compete for space:
 | Score display | SVG+CSS | Variable | Animated number with star rating |
 | Achievement badges | SVG | 48x48 | Metallic finish, tier-colored borders |
 
-**Production method:** Hand-crafted or AI-generated SVG. Must follow icon grid (see below).
+**Production method:** Gemini 3.1 Pro (`gemini-3.1-pro-preview`) for SVG generation and animation logic, then hand-refine as needed. Must follow icon grid (see below).
 **Quality bar:** Crisp at every size. Recognizable at 16px. Detailed at 128px.
 
 ### Tier 3 — CSS/SVG System (pure UI)
@@ -171,6 +171,49 @@ Office art should shift color temperature across eras:
 - **Silhouette rule:** Must match real device silhouette at 80%+ fidelity
 - **Color deviation:** Use our palette, not original device colors
 - **Detail level:** Visible d-pad/buttons/ports, but stylized not photographic
+
+---
+
+## Design Tools Stack
+
+We already have a complete design toolchain. Use it deliberately instead of improvising assets ad hoc.
+
+### Model Routing
+
+| Need | Primary Tool | Why |
+|------|--------------|-----|
+| T2 SVG icons, animated SVGs, badges, visual code | Gemini 3.1 Pro | Best current SVG/code generation, strong multi-element choreography |
+| T1 raster art, key art, portraits, office scenes, victory screens | Nano Banana Pro | Best current raster image quality, 4K output, strongest text/rendering |
+| Fast raster previews during iteration | Nano Banana 2 | Same family, faster turnaround for exploration |
+
+**Rule:** Victor should use both. Gemini 3.1 Pro owns SVG systems. Nano Banana Pro owns raster illustration.
+
+### Enabled Design Tools
+
+| Tool | What It Does | Primary Owner |
+|------|--------------|---------------|
+| Figma | Source of truth for design system, mockups, and layout specs | Victor |
+| Frontend Design | Production-grade UI generation with strong visual taste | Theo |
+| Chrome DevTools MCP | Live browser debugging, layout inspection, accessibility audit | Theo |
+| Design Sync agent | Pixel-perfect Figma-to-code comparison | Theo |
+| Design Review agent | Structured implementation review against spec | Victor |
+| Design Iterator agent | Multi-pass refinement loop for visual polish | Victor + Theo |
+| Firecrawl | Competitor/reference scraping for visual research | Victor + Theo |
+| Agent Browser | Headless screenshots and UI verification | Theo |
+
+### Operating Workflow
+
+1. Victor creates the icon, badge, illustration, and layout system in Figma first.
+2. Victor generates SVG families with Gemini 3.1 Pro and raster finals with Nano Banana Pro.
+3. Theo implements from Figma specs using the repo’s frontend design tools.
+4. Theo runs Design Sync against Figma before calling UI work done.
+5. Theo runs Chrome DevTools accessibility and layout passes on every DMG build.
+
+### Asset Policy
+
+- Do not generate raster art with Gemini 3.1 Pro. It is for SVG and visual code.
+- Do not use Nano Banana as the source of truth for icon systems. Build the system in Figma first.
+- All Tech Empire visual families should be Figma-led, then AI-assisted, then code-verified.
 
 ---
 
