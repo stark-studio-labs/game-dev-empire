@@ -24,6 +24,28 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
 
+  // Topic unlock logic — Tier 1 always available, Tier 2 at Small Office, Tier 3 via research
+  const isTopicUnlocked = (t) => {
+    if (state.devMode) return true;
+    if (t.tier === 1) return true;
+    if (t.tier === 2) return (state.level || 0) >= 1;
+    if (t.tier === 3) {
+      if ((state.level || 0) < 2) return false;
+      if (!t.researchCategory) return true;
+      const completedInCat = Object.keys(
+        (typeof researchSystem !== 'undefined' && researchSystem.completed) ? researchSystem.completed : {}
+      ).filter(id => {
+        const item = RESEARCH_ITEMS.find(r => r.id === id);
+        return item && item.category === t.researchCategory;
+      }).length;
+      return completedInCat >= (t.researchCount || 1);
+    }
+    return true;
+  };
+
+  const unlockedTopics = TOPICS.filter(t => isTopicUnlocked(t));
+  const totalTopics = TOPICS.length;
+
   // Compatibility indicator
   const getCompat = (val) => {
     if (val >= 1.0) return { label: '+++', color: '#3fb950' };
@@ -173,19 +195,36 @@ function NewGameWizard({ state, onStart, onCancel }) {
         {/* Step 1: Topic */}
         {step === 1 && (
           <div>
-            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '12px' }}>
-              Choose Topic
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
+              <label style={{ fontSize: '13px', color: '#8b949e' }}>Choose Topic</label>
+              <span style={{ fontSize: '11px', color: '#484f58' }}>
+                Showing {unlockedTopics.length} of {totalTopics} topics
+              </span>
+            </div>
             <div className="selection-grid" style={{ maxHeight: '400px', overflowY: 'auto', padding: '2px' }}>
-              {TOPICS.map(t => (
-                <div
-                  key={t.name}
-                  className={`selection-item ${topic === t.name ? 'selected' : ''}`}
-                  onClick={() => setTopic(t.name)}
-                >
-                  {t.name}
-                </div>
-              ))}
+              {TOPICS.map(t => {
+                const unlocked = isTopicUnlocked(t);
+                return (
+                  <div
+                    key={t.name}
+                    className={`selection-item ${topic === t.name ? 'selected' : ''}`}
+                    onClick={() => unlocked && setTopic(t.name)}
+                    style={{
+                      opacity: unlocked ? 1 : 0.45,
+                      cursor: unlocked ? 'pointer' : 'not-allowed',
+                      position: 'relative',
+                    }}
+                    title={unlocked ? t.name : `Unlock: ${t.unlockRequirement}`}
+                  >
+                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{t.name}</div>
+                    {!unlocked && (
+                      <div style={{ fontSize: '10px', color: '#6e7681', marginTop: '2px', lineHeight: 1.2 }}>
+                        {t.unlockRequirement}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
               <button className="btn-secondary" onClick={() => setStep(0)}>Back</button>
