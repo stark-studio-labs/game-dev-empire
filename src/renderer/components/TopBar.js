@@ -2,7 +2,7 @@
  * TopBar — Cash, fans, date, game progress, speed controls
  * Feature icons are locked until earned (office level / staff count).
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleVictory, showVictory, onToggleCompetitors, showCompetitors, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -294,6 +294,34 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
               </svg>
             </button>
             <span className="topbar__tooltip">{ipoSystem.isPublic ? 'Stock Market' : 'IPO'}</span>
+          </div>
+
+          {/* Victory Tracker (trophy icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showVictory ? ' active' : ''}`}
+              onClick={onToggleVictory}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M2.5 1a.5.5 0 00-.5.5V3H.5a.5.5 0 000 1H2v.5A5.5 5.5 0 006.7 10H6.5a.5.5 0 000 1H7v2H5.5a.5.5 0 000 1h5a.5.5 0 000-1H9v-2h.5a.5.5 0 000-1h-.2A5.5 5.5 0 0014 4.5V4h1.5a.5.5 0 000-1H14V1.5a.5.5 0 00-.5-.5h-11zM13 4.5A4.5 4.5 0 018 9a4.5 4.5 0 01-5-4.5V2h10v2.5z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">Victory Paths</span>
+          </div>
+
+          {/* Competitors (people/rival icon) */}
+          <div className="topbar__icon-wrap">
+            <button
+              className={`speed-btn${showCompetitors ? ' active' : ''}`}
+              onClick={onToggleCompetitors}
+              style={{ fontSize: '13px' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 100-6 3 3 0 000 6zM5.216 14A2.24 2.24 0 015 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 005 9c-4 0-5 3-5 4s1 1 1 1h4.216zM4.5 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/>
+              </svg>
+            </button>
+            <span className="topbar__tooltip">Industry Competition</span>
           </div>
 
           <div className="topbar-divider" />

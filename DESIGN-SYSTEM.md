@@ -209,6 +209,18 @@ We already have a complete design toolchain. Use it deliberately instead of impr
 4. Theo runs Design Sync against Figma before calling UI work done.
 5. Theo runs Chrome DevTools accessibility and layout passes on every DMG build.
 
+### Creative Approval Flow
+
+1. Chairman or Victor defines the asset need, business context, and approval bar.
+2. Victor frames the creative brief and routes production work to Rohan.
+3. Rohan assigns the work to the correct lane:
+   - SVG systems -> Principal, SVG Systems
+   - Raster illustration/key art -> Principal, Raster Image Production
+4. The specialist produces the asset package and sends it back to Rohan.
+5. Rohan reviews against Figma, brand standards, and implementation constraints. Revisions stay in Rohan's lane until the work is ready.
+6. Victor performs the executive creative gate.
+7. Chairman performs the final approval gate for marquee, user-facing, or strategically important work.
+
 ### Asset Policy
 
 - Do not generate raster art with Gemini 3.1 Pro. It is for SVG and visual code.

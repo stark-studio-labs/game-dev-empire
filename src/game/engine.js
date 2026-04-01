@@ -38,6 +38,8 @@ class GameEngine {
     techTimeline.reset();
     ipoSystem.reset();
     conferenceSystem.reset();
+    victorySystem.reset();
+    competitorSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       cash: 70000,
@@ -154,6 +156,8 @@ class GameEngine {
         techTimeline.deserialize(this.state._timeline || null);
         ipoSystem.deserialize(this.state._ipo || null);
         conferenceSystem.deserialize(this.state._conferences || null);
+        victorySystem.deserialize(this.state._victory || null);
+        competitorSystem.deserialize(this.state._competitors || null);
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -185,6 +189,8 @@ class GameEngine {
       this.state._timeline = techTimeline.serialize();
       this.state._ipo = ipoSystem.serialize();
       this.state._conferences = conferenceSystem.serialize();
+      this.state._victory = victorySystem.serialize();
+      this.state._competitors = competitorSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -238,6 +244,8 @@ class GameEngine {
       this._monthlyExpenses();
       // Vertical revenue tick
       this._verticalTick();
+      // Competitor studios release games
+      this._competitorTick();
     }
 
     // Development tick
@@ -396,22 +404,18 @@ class GameEngine {
       s.negativeWeeks = 0;
     }
 
-    // Victory conditions: 5 Civ-style paths
-    if (!s.gameOver) {
-      const totalRev = finance.totalRevenue();
-      const genreCount = Object.keys(s.genreUsage).length;
+    // Moonshot project tick (weekly)
+    const moonshotResult = victorySystem.tick(s);
+    if (moonshotResult && moonshotResult.completed) {
+      this._notify(`MOONSHOT COMPLETE: ${moonshotResult.name}!`);
+      notificationManager.add('info', 'Moonshot Complete', `${moonshotResult.name} — a breakthrough that will reshape the industry.`, s);
+    }
 
-      if (s.fans >= 50000000 && (s.gamesHighScore || 0) >= 10) {
-        this._triggerVictory('Brand Empire', 'BRAND EMPIRE! Your studio is a cultural icon!');
-      } else if ((s.moonshots || 0) >= 3) {
-        this._triggerVictory('Innovation Leader', 'INNOVATION LEADER! You redefined the industry!');
-      } else if (s.games.length >= 15 && genreCount >= 5) {
-        this._triggerVictory('Market Dominator', 'MARKET DOMINATOR! You own every genre!');
-      } else if (totalRev >= 1000000000) {
-        this._triggerVictory('Financial Titan', 'FINANCIAL TITAN! A billion-dollar empire!');
-      } else if (s.level >= 3 && s.games.length >= 5 &&
-          hardwareSystem.consoles.reduce((sum, c) => sum + (c.revenue || 0), 0) >= 50000000) {
-        this._triggerVictory('Industry Kingmaker', 'INDUSTRY KINGMAKER! You set the standard!');
+    // Victory conditions: 5 Civ-style paths (checked monthly on week 1)
+    if (!s.gameOver && s.week === 1) {
+      const winningPath = victorySystem.checkVictory(s);
+      if (winningPath) {
+        this._triggerVictory(winningPath.name, `${winningPath.icon} ${winningPath.name.toUpperCase()}! ${winningPath.description}`);
       }
     }
 
@@ -650,6 +654,12 @@ class GameEngine {
 
     // Apply difficulty revenue multiplier
     totalRevRaw = Math.round(totalRevRaw * settingsSystem.getRevenueMultiplier());
+
+    // Apply competitor genre saturation penalty
+    const saturationMult = competitorSystem.getGenreSaturationMultiplier(game.genre);
+    if (saturationMult < 1.0) {
+      totalRevRaw = Math.round(totalRevRaw * saturationMult);
+    }
 
     // Apply remaster nostalgia bonus (remasterBonus 0-10 adds up to 10% revenue)
     if (game.isRemaster && game.remasterBonus > 0) {
@@ -1032,6 +1042,15 @@ class GameEngine {
     // Bankruptcy check
     if (s.cash < 0) {
       this._notify('WARNING: You are running out of money!');
+    }
+  }
+
+  /** Competitor studios release games on their schedules */
+  _competitorTick() {
+    const s = this.state;
+    const releases = competitorSystem.monthlyTick(s.totalWeeks, s.year);
+    for (const game of releases) {
+      this._notify(`${game.studioName} released "${game.title}" (${game.genre}) — scored ${game.score}/10`);
     }
   }
 

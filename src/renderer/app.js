@@ -24,6 +24,7 @@ function App() {
   const [showConference, setShowConference] = useState(false);
   const [showIPO, setShowIPO] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
+  const [showCompetitors, setShowCompetitors] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -411,6 +412,8 @@ function App() {
         showIPO={showIPO}
         onToggleVictory={() => setShowVictory(v => !v)}
         showVictory={showVictory}
+        onToggleCompetitors={() => setShowCompetitors(v => !v)}
+        showCompetitors={showCompetitors}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -542,6 +545,13 @@ function App() {
         />
       )}
 
+      {showCompetitors && gameState && (
+        <CompetitorPanel
+          state={gameState}
+          onClose={() => setShowCompetitors(false)}
+        />
+      )}
+
       {showPublisher && publisherGame && gameState && (
         <PublisherPanel
           state={gameState}
@@ -598,35 +608,111 @@ function App() {
       {gameState && gameState.gameOver && (
         <div className="modal-overlay" style={{ zIndex: 9999 }}>
           <div className="modal-content" style={{
-            maxWidth: '480px', textAlign: 'center', padding: '40px',
+            maxWidth: '520px', textAlign: 'center', padding: '40px',
           }}>
-            {gameState.gameOverReason === 'victory' ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#127942;</div>
-                {gameState.victoryPath && (
+            {gameState.gameOverReason === 'victory' ? (() => {
+              const vp = VICTORY_PATHS.find(p => p.name === gameState.victoryPath);
+              const totalRev = typeof finance !== 'undefined' ? finance.totalRevenue() : 0;
+              const formatBig = (n) => {
+                if (n >= 1000000000) return '$' + (n / 1000000000).toFixed(2) + 'B';
+                if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+                if (n >= 1000) return '$' + (n / 1000).toFixed(0) + 'K';
+                return '$' + n.toLocaleString();
+              };
+              const formatFansNum = (n) => {
+                if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+                if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+                return n.toLocaleString();
+              };
+              const playYears = gameState.year;
+              const playMonths = gameState.month;
+              const bestGame = gameState.games.length > 0
+                ? gameState.games.reduce((best, g) => g.reviewAvg > best.reviewAvg ? g : best, gameState.games[0])
+                : null;
+              return (
+                <>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>{vp ? vp.icon : '🏆'}</div>
+                  {gameState.victoryPath && (
+                    <div style={{
+                      fontSize: '12px', color: '#58a6ff', textTransform: 'uppercase',
+                      letterSpacing: '2px', marginBottom: '8px', fontWeight: 600,
+                    }}>
+                      {gameState.victoryPath}
+                    </div>
+                  )}
+                  <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#3fb950', marginBottom: '8px' }}>
+                    LEGENDARY STUDIO!
+                  </h2>
+                  <p style={{ fontSize: '14px', color: '#c9d1d9', marginBottom: '16px' }}>
+                    {vp ? vp.description : 'You built a legendary gaming empire!'}
+                  </p>
+
+                  {/* Company Stats Summary */}
                   <div style={{
-                    fontSize: '12px', color: '#58a6ff', textTransform: 'uppercase',
-                    letterSpacing: '2px', marginBottom: '8px', fontWeight: 600,
+                    background: 'rgba(255,255,255,0.03)', borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.06)', padding: '16px 20px',
+                    marginBottom: '20px', textAlign: 'left',
                   }}>
-                    {gameState.victoryPath}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Playtime</div>
+                        <div style={{ fontSize: '15px', color: '#e6edf3', fontWeight: 600 }}>Year {playYears}, Month {playMonths}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Games Released</div>
+                        <div style={{ fontSize: '15px', color: '#e6edf3', fontWeight: 600 }}>{gameState.games.length}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</div>
+                        <div style={{ fontSize: '15px', color: '#3fb950', fontWeight: 600 }}>{formatBig(totalRev)}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fans</div>
+                        <div style={{ fontSize: '15px', color: '#58a6ff', fontWeight: 600 }}>{formatFansNum(gameState.fans)}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Staff</div>
+                        <div style={{ fontSize: '15px', color: '#e6edf3', fontWeight: 600 }}>{gameState.staff.length}</div>
+                      </div>
+                      {bestGame && (
+                        <div>
+                          <div style={{ fontSize: '10px', color: '#6e7681', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Best Game</div>
+                          <div style={{ fontSize: '13px', color: '#da7cff', fontWeight: 600 }}>{bestGame.title} ({bestGame.reviewAvg})</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
-                <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#3fb950', marginBottom: '12px' }}>
-                  LEGENDARY STUDIO!
-                </h2>
-                <p style={{ fontSize: '15px', color: '#c9d1d9', marginBottom: '8px' }}>
-                  {gameState.victoryPath === 'Brand Empire' && '50M fans and 10 critically acclaimed games.'}
-                  {gameState.victoryPath === 'Innovation Leader' && '3 moonshot AAA titles redefined the industry.'}
-                  {gameState.victoryPath === 'Market Dominator' && '15 games spanning 5 genres — you own every market.'}
-                  {gameState.victoryPath === 'Financial Titan' && '$1 billion in total revenue. A true empire.'}
-                  {gameState.victoryPath === 'Industry Kingmaker' && 'Hardware dominance — you set the standard.'}
-                  {!gameState.victoryPath && 'You built a legendary gaming empire!'}
-                </p>
-                <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
-                  Your studio will be remembered forever in gaming history.
-                </p>
-              </>
-            ) : (
+
+                  <p style={{ fontSize: '12px', color: '#8b949e', marginBottom: '20px' }}>
+                    Your studio will be remembered forever in gaming history.
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button
+                      className="btn-accent"
+                      onClick={() => {
+                        // Continue Playing — enter sandbox mode
+                        victorySystem.enterSandbox();
+                        engine.state.gameOver = false;
+                        engine.state.gameOverReason = null;
+                        engine._emit();
+                        engine._save();
+                      }}
+                      style={{ padding: '12px 28px', fontSize: '14px' }}
+                    >
+                      Continue Playing
+                    </button>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => { setScreen('title'); engine.destroy(); }}
+                      style={{ padding: '12px 28px', fontSize: '14px' }}
+                    >
+                      Return to Title
+                    </button>
+                  </div>
+                </>
+              );
+            })() : (
               <>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#128148;</div>
                 <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#f85149', marginBottom: '12px' }}>
@@ -638,15 +724,15 @@ function App() {
                 <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
                   The dream is over... but you can always try again.
                 </p>
+                <button
+                  className="btn-accent"
+                  onClick={() => { setScreen('title'); engine.destroy(); }}
+                  style={{ padding: '12px 32px', fontSize: '15px' }}
+                >
+                  Return to Title
+                </button>
               </>
             )}
-            <button
-              className="btn-accent"
-              onClick={() => { setScreen('title'); engine.destroy(); }}
-              style={{ padding: '12px 32px', fontSize: '15px' }}
-            >
-              Return to Title
-            </button>
           </div>
         </div>
       )}
