@@ -1,7 +1,7 @@
 /**
  * Tech Empire — React App Entry Point
  */
-const { useState, useEffect, useCallback } = React;
+const { useState, useEffect, useCallback, useRef } = React;
 
 function App() {
   const [gameState, setGameState] = useState(null);
@@ -26,6 +26,36 @@ function App() {
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
   const [companyName, setCompanyName] = useState('');
+  const [showPhaseModal, setShowPhaseModal] = useState(false);
+  const [devMode, setDevMode] = useState(settingsSystem.devMode);
+
+  // Track which features have been unlocked (to show toast only once)
+  const unlockedFeaturesRef = useRef({
+    research: false,
+    hardware: false,
+    marketing: false,
+    training: false,
+    morale: false,
+  });
+
+  // Check for newly unlocked features and show toast
+  const checkFeatureUnlocks = useCallback((state) => {
+    if (!state || devMode) return;
+    const checks = {
+      research:  { condition: state.level >= 2, label: 'Research Lab' },
+      hardware:  { condition: state.level >= 3, label: 'Hardware Lab' },
+      marketing: { condition: state.level >= 1, label: 'Marketing Campaigns' },
+      training:  { condition: state.level >= 1, label: 'Staff Training' },
+      morale:    { condition: state.staff.length >= 2, label: 'Studio Morale' },
+    };
+
+    for (const [key, { condition, label }] of Object.entries(checks)) {
+      if (condition && !unlockedFeaturesRef.current[key]) {
+        unlockedFeaturesRef.current[key] = true;
+        showToast(`${label} unlocked!`, 'success', 5000);
+      }
+    }
+  }, [devMode]);
 
   useEffect(() => {
     const unsub = engine.subscribe((state) => {
@@ -51,10 +81,18 @@ function App() {
       if (state.eventConsequence && !eventConsequence) {
         setEventConsequence(state.eventConsequence);
       }
+
+      // Check if waiting for phase input (GDT-style phase pause)
+      if (state.waitingForPhaseInput && !showPhaseModal) {
+        setShowPhaseModal(true);
+      }
+
+      // Check feature unlocks for toast notifications
+      checkFeatureUnlocks(state);
     });
 
     return () => unsub();
-  }, [reviewGame, showReview, pendingEvent, eventConsequence]);
+  }, [reviewGame, showReview, pendingEvent, eventConsequence, showPhaseModal, checkFeatureUnlocks]);
 
   const handleNewGame = () => {
     engine.setSpeed(0);
@@ -68,6 +106,11 @@ function App() {
     }
   };
 
+  const handlePhaseSubmit = (phaseSliders) => {
+    engine.submitPhaseSliders(phaseSliders);
+    setShowPhaseModal(false);
+  };
+
   const handleSpeedChange = useCallback((speed) => {
     engine.setSpeed(speed);
   }, []);
@@ -76,6 +119,10 @@ function App() {
     const name = companyName.trim() || 'Indie Studio';
     engine.newGame(name);
     setScreen('game');
+    // Reset unlock tracking for new game
+    unlockedFeaturesRef.current = {
+      research: false, hardware: false, marketing: false, training: false, morale: false,
+    };
     // Start tutorial for first-time players
     if (typeof tutorialSystem !== 'undefined') tutorialSystem.checkFirstTime();
   };
@@ -83,6 +130,15 @@ function App() {
   const handleLoadGame = () => {
     if (engine.load()) {
       setScreen('game');
+      // Initialize unlock tracking based on loaded state
+      const s = engine.state;
+      if (s) {
+        unlockedFeaturesRef.current = {
+          research: s.level >= 2, hardware: s.level >= 3,
+          marketing: s.level >= 1, training: s.level >= 1,
+          morale: s.staff.length >= 2,
+        };
+      }
     }
   };
 
@@ -136,6 +192,13 @@ function App() {
     if (engine.state.eventConsequence) {
       setEventConsequence(engine.state.eventConsequence);
     }
+  };
+
+  const handleDevModeToggle = () => {
+    const newVal = !devMode;
+    setDevMode(newVal);
+    settingsSystem.setDevMode(newVal);
+    showToast(newVal ? 'Dev Mode ON — all features unlocked' : 'Dev Mode OFF', 'info', 3000);
   };
 
   // Title screen
@@ -213,20 +276,38 @@ function App() {
           </button>
         )}
 
-        {/* Replay Tutorial */}
-        {localStorage.getItem('techEmpire_tutorialComplete') && (
+        {/* Settings row */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          {/* Replay Tutorial */}
+          {localStorage.getItem('techEmpire_tutorialComplete') && (
+            <button
+              className="btn-secondary"
+              onClick={() => { localStorage.removeItem('techEmpire_tutorialComplete'); }}
+              style={{ padding: '10px 16px', fontSize: '13px', opacity: 0.6 }}
+            >
+              Reset Tutorial
+            </button>
+          )}
+
+          {/* Dev Mode toggle */}
           <button
-            className="btn-secondary"
-            onClick={() => { localStorage.removeItem('techEmpire_tutorialComplete'); }}
-            style={{ width: '360px', padding: '10px', fontSize: '13px', marginTop: '8px', opacity: 0.6 }}
+            className={`btn-secondary ${devMode ? 'active' : ''}`}
+            onClick={handleDevModeToggle}
+            style={{
+              padding: '10px 16px', fontSize: '13px',
+              opacity: devMode ? 1 : 0.6,
+              background: devMode ? 'rgba(218,124,255,0.15)' : undefined,
+              borderColor: devMode ? 'rgba(218,124,255,0.4)' : undefined,
+              color: devMode ? '#da7cff' : undefined,
+            }}
           >
-            Reset Tutorial
+            Dev Mode {devMode ? 'ON' : 'OFF'}
           </button>
-        )}
+        </div>
 
         {/* Version */}
         <div style={{ position: 'fixed', bottom: '16px', fontSize: '11px', color: '#21262d' }}>
-          v0.3.0
+          v0.4.0
         </div>
       </div>
     );
@@ -256,6 +337,7 @@ function App() {
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
         showSettings={showSettings}
+        devMode={devMode}
       />
 
       <GameScreen
@@ -364,6 +446,14 @@ function App() {
           game={remasterGame}
           onStart={() => { setShowRemaster(false); setRemasterGame(null); engine.setSpeed(1); }}
           onCancel={() => { setShowRemaster(false); setRemasterGame(null); }}
+        />
+      )}
+
+      {/* Phase Slider Modal — GDT-style pause between phases */}
+      {showPhaseModal && gameState && gameState.waitingForPhaseInput && (
+        <PhaseSliderModal
+          state={gameState}
+          onSubmit={handlePhaseSubmit}
         />
       )}
 
