@@ -8,12 +8,14 @@
     "dev": "electron . --dev",
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
-    "dist": "electron-builder --mac dmg"
+    "dist": "electron-builder --mac dmg",
+    "test:e2e": "npx playwright test tests/e2e/"
   },
   "author": "Stark Labs <studio@starklabs.dev>",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^35.0.0",
+    "@playwright/test": "^1.59.1",
+    "electron": "^35.7.5",
     "electron-builder": "^26.0.0"
   },
   "build": {
@@ -25,7 +27,9 @@
         "dmg",
         {
           "target": "zip",
-          "arch": ["arm64"]
+          "arch": [
+            "arm64"
+          ]
         }
       ],
       "identity": null
