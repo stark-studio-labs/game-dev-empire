@@ -64,7 +64,7 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade }) {
 
               {/* Phase indicators */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                {DEV_PHASES.map((phase, i) => (
+                {(typeof DEV_PHASES !== 'undefined' ? DEV_PHASES : []).map((phase, i) => (
                   <React.Fragment key={i}>
                     <div className={`phase-dot ${i < state.devPhase ? 'complete' : i === state.devPhase ? 'active' : ''}`} />
                     <span style={{ fontSize: '11px', color: i === state.devPhase ? '#58a6ff' : '#484f58' }}>

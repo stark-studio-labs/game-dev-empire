@@ -33,6 +33,10 @@ function FinanceDashboard({ state, onClose }) {
     license:     { label: 'Platform Licenses', color: '#79c0ff' },
     marketing:   { label: 'Marketing',         color: '#d29922' },
     tax:         { label: 'Corporate Taxes',   color: '#f85149' },
+    research:    { label: 'Research & Dev',     color: '#56d364' },
+    training:    { label: 'Staff Training',     color: '#bc8cff' },
+    perk:        { label: 'Office Perks',       color: '#ff7b72' },
+    loan_payment:{ label: 'Loan Payments',      color: '#ffa657' },
   };
   const totalExpAmt = Object.values(expenses).reduce((a, b) => a + b, 0) || 1;
 
@@ -215,9 +219,9 @@ function FinanceDashboard({ state, onClose }) {
         <div style={{ ...panel, marginTop: '16px' }}>
           <div style={sectionLabel}>Tax History</div>
           {(() => {
-            const taxHist = taxSystem.taxHistory;
-            const currentRate = taxSystem.getTaxRate(OFFICE_LEVELS[state.level].name);
-            const totalPaid = taxSystem.totalTaxesPaid();
+            const taxHist = typeof taxSystem !== 'undefined' && taxSystem ? taxSystem.taxHistory : [];
+            const currentRate = typeof taxSystem !== 'undefined' && taxSystem && typeof OFFICE_LEVELS !== 'undefined' ? taxSystem.getTaxRate(OFFICE_LEVELS[state.level].name) : 0;
+            const totalPaid = typeof taxSystem !== 'undefined' && taxSystem ? taxSystem.totalTaxesPaid() : 0;
 
             return (
               <>
@@ -301,6 +305,73 @@ function FinanceDashboard({ state, onClose }) {
               </>
             );
           })()}
+        </div>
+
+        {/* Loan Section */}
+        <div style={{ ...panel, marginTop: '16px' }}>
+          <div style={sectionLabel}>Bank Loans</div>
+          {state.loan ? (
+            <div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                <div style={{
+                  flex: 1, textAlign: 'center', padding: '10px',
+                  background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Remaining</div>
+                  <div style={{ fontSize: '17px', fontWeight: 700, color: '#f85149' }}>
+                    {formatCash(Math.round(state.loan.remaining))}
+                  </div>
+                </div>
+                <div style={{
+                  flex: 1, textAlign: 'center', padding: '10px',
+                  background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Quarterly Payment</div>
+                  <div style={{ fontSize: '17px', fontWeight: 700, color: '#ffa657' }}>
+                    {formatCash(state.loan.quarterlyPayment)}
+                  </div>
+                </div>
+                <div style={{
+                  flex: 1, textAlign: 'center', padding: '10px',
+                  background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '4px' }}>Interest Rate</div>
+                  <div style={{ fontSize: '17px', fontWeight: 700, color: '#8b949e' }}>
+                    {(state.loan.rate * 100).toFixed(0)}%
+                  </div>
+                </div>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() => { engine.repayLoan(); }}
+                disabled={state.cash < state.loan.remaining}
+                style={{ width: '100%', padding: '10px', fontSize: '13px' }}
+              >
+                Repay Early ({formatCash(Math.round(state.loan.remaining))})
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: '13px', color: '#8b949e', marginBottom: '12px' }}>
+                Borrow up to $500K at 8% annual interest. Repaid quarterly over 2 years.
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {[100000, 250000, 500000].map(amount => (
+                  <button
+                    key={amount}
+                    className="btn-secondary"
+                    onClick={() => { engine.takeLoan(amount); }}
+                    style={{ flex: 1, padding: '10px', fontSize: '13px' }}
+                  >
+                    Borrow {formatCash(amount)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

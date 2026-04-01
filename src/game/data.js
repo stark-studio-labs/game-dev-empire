@@ -18,7 +18,7 @@ const GAME_SIZES = {
 const OFFICE_LEVELS = [
   { name: 'Garage',        maxStaff: 1, unlockCash: 0,         unlockYear: 1,  sizes: ['Small'] },
   { name: 'Small Office',  maxStaff: 5, unlockCash: 1000000,   unlockYear: 4,  sizes: ['Small', 'Medium'] },
-  { name: 'Medium Office', maxStaff: 5, unlockCash: 5000000,   unlockYear: 11, sizes: ['Small', 'Medium', 'Large'] },
+  { name: 'Medium Office', maxStaff: 5, unlockCash: 5000000,   unlockYear: 6, sizes: ['Small', 'Medium', 'Large'] },
   { name: 'Large Office',  maxStaff: 8, unlockCash: 16000000,  unlockYear: 13, sizes: ['Small', 'Medium', 'Large', 'AAA'] },
 ];
 

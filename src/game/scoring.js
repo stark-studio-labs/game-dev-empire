@@ -105,7 +105,7 @@ const Scoring = {
   /**
    * Compute the full game score.
    */
-  computeGameScore({ design, tech, genre, topic, audience, platformId, size, sliders, devWeeks, staffCount }) {
+  computeGameScore({ design, tech, genre, topic, audience, platformId, size, sliders, devWeeks, staffCount, title, totalWeeks }) {
     const sizeData = GAME_SIZES[size] || GAME_SIZES.Small;
     const divisor = sizeData.divisor;
 
@@ -123,12 +123,21 @@ const Scoring = {
     // Morale quality multiplier
     const moraleMult = typeof moraleSystem !== 'undefined' ? moraleSystem.getQualityMultiplier() : 1.0;
 
+    // Franchise sequel multiplier
+    let sequelMult = 1.0;
+    if (typeof franchiseTracker !== 'undefined' && title) {
+      const seqMod = franchiseTracker.getSequelModifier(title, totalWeeks || 0);
+      if (seqMod) {
+        sequelMult = seqMod.multiplier;
+      }
+    }
+
     const modifiers = 1 + dtBalance + timeMgmt;
-    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult;
+    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult * sequelMult;
 
     return {
       gameScore: Math.max(0, gameScore),
-      breakdown: { rawPoints, dtBalance, timeMgmt, topicGenre, topicAud, platGenre, bugs },
+      breakdown: { rawPoints, dtBalance, timeMgmt, topicGenre, topicAud, platGenre, bugs, sequelMult },
     };
   },
 
@@ -173,14 +182,16 @@ const Scoring = {
     const plat = PLATFORMS.find(p => p.id === platformId);
     const marketShare = plat ? getPlatformMarketShare(plat, totalWeek) : 0.1;
 
-    // Review score multiplier (exponential)
+    // Review score multiplier (smooth curve — no cliff at 9.0)
     let reviewMult;
     if (reviewAvg < 3)      reviewMult = 0.05;
     else if (reviewAvg < 5) reviewMult = 0.15;
-    else if (reviewAvg < 7) reviewMult = 0.4;
-    else if (reviewAvg < 8) reviewMult = 0.7;
-    else if (reviewAvg < 9) reviewMult = 1.0;
-    else                    reviewMult = 2.0;
+    else if (reviewAvg < 7) reviewMult = 0.5;
+    else if (reviewAvg < 8) reviewMult = 0.75;
+    else if (reviewAvg < 8.5) reviewMult = 1.0;
+    else if (reviewAvg < 9) reviewMult = 1.4;
+    else if (reviewAvg < 9.5) reviewMult = 1.8;
+    else                    reviewMult = 2.2;
 
     // Size multiplier
     const sizeMults = { Small: 1, Medium: 3, Large: 8, AAA: 20 };
@@ -211,12 +222,14 @@ const Scoring = {
 
   /**
    * Compute fans gained from a game release.
+   * Always grants a base of 100-300 fans per release regardless of score.
    */
   fansGained(reviewAvg, currentFans) {
-    if (reviewAvg >= 9) return Math.round(50000 + currentFans * 0.15);
-    if (reviewAvg >= 8) return Math.round(20000 + currentFans * 0.08);
-    if (reviewAvg >= 7) return Math.round(5000 + currentFans * 0.03);
-    if (reviewAvg >= 5) return Math.round(1000);
-    return 0;
+    const baseFans = 100 + Math.floor(Math.random() * 200); // 100-300 base per release
+    if (reviewAvg >= 9) return Math.round(50000 + currentFans * 0.15) + baseFans;
+    if (reviewAvg >= 8) return Math.round(20000 + currentFans * 0.08) + baseFans;
+    if (reviewAvg >= 7) return Math.round(5000 + currentFans * 0.03) + baseFans;
+    if (reviewAvg >= 5) return Math.round(1000) + baseFans;
+    return baseFans;
   },
 };

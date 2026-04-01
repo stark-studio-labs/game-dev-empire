@@ -74,7 +74,7 @@ function App() {
     engine.newGame(name);
     setScreen('game');
     // Start tutorial for first-time players
-    tutorialSystem.checkFirstTime();
+    if (typeof tutorialSystem !== 'undefined') tutorialSystem.checkFirstTime();
   };
 
   const handleLoadGame = () => {
@@ -357,6 +357,50 @@ function App() {
       )}
 
       <TutorialOverlay />
+
+      {/* Victory / Game Over Modal */}
+      {gameState && gameState.gameOver && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{
+            maxWidth: '480px', textAlign: 'center', padding: '40px',
+          }}>
+            {gameState.gameOverReason === 'victory' ? (
+              <>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#127942;</div>
+                <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#3fb950', marginBottom: '12px' }}>
+                  LEGENDARY STUDIO!
+                </h2>
+                <p style={{ fontSize: '15px', color: '#c9d1d9', marginBottom: '8px' }}>
+                  You reached $500M total revenue and 10M fans.
+                </p>
+                <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
+                  Your studio will be remembered forever in gaming history.
+                </p>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#128148;</div>
+                <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#f85149', marginBottom: '12px' }}>
+                  BANKRUPT
+                </h2>
+                <p style={{ fontSize: '15px', color: '#c9d1d9', marginBottom: '8px' }}>
+                  Your studio ran out of money for 12 consecutive weeks.
+                </p>
+                <p style={{ fontSize: '13px', color: '#8b949e', marginBottom: '24px' }}>
+                  The dream is over... but you can always try again.
+                </p>
+              </>
+            )}
+            <button
+              className="btn-accent"
+              onClick={() => { setScreen('title'); engine.destroy(); }}
+              style={{ padding: '12px 32px', fontSize: '15px' }}
+            >
+              Return to Title
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

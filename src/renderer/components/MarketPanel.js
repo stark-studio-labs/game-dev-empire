@@ -4,10 +4,10 @@
 function MarketPanel({ state, onClose }) {
   if (!state) return null;
 
-  const label = marketSim.getLabel();
-  const multiplier = marketSim.getSalesMultiplier();
-  const history = marketSim.history;
-  const trending = marketSim.trendingGenres;
+  const label = typeof marketSim !== 'undefined' && marketSim ? marketSim.getLabel() : { color: '#8b949e', label: 'Unknown' };
+  const multiplier = typeof marketSim !== 'undefined' && marketSim ? marketSim.getSalesMultiplier() : 1.0;
+  const history = typeof marketSim !== 'undefined' && marketSim ? marketSim.history : [];
+  const trending = typeof marketSim !== 'undefined' && marketSim ? marketSim.trendingGenres : [];
 
   // Simple bar chart rendering
   const chartHeight = 120;
@@ -74,7 +74,7 @@ function MarketPanel({ state, onClose }) {
               {/* Indicator */}
               <div style={{
                 position: 'absolute',
-                left: `${((marketSim.sentiment - 0.5) / 1.0) * 100}%`,
+                left: `${(((typeof marketSim !== 'undefined' && marketSim ? marketSim.sentiment : 1.0) - 0.5) / 1.0) * 100}%`,
                 top: '-4px',
                 width: '16px', height: '16px', borderRadius: '50%',
                 background: '#fff',

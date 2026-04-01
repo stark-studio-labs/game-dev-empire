@@ -43,8 +43,8 @@ class EnergySystem {
     const record = this._ensure(staffId);
     if (record.onVacation) return 0;
     if (this.isSick(staffId)) return 0;
-    if (record.energy < 30) return 0.6; // 40% reduction
-    return 1.0;
+    // Gradual curve: 0.5 at energy=0, 1.0 at energy=100
+    return 0.5 + (record.energy / 100) * 0.5;
   }
 
   /** Get the energy status color */

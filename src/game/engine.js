@@ -89,6 +89,16 @@ class GameEngine {
 
       // Morale (value cached in state for UI; system of record is moraleSystem)
       morale: moraleSystem.getMorale(),
+
+      // Loan system
+      loan: null, // { principal, rate, quarterlyPayment, remaining }
+
+      // Bankruptcy tracking
+      negativeWeeks: 0, // consecutive weeks with cash < -100K
+
+      // Win/lose state
+      gameOver: false,
+      gameOverReason: null, // 'victory' | 'bankruptcy'
     };
 
     this._updateAvailablePlatforms();
@@ -174,6 +184,7 @@ class GameEngine {
   /** Advance one game week */
   tick() {
     if (!this.state) return;
+    if (this.state.gameOver) return; // Stop ticking on win/lose
     const s = this.state;
 
     // Advance date
@@ -263,6 +274,39 @@ class GameEngine {
       finance.record('tax', -taxResult.taxBill, `Q${taxResult.quarter} Corporate Tax`, this._dateStr());
       this._notify(`Q${taxResult.quarter} taxes due: $${this._formatNum(taxResult.taxBill)} (${(taxResult.taxRate * 100).toFixed(0)}% rate)`);
       notificationManager.onExpenseDue(taxResult.taxBill, `Q${taxResult.quarter} Corporate Tax`, s);
+    }
+
+    // Loan quarterly payment (every 12 weeks, aligned with tax)
+    if (s.loan && s.totalWeeks % 12 === 0) {
+      const payment = s.loan.quarterlyPayment;
+      s.cash -= payment;
+      s.loan.remaining -= (payment - s.loan.remaining * (s.loan.rate / 4));
+      finance.record('loan_payment', -payment, 'Loan Payment', this._dateStr());
+      if (s.loan.remaining <= 0) {
+        this._notify('Loan fully repaid!');
+        s.loan = null;
+      }
+    }
+
+    // Bankruptcy check: cash < -$100K for 12+ consecutive weeks
+    if (s.cash < -100000) {
+      s.negativeWeeks++;
+      if (s.negativeWeeks >= 12 && !s.gameOver) {
+        s.gameOver = true;
+        s.gameOverReason = 'bankruptcy';
+        this.setSpeed(0);
+        this._notify('BANKRUPTCY! Your studio has gone under.');
+      }
+    } else {
+      s.negativeWeeks = 0;
+    }
+
+    // Win condition: $500M total revenue + 10M fans
+    if (!s.gameOver && finance.totalRevenue() >= 500000000 && s.fans >= 10000000) {
+      s.gameOver = true;
+      s.gameOverReason = 'victory';
+      this.setSpeed(0);
+      this._notify('LEGENDARY! You built a gaming empire!');
     }
 
     // Notification center: periodic milestone check (every 4 weeks)
@@ -402,6 +446,8 @@ class GameEngine {
       sliders: s.devSliders,
       devWeeks,
       staffCount: s.staff.length,
+      title: game.title,
+      totalWeeks: s.totalWeeks,
     });
 
     // Compute reviews (relative to personal best)
@@ -775,6 +821,53 @@ class GameEngine {
   getAvailableSizes() {
     if (!this.state) return [];
     return OFFICE_LEVELS[this.state.level].sizes;
+  }
+
+  // ── Loan System ──────────────────────────────────────────────
+
+  /**
+   * Take out a loan. Max $500K, 8% annual rate, auto-deduct quarterly.
+   * @param {number} amount - loan amount (max 500000)
+   * @returns {boolean} success
+   */
+  takeLoan(amount) {
+    const s = this.state;
+    if (!s || s.loan) return false; // already have a loan
+    amount = Math.min(Math.max(0, amount), 500000);
+    if (amount <= 0) return false;
+
+    const annualRate = 0.08;
+    // Simple quarterly payment over 2 years (8 quarters)
+    const quarters = 8;
+    const quarterlyRate = annualRate / 4;
+    const quarterlyPayment = Math.round(amount * (quarterlyRate * Math.pow(1 + quarterlyRate, quarters)) / (Math.pow(1 + quarterlyRate, quarters) - 1));
+
+    s.loan = {
+      principal: amount,
+      rate: annualRate,
+      quarterlyPayment,
+      remaining: amount,
+    };
+    s.cash += amount;
+    finance.record('loan', amount, 'Bank Loan', this._dateStr());
+    this._notify(`Took out a $${this._formatNum(amount)} loan at 8% annual. Quarterly payment: $${this._formatNum(quarterlyPayment)}`);
+    this._emit();
+    this._save();
+    return true;
+  }
+
+  /** Repay loan early */
+  repayLoan() {
+    const s = this.state;
+    if (!s || !s.loan) return false;
+    if (s.cash < s.loan.remaining) return false;
+    s.cash -= s.loan.remaining;
+    finance.record('loan_payment', -s.loan.remaining, 'Loan Early Repayment', this._dateStr());
+    this._notify('Loan fully repaid early!');
+    s.loan = null;
+    this._emit();
+    this._save();
+    return true;
   }
 
   /** Force save */

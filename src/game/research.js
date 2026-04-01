@@ -111,8 +111,14 @@ class ResearchSystem {
 
     if (state.cash < item.cost) return { success: false, message: 'Not enough cash!' };
 
-    // Deduct cost
+    // Deduct cost and record in finance
     state.cash -= item.cost;
+    if (typeof finance !== 'undefined') {
+      finance.record('research', -item.cost, 'Research: ' + item.name, typeof engine !== 'undefined' ? engine._dateStr() : '');
+    }
+    if (typeof taxSystem !== 'undefined') {
+      taxSystem.addResearchSpending(item.cost);
+    }
 
     this.currentResearch = {
       id: item.id,

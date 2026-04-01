@@ -78,14 +78,17 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
         )}
 
         {/* Market sentiment indicator */}
-        {typeof marketSim !== 'undefined' && (
-          <div style={{ textAlign: 'center', minWidth: '60px' }}>
-            <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market</div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: marketSim.getLabel().color }}>
-              {marketSim.getLabel().label}
+        {typeof marketSim !== 'undefined' && (() => {
+          const marketLabel = marketSim.getLabel();
+          return (
+            <div style={{ textAlign: 'center', minWidth: '60px' }}>
+              <div style={{ fontSize: '11px', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market</div>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: marketLabel.color }}>
+                {marketLabel.label}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Sales indicator */}
         {state.sellingGame && (

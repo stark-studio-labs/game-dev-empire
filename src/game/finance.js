@@ -51,7 +51,7 @@ class FinanceTracker {
 
   /** Returns totals per expense category (absolute values). */
   expensesByCategory() {
-    const cats = { salary: 0, office_rent: 0, license: 0, dev_cost: 0, marketing: 0, tax: 0 };
+    const cats = { salary: 0, office_rent: 0, license: 0, dev_cost: 0, marketing: 0, tax: 0, research: 0, training: 0, perk: 0, loan_payment: 0 };
     for (const t of this.transactions) {
       if (cats.hasOwnProperty(t.category)) {
         cats[t.category] += Math.abs(t.amount);
