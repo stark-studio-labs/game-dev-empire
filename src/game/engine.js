@@ -345,7 +345,7 @@ class GameEngine {
 
     // Event system tick — storyteller selects the appropriate event (only when no event pending)
     if (!s.pendingEvent && !s.eventConsequence && !s.pendingConference) {
-      const event = eventSystem.checkEvents(s, storyteller);
+      const event = eventSystem.checkEvents(s);
       if (event) {
         s.pendingEvent = event;
         this.setSpeed(0); // Pause for event
@@ -1016,6 +1016,9 @@ class GameEngine {
     moraleSystem.monthlyTick(s.totalWeeks);
     s.morale = moraleSystem.getMorale();
 
+    // Vertical empire tick
+    this._verticalTick();
+
     // Bankruptcy check
     if (s.cash < 0) {
       this._notify('WARNING: You are running out of money!');
@@ -1105,6 +1108,77 @@ class GameEngine {
     this._emit();
     this._save();
     return true;
+  }
+
+  // ── Vertical Empire Actions ──────────────────────────────────
+
+  unlockVertical(id) {
+    if (!this.state) return false;
+    const ok = verticalManager.unlock(id, this.state);
+    if (ok) {
+      this._notify(`${id.charAt(0).toUpperCase() + id.slice(1)} vertical unlocked!`);
+      this._emit();
+      this._save();
+    }
+    return ok;
+  }
+
+  softwareSetModel(model) {
+    const ok = verticalManager.softwareSetModel(model);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  softwareLaunchProduct(type) {
+    if (!this.state) return false;
+    const ok = verticalManager.softwareLaunchProduct(type, this.state);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  streamingSetTier(tier) {
+    const ok = verticalManager.streamingSetTier(tier);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  streamingCommissionContent(amount) {
+    if (!this.state) return false;
+    const result = verticalManager.streamingCommissionContent(amount, this.state);
+    if (result !== false) { this._emit(); this._save(); }
+    return result;
+  }
+
+  streamingSetContentBudget(amount) {
+    const ok = verticalManager.streamingSetContentBudget(amount);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  cloudBuildDatacenter(regionId) {
+    if (!this.state) return false;
+    const ok = verticalManager.cloudBuildDatacenter(regionId, this.state);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  cloudAddEnterpriseContract() {
+    if (!this.state) return false;
+    const ok = verticalManager.cloudAddEnterpriseContract(this.state);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  aiSetTrainingBudget(amount) {
+    const ok = verticalManager.aiSetTrainingBudget(amount);
+    if (ok) { this._emit(); this._save(); }
+    return ok;
+  }
+
+  aiToggleOpenSource() {
+    const ok = verticalManager.aiToggleOpenSource();
+    if (ok) { this._emit(); this._save(); }
+    return ok;
   }
 
   /** Force save */

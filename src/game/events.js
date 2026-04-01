@@ -591,8 +591,10 @@ class EventSystem {
 
     if (eligible.length === 0) return null;
 
-    // Pick one at random
-    const chosen = eligible[Math.floor(Math.random() * eligible.length)];
+    // Storyteller selects narrative-appropriate event when available
+    const chosen = (typeof storyteller !== 'undefined' && typeof storyteller.selectEvent === 'function')
+      ? storyteller.selectEvent(eligible)
+      : eligible[Math.floor(Math.random() * eligible.length)];
 
     // Set cooldown
     this.cooldowns[chosen.id] = state.totalWeeks + chosen.cooldownWeeks;
