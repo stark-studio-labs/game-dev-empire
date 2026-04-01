@@ -18,7 +18,8 @@ function NewGameWizard({ state, onStart, onCancel }) {
       return [...prev, id];
     });
   };
-  const [sliders, setSliders] = React.useState([33,33,33, 33,33,33, 33,33,33]);
+  // Phase 1 sliders only — phases 2 & 3 are set during development via PhaseSliderModal
+  const [sliders, setSliders] = React.useState([33, 33, 33]);
 
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
@@ -32,18 +33,14 @@ function NewGameWizard({ state, onStart, onCancel }) {
     return { label: '--', color: '#f85149' };
   };
 
-  const updateSlider = (phaseIdx, aspectIdx, value) => {
-    const idx = phaseIdx * 3 + aspectIdx;
+  const updateSlider = (aspectIdx, value) => {
     const newSliders = [...sliders];
-
-    // Within a phase, the 3 sliders must sum to ~100
-    // Adjust the other two proportionally
-    const otherIndices = [0, 1, 2].filter(i => i !== aspectIdx).map(i => phaseIdx * 3 + i);
-    const oldVal = newSliders[idx];
+    const otherIndices = [0, 1, 2].filter(i => i !== aspectIdx);
+    const oldVal = newSliders[aspectIdx];
     const diff = value - oldVal;
     const othersSum = otherIndices.reduce((s, i) => s + newSliders[i], 0);
 
-    newSliders[idx] = value;
+    newSliders[aspectIdx] = value;
 
     if (othersSum > 0) {
       otherIndices.forEach(i => {
@@ -55,13 +52,12 @@ function NewGameWizard({ state, onStart, onCancel }) {
       });
     }
 
-    // Normalize phase to 100
-    const phaseStart = phaseIdx * 3;
-    const phaseSum = newSliders[phaseStart] + newSliders[phaseStart + 1] + newSliders[phaseStart + 2];
-    if (phaseSum > 0 && phaseSum !== 100) {
-      const factor = 100 / phaseSum;
+    // Normalize to 100
+    const sum = newSliders[0] + newSliders[1] + newSliders[2];
+    if (sum > 0 && sum !== 100) {
+      const factor = 100 / sum;
       for (let i = 0; i < 3; i++) {
-        newSliders[phaseStart + i] = Math.max(5, Math.round(newSliders[phaseStart + i] * factor));
+        newSliders[i] = Math.max(5, Math.round(newSliders[i] * factor));
       }
     }
 
@@ -76,7 +72,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
       audience,
       platformIds,
       size,
-      sliders,
+      sliders, // Only Phase 1 (3 values) — engine fills defaults for phases 2 & 3
     };
     onStart(config);
   };
@@ -320,60 +316,79 @@ function NewGameWizard({ state, onStart, onCancel }) {
           </div>
         )}
 
-        {/* Step 4: Slider Allocation */}
-        {step === 4 && (
-          <div>
-            <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '16px' }}>
-              Allocate Development Focus (each phase must sum to ~100%)
-            </label>
+        {/* Step 4: Phase 1 Slider Allocation (Phases 2 & 3 set during development) */}
+        {step === 4 && (() => {
+          const phase = DEV_PHASES[0];
+          const importance = GENRE_IMPORTANCE[genre] || [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
 
-            {DEV_PHASES.map((phase, pi) => {
-              const importance = GENRE_IMPORTANCE[genre] || [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
-              return (
-                <div key={pi} className="glass-card" style={{ padding: '16px', marginBottom: '12px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3', marginBottom: '12px' }}>
-                    {phase.name}
-                  </div>
-                  {phase.aspects.map((aspect, ai) => {
-                    const idx = pi * 3 + ai;
-                    const imp = importance[idx];
-                    const impLabel = imp >= 0.9 ? 'Important' : imp <= 0.1 ? 'Restricted' : '';
-                    const impColor = imp >= 0.9 ? '#3fb950' : imp <= 0.1 ? '#f85149' : '';
-                    return (
-                      <div key={ai} style={{ marginBottom: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '13px', color: '#c9d1d9' }}>{aspect}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            {impLabel && (
-                              <span style={{ fontSize: '11px', color: impColor, fontWeight: 500 }}>{impLabel}</span>
-                            )}
-                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#58a6ff', minWidth: '32px', textAlign: 'right' }}>
-                              {sliders[idx]}%
-                            </span>
-                          </div>
-                        </div>
-                        <input
-                          type="range"
-                          min="5"
-                          max="80"
-                          value={sliders[idx]}
-                          onChange={e => updateSlider(pi, ai, parseInt(e.target.value))}
-                        />
-                      </div>
-                    );
-                  })}
+          const ASPECT_DESCRIPTIONS = {
+            'Engine':       'Core tech foundation — physics, rendering pipeline, netcode',
+            'Gameplay':     'Mechanics, controls, game feel — what makes it fun to play',
+            'Story/Quests': 'Narrative, missions, quest design — player motivation & progression',
+          };
+
+          return (
+            <div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                  Phase 1 — Foundation
+                </label>
+                <div style={{ fontSize: '12px', color: '#58a6ff', marginBottom: '4px' }}>
+                  Allocate your team's focus. Total must equal 100%.
                 </div>
-              );
-            })}
+                <div style={{ fontSize: '11px', color: '#484f58' }}>
+                  Phases 2 & 3 will be configured during development.
+                </div>
+              </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-              <button className="btn-secondary" onClick={() => setStep(3)}>Back</button>
-              <button className="btn-accent" onClick={handleConfirm}>
-                Start Development
-              </button>
+              <div className="glass-card" style={{ padding: '16px', marginBottom: '12px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3', marginBottom: '4px' }}>
+                  {phase.name} — Foundation
+                </div>
+                <div style={{ fontSize: '11px', color: '#8b949e', marginBottom: '14px' }}>
+                  This phase builds the core engine, gameplay mechanics, and narrative framework.
+                </div>
+                {phase.aspects.map((aspect, ai) => {
+                  const imp = importance[ai];
+                  const impLabel = imp >= 0.9 ? 'Important' : imp <= 0.1 ? 'Restricted' : '';
+                  const impColor = imp >= 0.9 ? '#3fb950' : imp <= 0.1 ? '#f85149' : '';
+                  return (
+                    <div key={ai} style={{ marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                        <span style={{ fontSize: '13px', color: '#c9d1d9', fontWeight: 500 }}>{aspect}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {impLabel && (
+                            <span style={{ fontSize: '11px', color: impColor, fontWeight: 500 }}>{impLabel}</span>
+                          )}
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#58a6ff', minWidth: '32px', textAlign: 'right' }}>
+                            {sliders[ai]}%
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#6e7681', marginBottom: '6px' }}>
+                        {ASPECT_DESCRIPTIONS[aspect] || ''}
+                      </div>
+                      <input
+                        type="range"
+                        min="5"
+                        max="80"
+                        value={sliders[ai]}
+                        onChange={e => updateSlider(ai, parseInt(e.target.value))}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+                <button className="btn-secondary" onClick={() => setStep(3)}>Back</button>
+                <button className="btn-accent" onClick={handleConfirm}>
+                  Start Development
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

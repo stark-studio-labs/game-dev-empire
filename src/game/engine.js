@@ -67,6 +67,8 @@ class GameEngine {
       devDesign: 0,
       devTech: 0,
       devSliders: null,     // 9 values set by the wizard
+      waitingForPhaseInput: false, // true when paused between phases waiting for slider input
+      nextPhaseIndex: null,  // which phase (1 or 2) we're waiting to configure
 
       // Sales tracking
       sellingGame: null,
@@ -191,6 +193,7 @@ class GameEngine {
   tick() {
     if (!this.state) return;
     if (this.state.gameOver) return; // Stop ticking on win/lose
+    if (this.state.waitingForPhaseInput) return; // Paused waiting for phase slider input
     const s = this.state;
 
     // Advance date
@@ -405,11 +408,19 @@ class GameEngine {
       remasterBonus: config.remasterBonus || 0,
     };
 
-    s.devSliders = config.sliders;
+    // Phase 1 sliders from wizard; phases 2 & 3 default to 33/33/33 until player sets them
+    const phase1 = config.sliders || [33, 33, 33];
+    s.devSliders = [
+      phase1[0] || 33, phase1[1] || 33, phase1[2] || 33,
+      33, 33, 33,  // Phase 2 defaults (set by PhaseSliderModal)
+      33, 33, 33,  // Phase 3 defaults (set by PhaseSliderModal)
+    ];
     s.devPhase = 0;
     s.devProgress = 0;
     s.devDesign = 0;
     s.devTech = 0;
+    s.waitingForPhaseInput = false;
+    s.nextPhaseIndex = null;
 
     this._notify(`Started developing "${config.title}"!`);
     this._emit();
@@ -463,14 +474,39 @@ class GameEngine {
     // Phase complete?
     if (s.devProgress >= 100) {
       if (s.devPhase < 2) {
-        s.devPhase++;
-        s.devProgress = 0;
-        this._notify(`Phase ${s.devPhase + 1} started for "${s.currentGame.title}"`);
+        // Pause and wait for player to set next phase sliders (GDT-style)
+        s.devProgress = 100; // clamp
+        s.waitingForPhaseInput = true;
+        s.nextPhaseIndex = s.devPhase + 1;
+        this.setSpeed(0); // Pause the game
+        this._notify(`Phase ${s.devPhase + 1} complete! Set focus for Phase ${s.devPhase + 2}.`);
       } else {
         // Development complete — release the game
         this._releaseGame();
       }
     }
+  }
+
+  /** Accept sliders for the next phase and resume development */
+  submitPhaseSliders(phaseSliders) {
+    const s = this.state;
+    if (!s.waitingForPhaseInput || s.nextPhaseIndex === null) return;
+
+    const phaseIdx = s.nextPhaseIndex;
+    // Write the 3 slider values into the correct positions in devSliders
+    for (let i = 0; i < 3; i++) {
+      s.devSliders[phaseIdx * 3 + i] = phaseSliders[i];
+    }
+
+    // Advance to the next phase
+    s.devPhase = phaseIdx;
+    s.devProgress = 0;
+    s.waitingForPhaseInput = false;
+    s.nextPhaseIndex = null;
+
+    this._notify(`Phase ${phaseIdx + 1} started for "${s.currentGame.title}"`);
+    this._emit();
+    this.setSpeed(1); // Resume
   }
 
   /** Release a completed game */
@@ -626,6 +662,8 @@ class GameEngine {
     s.devDesign = 0;
     s.devTech = 0;
     s.devSliders = null;
+    s.waitingForPhaseInput = false;
+    s.nextPhaseIndex = null;
 
     // Pause for review
     this.setSpeed(0);

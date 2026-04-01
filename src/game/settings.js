@@ -9,6 +9,7 @@ class SettingsSystem {
     this.autosaveFreq = 4;        // weeks: 2, 4, or 8
     this.soundEnabled = true;
     this.defaultSpeed = 1;        // 1, 2, 4
+    this.devMode = false;         // Dev Mode: unlocks all features for testing
     this._load();
   }
 
@@ -21,6 +22,7 @@ class SettingsSystem {
         if (d.autosaveFreq)             this.autosaveFreq  = d.autosaveFreq;
         if (d.soundEnabled !== undefined) this.soundEnabled = d.soundEnabled;
         if (d.defaultSpeed)             this.defaultSpeed  = d.defaultSpeed;
+        if (d.devMode !== undefined)    this.devMode       = d.devMode;
       }
     } catch (e) { /* ignore */ }
   }
@@ -31,6 +33,7 @@ class SettingsSystem {
       autosaveFreq: this.autosaveFreq,
       soundEnabled: this.soundEnabled,
       defaultSpeed: this.defaultSpeed,
+      devMode:      this.devMode,
     }));
   }
 
@@ -38,6 +41,7 @@ class SettingsSystem {
   setAutosaveFreq(f) { this.autosaveFreq = f; this._save(); }
   setSoundEnabled(v) { this.soundEnabled = v; this._save(); }
   setDefaultSpeed(s) { this.defaultSpeed = s; this._save(); }
+  setDevMode(v)      { this.devMode      = v; this._save(); }
 
   /** Revenue multiplier applied to every game release. */
   getRevenueMultiplier() {
