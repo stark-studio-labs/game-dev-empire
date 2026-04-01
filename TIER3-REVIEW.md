@@ -207,3 +207,13 @@ Properly uses `ipoSystem` globals for all data access.
 - Timeline has 29 events, not 30 as stated in file comment (years 1-25 all covered)
 - TimelinePanel shows "Industry Event" for all fired events (no per-event category field)
 - `getTotalBonus('cost_reduction')` result is never consumed (savings go through separate path)
+
+---
+
+## Related Documentation
+
+- [README.md](README.md) -- project overview and quick start
+- [PLAYBOOK.md](PLAYBOOK.md) -- game development playbook
+- [CODE-REVIEW.md](CODE-REVIEW.md) -- full code audit
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) -- art direction bible
+- [TEST-RESULTS.md](TEST-RESULTS.md) -- automated test results

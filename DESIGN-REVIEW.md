@@ -131,3 +131,13 @@ See `styles.css` — the following were added:
 8. `@keyframes pulse` — defined in CSS (was referenced in GameScreen but missing)
 9. TopBar visual grouping via `.topbar-divider` separator class
 10. `#484f58` text color replaced in tertiary usage with improved `#6e7681` (passes WCAG AA at 4.6:1 on `#0d1117`)
+
+---
+
+## Related Documentation
+
+- [README.md](README.md) -- project overview and quick start
+- [PLAYBOOK.md](PLAYBOOK.md) -- game development playbook
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) -- art direction bible
+- [CODE-REVIEW.md](CODE-REVIEW.md) -- full code audit
+- [TEST-RESULTS.md](TEST-RESULTS.md) -- automated test results

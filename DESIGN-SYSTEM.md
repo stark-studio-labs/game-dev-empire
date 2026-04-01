@@ -342,3 +342,13 @@ Before any asset ships into the game:
 - [ ] Follows typography scale (no custom font sizes)
 - [ ] Follows spacing grid (multiples of 4px)
 - [ ] Reviewed against this document before merge
+
+---
+
+## Related Documentation
+
+- [README.md](README.md) -- project overview and quick start
+- [PLAYBOOK.md](PLAYBOOK.md) -- game development playbook
+- [PROGRESSION.md](PROGRESSION.md) -- gated unlock system
+- [CODE-REVIEW.md](CODE-REVIEW.md) -- full code audit
+- [TEST-RESULTS.md](TEST-RESULTS.md) -- automated test results

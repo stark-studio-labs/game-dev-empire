@@ -217,3 +217,13 @@ Toggle in Settings → Dev Mode ON:
 - Skip tutorial
 
 For internal testing only. Hidden from regular players (requires 5-click easter egg on version number to show toggle).
+
+---
+
+## Related Documentation
+
+- [README.md](README.md) -- project overview and quick start
+- [PLAYBOOK.md](PLAYBOOK.md) -- game development playbook
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) -- art direction bible
+- [CODE-REVIEW.md](CODE-REVIEW.md) -- full code audit
+- [TEST-RESULTS.md](TEST-RESULTS.md) -- automated test results

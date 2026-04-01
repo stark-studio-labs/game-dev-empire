@@ -650,3 +650,13 @@ The architecture is solid — the tick-based engine, save/load system, and subsy
 The game has three layers of problems: **crashes** (5 bugs that break the game immediately), **dead features** (franchise system, sequel bonuses, marketing hype reset, training costs — all built but disconnected), and **missing features** (platform lifecycle, win condition, bankruptcy, multi-platform releases).
 
 Fix the crashes first, then wire the dead features — most of the "missing" gameplay is actually already implemented, just never called. The franchise + sequel system, marketing hype reset, and research/training finance recording together would make the game feel substantially more complete with probably 2–3 days of focused wiring work.
+
+---
+
+## Related Documentation
+
+- [README.md](README.md) -- project overview and quick start
+- [PLAYBOOK.md](PLAYBOOK.md) -- game development playbook
+- [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md) -- art direction bible
+- [TIER3-REVIEW.md](TIER3-REVIEW.md) -- Tier 3 systems review
+- [TEST-RESULTS.md](TEST-RESULTS.md) -- automated test results
