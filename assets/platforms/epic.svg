@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <rect x="32" y="28" width="10" height="62" rx="3" fill="#58a6ff"/>
+  <rect x="32" y="28" width="58" height="10" rx="3" fill="#58a6ff"/>
+  <rect x="32" y="55" width="46" height="9" rx="3" fill="#58a6ff" opacity="0.7"/>
+  <rect x="32" y="80" width="58" height="10" rx="3" fill="#58a6ff"/>
+  <text x="64" y="108" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">EPIC GAMES</text>
+</svg>

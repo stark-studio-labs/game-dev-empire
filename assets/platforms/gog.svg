@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <circle cx="64" cy="56" r="32" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <text x="64" y="64" fill="#58a6ff" font-family="Inter,sans-serif" font-size="24" font-weight="700" text-anchor="middle" letter-spacing="2">GOG</text>
+  <text x="64" y="108" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">GOG.COM</text>
+</svg>

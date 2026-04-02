@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <polygon points="64,18 96,36 96,72 64,90 32,72 32,36" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linejoin="round"/>
+  <text x="64" y="58" fill="#58a6ff" font-family="Inter,sans-serif" font-size="18" font-weight="700" text-anchor="middle" letter-spacing="1">GMG</text>
+  <text x="64" y="74" fill="#8b949e" font-family="Inter,sans-serif" font-size="8" text-anchor="middle">GAMING</text>
+  <text x="64" y="110" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">GREEN MAN</text>
+</svg>

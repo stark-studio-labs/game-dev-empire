@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Streaming: play button with signal waves -->
+  <circle cx="64" cy="58" r="28" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <polygon points="56,44 56,72 82,58" fill="#58a6ff" opacity="0.85"/>
+  <!-- signal arcs -->
+  <path d="M96 32 C106 42 106 74 96 84" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <path d="M32 32 C22 42 22 74 32 84" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="64" y="108" fill="#8b949e" font-family="Inter,sans-serif" font-size="8" font-weight="500" text-anchor="middle" letter-spacing="1">STREAMING</text>
+</svg>

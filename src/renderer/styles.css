@@ -1071,10 +1071,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
    Office Backgrounds
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.office-garage { background: linear-gradient(180deg, #0d1117 0%, #111820 50%, #0d1117 100%); }
-.office-small  { background: linear-gradient(180deg, #0d1117 0%, #131a24 50%, #0d1117 100%); }
-.office-medium { background: linear-gradient(180deg, #0d1117 0%, #141d2b 50%, #0d1117 100%); }
-.office-large  { background: linear-gradient(180deg, #0d1117 0%, #162033 50%, #0d1117 100%); }
+.office-garage {
+  background: linear-gradient(180deg, rgba(13,17,23,0.7) 0%, rgba(17,24,32,0.5) 50%, rgba(13,17,23,0.7) 100%),
+              url('../../assets/offices/office-tier1-garage.jpg') center/cover no-repeat;
+}
+.office-small {
+  background: linear-gradient(180deg, rgba(13,17,23,0.7) 0%, rgba(19,26,36,0.5) 50%, rgba(13,17,23,0.7) 100%),
+              url('../../assets/offices/office-tier2-small.jpg') center/cover no-repeat;
+}
+.office-medium {
+  background: linear-gradient(180deg, rgba(13,17,23,0.7) 0%, rgba(20,29,43,0.5) 50%, rgba(13,17,23,0.7) 100%),
+              url('../../assets/offices/office-tier3-medium.jpg') center/cover no-repeat;
+}
+.office-large {
+  background: linear-gradient(180deg, rgba(13,17,23,0.7) 0%, rgba(22,32,51,0.5) 50%, rgba(13,17,23,0.7) 100%),
+              url('../../assets/offices/office-tier4-hq.jpg') center/cover no-repeat;
+}
 
 
 /* ═══════════════════════════════════════════════════════════════════════════

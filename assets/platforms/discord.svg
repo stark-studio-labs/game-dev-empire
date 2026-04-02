@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <path d="M26 50 Q28 28 64 26 Q100 28 102 50 L102 82 Q94 98 82 98 L80 88 Q64 92 48 88 L46 98 Q34 98 26 82 Z" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="48" cy="62" r="9" fill="#58a6ff" opacity="0.65"/>
+  <circle cx="80" cy="62" r="9" fill="#58a6ff" opacity="0.65"/>
+  <text x="64" y="118" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">DISCORD</text>
+</svg>

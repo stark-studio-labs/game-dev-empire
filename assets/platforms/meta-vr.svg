@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <path d="M20 64 C20 48 30 40 42 40 C54 40 58 54 64 54 C70 54 74 40 86 40 C98 40 108 48 108 64 C108 80 98 88 86 88 C74 88 70 74 64 74 C58 74 54 88 42 88 C30 88 20 80 20 64 Z" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <text x="64" y="112" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">META / VR</text>
+</svg>

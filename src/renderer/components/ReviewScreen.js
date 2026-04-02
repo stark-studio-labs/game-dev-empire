@@ -19,7 +19,10 @@ function ReviewScreen({ game, onClose }) {
 
   React.useEffect(() => {
     if (revealed < 4) {
-      const timer = setTimeout(() => setRevealed(r => r + 1), 800);
+      const timer = setTimeout(() => {
+        setRevealed(r => r + 1);
+        if (typeof audioManager !== 'undefined') audioManager.playSFX('review-reveal');
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, [revealed]);

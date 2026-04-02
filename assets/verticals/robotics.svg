@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Robotics: robot arm -->
+  <rect x="54" y="88" width="20" height="16" rx="4" fill="#58a6ff" opacity="0.5"/>
+  <rect x="58" y="72" width="12" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="3"/>
+  <line x1="64" y1="72" x2="50" y2="52" stroke="#58a6ff" stroke-width="5" stroke-linecap="round"/>
+  <line x1="50" y1="52" x2="62" y2="32" stroke="#58a6ff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="50" cy="52" r="7" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+  <circle cx="64" cy="72" r="7" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+  <!-- gripper -->
+  <line x1="62" y1="32" x2="54" y2="22" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="62" y1="32" x2="72" y2="22" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="64" y="118" fill="#8b949e" font-family="Inter,sans-serif" font-size="8" font-weight="500" text-anchor="middle" letter-spacing="1">ROBOTICS</text>
+</svg>

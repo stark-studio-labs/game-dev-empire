@@ -24,6 +24,17 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
 
+  // Map platform companies to SVG icons
+  const PLATFORM_ICONS = {
+    'Ninvento':   '../../assets/platforms/nintendo.svg',
+    'Vonny':      '../../assets/platforms/playstation.svg',
+    'Micronoft':  '../../assets/platforms/xbox.svg',
+    'Vena':       '../../assets/platforms/platform-console.svg',
+    'Govodore':   '../../assets/platforms/platform-console.svg',
+    'Grapple':    '../../assets/platforms/ios.svg',
+    'Various':    '../../assets/platforms/platform-pc.svg',
+  };
+
   // Topic unlock logic — Tier 1 always available, Tier 2 at Small Office, Tier 3 via research
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;
@@ -337,7 +348,14 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     onClick={() => !disabled && togglePlatform(p.id)}
                     style={{ padding: '10px', textAlign: 'left', opacity: disabled ? 0.4 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
                   >
-                    <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {PLATFORM_ICONS[p.company] && (
+                        <img src={PLATFORM_ICONS[p.company]} alt={p.company} style={{
+                          width: '16px', height: '16px', opacity: 0.7,
+                        }} />
+                      )}
+                      <div style={{ fontWeight: 600, fontSize: '13px' }}>{p.name}</div>
+                    </div>
                     <div style={{ fontSize: '11px', color: '#8b949e' }}>{p.company}</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
                       {compat && <span style={{ fontSize: '11px', color: compat.color }}>{compat.label}</span>}

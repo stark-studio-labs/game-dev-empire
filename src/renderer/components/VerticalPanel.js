@@ -31,6 +31,13 @@ function VerticalPanel({ state, onClose }) {
 
   const verticals = ['software', 'streaming', 'cloud', 'ai'];
 
+  const VERTICAL_ICONS = {
+    software: '../../assets/verticals/software.svg',
+    streaming: '../../assets/verticals/streaming.svg',
+    cloud: '../../assets/verticals/cloud.svg',
+    ai: '../../assets/verticals/ai.svg',
+  };
+
   const handleUnlock = (id) => {
     if (verticalManager.unlock(id, engine.state)) {
       engine._emit();
@@ -90,7 +97,12 @@ function VerticalPanel({ state, onClose }) {
             fontSize: '18px', color: isActive ? def.color : '#484f58',
             border: `1px solid ${isActive ? def.color + '44' : 'rgba(255,255,255,0.06)'}`,
           }}>
-            {def.icon}
+            {VERTICAL_ICONS[id] ? (
+              <img src={VERTICAL_ICONS[id]} alt={def.name} style={{
+                width: '22px', height: '22px', opacity: isActive ? 1 : 0.4,
+                filter: isActive ? 'none' : 'grayscale(1)',
+              }} />
+            ) : def.icon}
           </div>
           <div style={{ flex: 1 }}>
             <div style={{

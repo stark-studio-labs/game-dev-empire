@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <rect x="20" y="34" width="32" height="56" rx="16" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <rect x="76" y="34" width="32" height="56" rx="16" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <rect x="50" y="50" width="28" height="24" rx="4" fill="#58a6ff" opacity="0.2" stroke="#58a6ff" stroke-width="2"/>
+  <circle cx="36" cy="50" r="6" fill="#58a6ff" opacity="0.6"/>
+  <circle cx="92" cy="66" r="6" fill="#58a6ff" opacity="0.6"/>
+  <text x="64" y="106" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">NINTENDO</text>
+</svg>

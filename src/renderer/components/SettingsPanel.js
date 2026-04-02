@@ -6,6 +6,8 @@ function SettingsPanel({ onClose }) {
   const [difficulty, setDifficulty] = React.useState(settingsSystem.difficulty);
   const [autosaveFreq, setAutosaveFreq] = React.useState(settingsSystem.autosaveFreq);
   const [soundEnabled, setSoundEnabled] = React.useState(settingsSystem.soundEnabled);
+  const [musicVolume, setMusicVolume] = React.useState(typeof audioManager !== 'undefined' ? audioManager.getMusicVolume() : 0.3);
+  const [sfxVolume, setSfxVolume] = React.useState(typeof audioManager !== 'undefined' ? audioManager.getSFXVolume() : 0.5);
   const [defaultSpeed, setDefaultSpeed] = React.useState(settingsSystem.defaultSpeed);
   const [saved, setSaved] = React.useState(false);
 
@@ -19,6 +21,10 @@ function SettingsPanel({ onClose }) {
     settingsSystem.setDifficulty(difficulty);
     settingsSystem.setAutosaveFreq(autosaveFreq);
     settingsSystem.setSoundEnabled(soundEnabled);
+    if (typeof audioManager !== 'undefined') {
+      audioManager.setMusicVolume(musicVolume);
+      audioManager.setSFXVolume(sfxVolume);
+    }
     settingsSystem.setDefaultSpeed(defaultSpeed);
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
@@ -143,6 +149,44 @@ function SettingsPanel({ onClose }) {
             </div>
             <span style={{ fontSize: '13px', color: '#c9d1d9' }}>{soundEnabled ? 'On' : 'Off'}</span>
           </div>
+
+          {/* Volume sliders */}
+          {soundEnabled && (
+            <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                  <span style={{ color: '#8b949e' }}>Music Volume</span>
+                  <span style={{ color: '#c9d1d9' }}>{Math.round(musicVolume * 100)}%</span>
+                </div>
+                <input
+                  type="range" min="0" max="100"
+                  value={Math.round(musicVolume * 100)}
+                  onChange={e => {
+                    const v = parseInt(e.target.value) / 100;
+                    setMusicVolume(v);
+                    if (typeof audioManager !== 'undefined') audioManager.setMusicVolume(v);
+                  }}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}>
+                  <span style={{ color: '#8b949e' }}>SFX Volume</span>
+                  <span style={{ color: '#c9d1d9' }}>{Math.round(sfxVolume * 100)}%</span>
+                </div>
+                <input
+                  type="range" min="0" max="100"
+                  value={Math.round(sfxVolume * 100)}
+                  onChange={e => {
+                    const v = parseInt(e.target.value) / 100;
+                    setSfxVolume(v);
+                    if (typeof audioManager !== 'undefined') audioManager.setSFXVolume(v);
+                  }}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

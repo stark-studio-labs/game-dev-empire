@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Cloud: cloud with upload arrow -->
+  <path d="M88 70 C100 70 108 62 108 52 C108 42 100 34 90 34 C88 24 80 18 70 18 C58 18 48 27 47 38 C36 39 26 48 26 58 C26 68 34 76 44 76 L88 76 Z" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linejoin="round"/>
+  <line x1="64" y1="96" x2="64" y2="62" stroke="#58a6ff" stroke-width="4" stroke-linecap="round"/>
+  <polyline points="50,74 64,60 78,74" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="64" y="116" fill="#8b949e" font-family="Inter,sans-serif" font-size="8" font-weight="500" text-anchor="middle" letter-spacing="1">CLOUD</text>
+</svg>

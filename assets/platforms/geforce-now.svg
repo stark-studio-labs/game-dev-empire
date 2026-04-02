@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <polygon points="64,18 100,80 28,80" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M70 32 L54 58 L66 58 L58 78 L76 50 L64 50 Z" fill="#58a6ff" opacity="0.85"/>
+  <text x="64" y="108" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">GEFORCE NOW</text>
+</svg>

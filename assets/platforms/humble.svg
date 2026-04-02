@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <rect x="26" y="54" width="76" height="42" rx="6" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <rect x="26" y="42" width="76" height="18" rx="4" fill="none" stroke="#58a6ff" stroke-width="3"/>
+  <rect x="60" y="42" width="8" height="54" rx="4" fill="#58a6ff" opacity="0.5"/>
+  <rect x="26" y="46" width="76" height="8" rx="4" fill="#58a6ff" opacity="0.5"/>
+  <path d="M64 42 C50 30 28 32 34 42" fill="none" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M64 42 C78 30 100 32 94 42" fill="none" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+  <text x="64" y="112" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">HUMBLE</text>
+</svg>

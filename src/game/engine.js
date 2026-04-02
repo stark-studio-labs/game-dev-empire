@@ -398,6 +398,7 @@ class GameEngine {
         s.gameOver = true;
         s.gameOverReason = 'bankruptcy';
         this.setSpeed(0);
+        if (typeof audioManager !== 'undefined') audioManager.playSFX('error-buzz');
         this._notify('BANKRUPTCY! Your studio has gone under.');
       }
     } else {
@@ -513,6 +514,7 @@ class GameEngine {
     s.nextPhaseIndex = null;
 
     this._notify(`Started developing "${config.title}"!`);
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('btn-click');
     this._emit();
     return true;
   }
@@ -707,6 +709,7 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('game-release');
 
     // Track victory counters
     if (criticAvg >= 8.5) s.gamesHighScore = (s.gamesHighScore || 0) + 1;
@@ -806,6 +809,7 @@ class GameEngine {
       }
 
       this._notify(`"${s.sellingGame.title}" finished selling: $${this._formatNum(s.salesRevenue)} total revenue!`);
+      if (typeof audioManager !== 'undefined') audioManager.playSFX('cash-register');
       s.sellingGame = null;
       s.salesRevenue = 0;
       s.salesTotalTarget = 0;
@@ -856,6 +860,7 @@ class GameEngine {
     s.gameOverReason = 'victory';
     s.victoryPath = path;
     this.setSpeed(0);
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('fanfare');
     this._notify(message);
   }
 
@@ -923,6 +928,7 @@ class GameEngine {
       return false;
     }
     s.staff.push({ ...applicant });
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('hire');
     moraleSystem.applyEvent('hire', s.totalWeeks);
     s.morale = moraleSystem.getMorale();
     this._notify(`Hired ${applicant.name}!`);
@@ -938,6 +944,7 @@ class GameEngine {
     if (idx < 0 || s.staff[idx].isFounder) return false;
     const name = s.staff[idx].name;
     s.staff.splice(idx, 1);
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('fire');
     energySystem.removeStaff(staffId);
     moraleSystem.applyEvent('fire', s.totalWeeks);
     s.morale = moraleSystem.getMorale();
@@ -981,6 +988,7 @@ class GameEngine {
 
     s.level++;
     s.upgradeAvailable = false;
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('level-up');
     this._notify(`Upgraded to ${OFFICE_LEVELS[s.level].name}!`);
     notificationManager.onOfficeUpgrade(OFFICE_LEVELS[s.level].name, s);
     this._emit();

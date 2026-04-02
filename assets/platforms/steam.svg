@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <circle cx="64" cy="52" r="26" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <circle cx="64" cy="52" r="11" fill="#58a6ff" opacity="0.8"/>
+  <rect x="60" y="26" width="8" height="10" rx="2" fill="#58a6ff"/>
+  <rect x="60" y="68" width="8" height="10" rx="2" fill="#58a6ff"/>
+  <rect x="26" y="48" width="10" height="8" rx="2" fill="#58a6ff"/>
+  <rect x="80" y="48" width="10" height="8" rx="2" fill="#58a6ff"/>
+  <rect x="58" y="78" width="12" height="22" rx="6" fill="#58a6ff" opacity="0.5"/>
+  <text x="64" y="114" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">STEAM</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Semiconductor: chip with pins -->
+  <rect x="36" y="36" width="56" height="56" rx="6" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <rect x="46" y="46" width="36" height="36" rx="4" fill="#58a6ff" opacity="0.15"/>
+  <!-- pins top -->
+  <line x1="50" y1="36" x2="50" y2="22" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="64" y1="36" x2="64" y2="22" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="78" y1="36" x2="78" y2="22" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <!-- pins bottom -->
+  <line x1="50" y1="92" x2="50" y2="106" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="64" y1="92" x2="64" y2="106" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="78" y1="92" x2="78" y2="106" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <!-- pins left -->
+  <line x1="36" y1="50" x2="22" y2="50" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="36" y1="64" x2="22" y2="64" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="36" y1="78" x2="22" y2="78" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <!-- pins right -->
+  <line x1="92" y1="50" x2="106" y2="50" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="92" y1="64" x2="106" y2="64" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <line x1="92" y1="78" x2="106" y2="78" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <text x="64" y="120" fill="#8b949e" font-family="Inter,sans-serif" font-size="7" font-weight="500" text-anchor="middle" letter-spacing="1">SEMICONDUCTOR</text>
+</svg>

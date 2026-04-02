@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <path d="M80 28 C60 28 42 44 42 64 C42 84 58 98 78 98 C92 98 104 90 110 78 C100 84 88 84 78 78 C64 70 60 54 66 40 C70 32 76 28 80 28 Z" fill="#58a6ff" opacity="0.75"/>
+  <path d="M24 72 Q38 58 54 66" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <text x="64" y="118" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">LUNA</text>
+</svg>

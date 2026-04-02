@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <path d="M64 22 C50 22 38 34 38 52 C38 70 50 82 64 82 C78 82 90 70 90 52 C90 34 78 22 64 22 Z" fill="none" stroke="#58a6ff" stroke-width="4"/>
+  <path d="M64 22 C64 12 72 8 76 14" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M82 38 C88 44 88 52 84 56" fill="none" stroke="#58a6ff" stroke-width="4" stroke-linecap="round"/>
+  <rect x="54" y="82" width="20" height="8" rx="2" fill="#58a6ff" opacity="0.4"/>
+  <rect x="40" y="88" width="48" height="6" rx="3" fill="#58a6ff" opacity="0.3"/>
+  <text x="64" y="108" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">MACOS</text>
+</svg>

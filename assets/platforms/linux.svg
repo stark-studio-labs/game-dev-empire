@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <ellipse cx="64" cy="45" rx="18" ry="20" fill="none" stroke="#58a6ff" stroke-width="3"/>
+  <circle cx="56" cy="40" r="3" fill="#58a6ff"/>
+  <circle cx="72" cy="40" r="3" fill="#58a6ff"/>
+  <path d="M50 52 Q64 60 78 52" fill="none" stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M50 68 L42 90 L58 85 L64 95 L70 85 L86 90 L78 68 C72 78 56 78 50 68 Z" fill="none" stroke="#58a6ff" stroke-width="3.5" stroke-linejoin="round"/>
+  <text x="64" y="118" fill="#8b949e" font-family="Inter,sans-serif" font-size="9" font-weight="500" text-anchor="middle" letter-spacing="1">LINUX</text>
+</svg>

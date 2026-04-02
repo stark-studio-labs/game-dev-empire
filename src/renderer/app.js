@@ -172,6 +172,7 @@ function App() {
     const name = companyName.trim() || 'Indie Studio';
     engine.newGame(name);
     setScreen('game');
+    if (typeof audioManager !== 'undefined') audioManager.playMusic();
     // Reset unlock tracking for new game
     unlockedFeaturesRef.current = {
       research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
@@ -187,6 +188,7 @@ function App() {
   const handleLoadGame = () => {
     if (engine.load()) {
       setScreen('game');
+      if (typeof audioManager !== 'undefined') audioManager.playMusic();
       // Initialize unlock tracking based on loaded state
       const s = engine.state;
       if (s) {
@@ -302,8 +304,14 @@ function App() {
         justifyContent: 'center',
         background: 'radial-gradient(ellipse at center, #161b22 0%, #0d1117 70%)',
       }}>
-        {/* Logo */}
+        {/* Logo / Splash */}
         <div style={{ marginBottom: '48px', textAlign: 'center' }}>
+          <img
+            src="../../assets/brand/logo/splash-screen.jpg"
+            alt="Tech Empire"
+            style={{ maxWidth: '400px', width: '100%', borderRadius: '16px', marginBottom: '16px' }}
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
           <div style={{
             fontSize: '56px',
             fontWeight: 800,
@@ -633,6 +641,14 @@ function App() {
           }}>
             {gameState.gameOverReason === 'victory' ? (() => {
               const vp = VICTORY_PATHS.find(p => p.name === gameState.victoryPath);
+              const VICTORY_IMAGES = {
+                'Brand Empire': '../../assets/victory/v1-brand-empire-a.jpg',
+                'Innovation Leader': '../../assets/victory/v2-innovation-leader.jpg',
+                'Market Dominator': '../../assets/victory/v3-market-dominator.jpg',
+                'Financial Titan': '../../assets/victory/v4-financial-titan.jpg',
+                'Industry Kingmaker': '../../assets/victory/v5-industry-kingmaker.jpg',
+              };
+              const victoryImage = VICTORY_IMAGES[gameState.victoryPath];
               const totalRev = typeof finance !== 'undefined' ? finance.totalRevenue() : 0;
               const formatBig = (n) => {
                 if (n >= 1000000000) return '$' + (n / 1000000000).toFixed(2) + 'B';
@@ -652,6 +668,16 @@ function App() {
                 : null;
               return (
                 <>
+                  {victoryImage && (
+                    <div style={{
+                      width: '100%', height: '160px', marginBottom: '16px', borderRadius: '10px',
+                      overflow: 'hidden',
+                    }}>
+                      <img src={victoryImage} alt={gameState.victoryPath} style={{
+                        width: '100%', height: '100%', objectFit: 'cover',
+                      }} />
+                    </div>
+                  )}
                   <div style={{ fontSize: '48px', marginBottom: '12px' }}>{vp ? vp.icon : '🏆'}</div>
                   {gameState.victoryPath && (
                     <div style={{
@@ -725,7 +751,7 @@ function App() {
                     </button>
                     <button
                       className="btn-secondary"
-                      onClick={() => { setScreen('title'); engine.destroy(); }}
+                      onClick={() => { setScreen('title'); engine.destroy(); if (typeof audioManager !== 'undefined') audioManager.stopMusic(); }}
                       style={{ padding: '12px 28px', fontSize: '14px' }}
                     >
                       Return to Title
@@ -735,6 +761,14 @@ function App() {
               );
             })() : (
               <>
+                <div style={{
+                  width: '100%', height: '140px', marginBottom: '16px', borderRadius: '10px',
+                  overflow: 'hidden',
+                }}>
+                  <img src="../../assets/screens/game-over-bankruptcy.jpg" alt="Game Over" style={{
+                    width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8,
+                  }} />
+                </div>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>&#128148;</div>
                 <h2 style={{ fontSize: '28px', fontWeight: 800, color: '#f85149', marginBottom: '12px' }}>
                   BANKRUPT
@@ -747,7 +781,7 @@ function App() {
                 </p>
                 <button
                   className="btn-accent"
-                  onClick={() => { setScreen('title'); engine.destroy(); }}
+                  onClick={() => { setScreen('title'); engine.destroy(); if (typeof audioManager !== 'undefined') audioManager.stopMusic(); }}
                   style={{ padding: '12px 32px', fontSize: '15px' }}
                 >
                   Return to Title
