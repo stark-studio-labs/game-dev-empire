@@ -158,6 +158,12 @@ class GameEngine {
         conferenceSystem.deserialize(this.state._conferences || null);
         victorySystem.deserialize(this.state._victory || null);
         competitorSystem.deserialize(this.state._competitors || null);
+        // Migrate: assign roles to staff from older saves
+        if (this.state.staff) {
+          for (const member of this.state.staff) {
+            if (!member.role) member.role = assignStaffRole(member);
+          }
+        }
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -883,7 +889,7 @@ class GameEngine {
   // ── Staff ────────────────────────────────────────────────────
 
   _createFounder() {
-    return {
+    const founder = {
       id: 'founder',
       name: 'You',
       design: 30 + Math.floor(Math.random() * 20),
@@ -894,6 +900,8 @@ class GameEngine {
       isFounder: true,
       gamesWorked: 0,
     };
+    founder.role = assignStaffRole(founder);
+    return founder;
   }
 
   generateApplicants(count = 3) {
@@ -914,6 +922,7 @@ class GameEngine {
         isFounder: false,
         gamesWorked: 0,
       };
+      applicant.role = assignStaffRole(applicant);
       personalitySystem.assignTraits(applicant);
       applicants.push(applicant);
     }
@@ -1076,6 +1085,7 @@ class GameEngine {
       message: msg,
       time: `Y${this.state.year} M${this.state.month} W${this.state.week}`,
     });
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('notification');
     // Keep last 20
     if (this.state.notifications.length > 20) {
       this.state.notifications = this.state.notifications.slice(-20);

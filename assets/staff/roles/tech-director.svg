@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Architecture diagram: nodes and connections -->
+  <!-- Top node -->
+  <rect x="50" y="16" width="28" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="3"/>
+  <!-- Mid-left node -->
+  <rect x="16" y="54" width="28" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="2.5" opacity="0.8"/>
+  <!-- Mid-right node -->
+  <rect x="84" y="54" width="28" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="2.5" opacity="0.8"/>
+  <!-- Bottom nodes -->
+  <rect x="16" y="92" width="28" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+  <rect x="84" y="92" width="28" height="20" rx="4" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+  <!-- Connections -->
+  <line x1="64" y1="36" x2="30" y2="54" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+  <line x1="64" y1="36" x2="98" y2="54" stroke="#58a6ff" stroke-width="2" opacity="0.5"/>
+  <line x1="30" y1="74" x2="30" y2="92" stroke="#58a6ff" stroke-width="2" opacity="0.4"/>
+  <line x1="98" y1="74" x2="98" y2="92" stroke="#58a6ff" stroke-width="2" opacity="0.4"/>
+  <!-- Chip overlay on top node -->
+  <text x="64" y="31" fill="#58a6ff" font-family="monospace" font-size="9" font-weight="700" text-anchor="middle" opacity="0.9">CTD</text>
+</svg>

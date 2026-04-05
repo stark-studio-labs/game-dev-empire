@@ -91,29 +91,51 @@ function StaffPanel({ state, onClose }) {
     return (
       <div className="staff-card" style={{ marginBottom: '8px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
-              {member.name}
-              {member.isFounder && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>Founder</span>}
-              {member.isTeamLead && <span style={{ fontSize: '11px', color: '#d29922', marginLeft: '8px' }}>&#9812; Lead +10%</span>}
-              {isOnVacation && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>On Vacation</span>}
-              {isSick && <span style={{ fontSize: '11px', color: '#f85149', marginLeft: '8px' }}>Sick</span>}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            {/* Role icon */}
+            {member.role && ROLE_ICONS[member.role] && (
+              <div style={{
+                width: '32px', height: '32px', borderRadius: '6px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, marginTop: '2px',
+              }}>
+                <img src={ROLE_ICONS[member.role]} alt={getRoleName(member.role)} style={{
+                  width: '20px', height: '20px', opacity: 0.8,
+                }} />
+              </div>
+            )}
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
+                {member.name}
+                {member.isFounder && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>Founder</span>}
+                {member.isTeamLead && <span style={{ fontSize: '11px', color: '#d29922', marginLeft: '8px' }}>&#9812; Lead +10%</span>}
+                {isOnVacation && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '8px' }}>On Vacation</span>}
+                {isSick && <span style={{ fontSize: '11px', color: '#f85149', marginLeft: '8px' }}>Sick</span>}
+              </div>
+              {/* Role name */}
+              {member.role && (
+                <div style={{ fontSize: '11px', color: '#58a6ff', fontWeight: 500, marginTop: '1px' }}>
+                  {getRoleName(member.role)}
+                </div>
+              )}
+              {/* Genre specialties */}
+              {member.genreSpecialties && Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
+                  {Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).map(([genre, pts]) => (
+                    <span key={genre} className="badge badge--blue">
+                      {genre} +20%
+                    </span>
+                  ))}
+                </div>
+              )}
+              {member.salary > 0 && (
+                <div style={{ fontSize: '11px', color: '#8b949e' }}>
+                  Salary: ${member.salary.toLocaleString()}/mo
+                </div>
+              )}
             </div>
-            {/* Genre specialties */}
-            {member.genreSpecialties && Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '3px' }}>
-                {Object.entries(member.genreSpecialties).filter(([,v]) => v >= 25).map(([genre, pts]) => (
-                  <span key={genre} className="badge badge--blue">
-                    {genre} +20%
-                  </span>
-                ))}
-              </div>
-            )}
-            {member.salary > 0 && (
-              <div style={{ fontSize: '11px', color: '#8b949e' }}>
-                Salary: ${member.salary.toLocaleString()}/mo
-              </div>
-            )}
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             {canVacation && (

@@ -104,8 +104,13 @@ function GameHistory({ state, onClose, onRemaster }) {
                 Game Detail
               </div>
               <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#e6edf3', margin: 0 }}>{g.title}</h2>
-              <div style={{ fontSize: '13px', color: '#8b949e', marginTop: '4px' }}>
-                {g.topic} / {g.genre} / {g.size} on {platformName}
+              <div style={{ fontSize: '13px', color: '#8b949e', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {g.topic} / {g.genre} / {g.size} on
+                {(() => {
+                  const icon = typeof getPlatformIcon !== 'undefined' ? getPlatformIcon(g.platformId) : null;
+                  return icon ? <img src={icon} alt="" style={{ width: '14px', height: '14px', opacity: 0.8 }} /> : null;
+                })()}
+                {platformName}
               </div>
               <div style={{ fontSize: '12px', color: '#484f58', marginTop: '2px' }}>
                 Released Y{g.releaseYear} M{g.releaseMonth} -- {g.devWeeks} weeks dev
@@ -400,7 +405,17 @@ function GameHistory({ state, onClose, onRemaster }) {
                       <td style={{ padding: '8px 6px', color: '#e6edf3', fontWeight: 500 }}>{g.title}</td>
                       <td style={{ padding: '8px 6px', color: '#8b949e' }}>{g.topic}</td>
                       <td style={{ padding: '8px 6px', color: '#8b949e' }}>{g.genre}</td>
-                      <td style={{ padding: '8px 6px', color: '#8b949e' }}>{platformName}</td>
+                      <td style={{ padding: '8px 6px', color: '#8b949e' }}>
+                        {(() => {
+                          const icon = typeof getPlatformIcon !== 'undefined' ? getPlatformIcon(g.platformId) : null;
+                          return (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              {icon && <img src={icon} alt="" style={{ width: '12px', height: '12px', opacity: 0.7 }} />}
+                              {platformName}
+                            </span>
+                          );
+                        })()}
+                      </td>
                       <td style={{ padding: '8px 6px', fontWeight: 700, color: getScoreColor(g.reviewAvg) }}>{g.reviewAvg.toFixed(1)}</td>
                       <td style={{ padding: '8px 6px', color: '#3fb950' }}>{formatCash(g.totalRevenue)}</td>
                       <td style={{ padding: '8px 6px', color: '#58a6ff' }}>+{g.fansGained.toLocaleString()}</td>

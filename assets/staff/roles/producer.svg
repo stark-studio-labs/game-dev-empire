@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Clipboard body -->
+  <rect x="28" y="30" width="72" height="88" rx="6" fill="none" stroke="#58a6ff" stroke-width="3.5"/>
+  <!-- Clip -->
+  <rect x="48" y="22" width="32" height="18" rx="6" fill="#161b22" stroke="#58a6ff" stroke-width="3"/>
+  <rect x="56" y="22" width="16" height="10" rx="5" fill="#58a6ff" opacity="0.5"/>
+  <!-- Timeline bars -->
+  <rect x="38" y="54" width="52" height="7" rx="3" fill="#58a6ff" opacity="0.7"/>
+  <rect x="38" y="68" width="38" height="7" rx="3" fill="#58a6ff" opacity="0.5"/>
+  <rect x="38" y="82" width="48" height="7" rx="3" fill="#58a6ff" opacity="0.6"/>
+  <rect x="38" y="96" width="28" height="7" rx="3" fill="#58a6ff" opacity="0.4"/>
+  <!-- Vertical marker line -->
+  <line x1="70" y1="50" x2="70" y2="107" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,3" opacity="0.6"/>
+</svg>

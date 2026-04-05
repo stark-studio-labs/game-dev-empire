@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Gear -->
+  <circle cx="56" cy="52" r="18" fill="none" stroke="#58a6ff" stroke-width="3.5"/>
+  <circle cx="56" cy="52" r="7" fill="#58a6ff" opacity="0.5"/>
+  <rect x="52" y="28" width="8" height="10" rx="3" fill="#58a6ff"/>
+  <rect x="52" y="66" width="8" height="10" rx="3" fill="#58a6ff"/>
+  <rect x="28" y="48" width="10" height="8" rx="3" fill="#58a6ff"/>
+  <rect x="66" y="48" width="10" height="8" rx="3" fill="#58a6ff"/>
+  <rect x="34" y="33" width="8" height="10" rx="3" fill="#58a6ff" transform="rotate(-45 38 38)"/>
+  <rect x="68" y="33" width="8" height="10" rx="3" fill="#58a6ff" transform="rotate(45 72 38)"/>
+  <!-- Terminal prompt -->
+  <rect x="58" y="72" width="52" height="36" rx="6" fill="none" stroke="#58a6ff" stroke-width="2.5" opacity="0.8"/>
+  <text x="66" y="88" fill="#58a6ff" font-family="monospace" font-size="10" opacity="0.9">$_</text>
+  <line x1="66" y1="96" x2="100" y2="96" stroke="#58a6ff" stroke-width="1.5" opacity="0.4"/>
+</svg>
