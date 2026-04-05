@@ -255,14 +255,14 @@ game-dev-empire/
 - [x] Save/load system
 - [x] Dev mode
 - [x] 100 automated tests, 100% pass rate (core engine, topics, scoring, finance, staff, gating, sales, victory, mid-game progression)
-- [x] macOS DMG packaging
+- [x] macOS DMG + zip (arm64/x64), Windows NSIS + portable, Linux AppImage + deb packaging configured
 
 ### Planned — Pre-Launch
 - [ ] Commissioned T1 raster art (office backgrounds, platform hardware, staff portraits)
-- [ ] T2 SVG icon families for topics, genres, achievements
+- [ ] T2 SVG icon families — genres (brand-request #32), topic themes (brand-request #33); achievements deferred until achievement system ships
 - [ ] Keyboard navigation and focus states
 - [ ] Steam distribution
-- [ ] Windows and Linux builds
+- [ ] Windows and Linux test builds + code signing (targets configured; need cert + CI signing pipeline)
 
 ### Post-Launch Expansion — 10 Additional Verticals (Assets Prepared)
 Launch version ships with the 4 core verticals above. The following expansion verticals

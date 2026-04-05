@@ -1,6 +1,6 @@
 # Tech Empire -- Automated Test Results
 
-**Date:** 2026-04-05 18:10:28
+**Date:** 2026-04-05 18:32:17
 **Method:** Chrome DevTools Protocol (CDP) against live game instance
 **Total Tests:** 100
 **Passed:** 100
@@ -58,16 +58,16 @@
 | Status | Test | Detail |
 |--------|------|--------|
 | PASS | At least 1 game released | games count: 1 |
-| PASS | Game has avgScore between 1-10 | reviewAvg = 9.9 |
-| PASS | Revenue is positive | totalRevenue = 98392 |
-| PASS | Fans gained on release | fansGained = 50176 |
+| PASS | Game has avgScore between 1-10 | reviewAvg = 10 |
+| PASS | Revenue is positive | totalRevenue = 78045 |
+| PASS | Fans gained on release | fansGained = 50270 |
 | PASS | Sequel modifier applies for same title | sequel multiplier = 1.0499999999999998 |
 
 ## Financial (10/10 PASS)
 
 | Status | Test | Detail |
 |--------|------|--------|
-| PASS | Cash changed from initial $70K after release | cash = 94598 |
+| PASS | Cash changed from initial $70K after release | cash = 89511 |
 | PASS | Monthly expenses function exists |  |
 | PASS | Salary/rent transactions recorded after month tick | salary/rent records = 0 |
 | PASS | Tax system tick function exists |  |

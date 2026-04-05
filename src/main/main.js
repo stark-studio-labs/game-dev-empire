@@ -26,6 +26,7 @@ function createWindow() {
   log('INFO', `User data: ${app.getPath('userData')}`);
   log('INFO', `Log file: ${logPath}`);
 
+  const iconPath = path.join(__dirname, '..', '..', 'assets', 'brand', 'logo', 'logo-app-icon.jpg');
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -33,6 +34,7 @@ function createWindow() {
     minHeight: 700,
     title: 'Tech Empire',
     backgroundColor: '#0d1117',
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
