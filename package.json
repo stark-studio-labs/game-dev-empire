@@ -8,6 +8,9 @@
     "dev": "electron . --dev",
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --mac --win --linux",
     "dist": "electron-builder --mac dmg",
     "test:e2e": "npx playwright test tests/e2e/"
   },
@@ -27,15 +30,38 @@
         "dmg",
         {
           "target": "zip",
-          "arch": [
-            "arm64"
-          ]
+          "arch": ["arm64", "x64"]
         }
       ],
+      "icon": "assets/brand/logo/logo-app-icon.jpg",
       "identity": null
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/brand/logo/logo-app-icon.jpg"
+    },
+    "linux": {
+      "category": "Game",
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "icon": "assets/brand/logo/logo-app-icon.jpg",
+      "synopsis": "Tech Empire — game dev tycoon simulator",
+      "description": "Start solo in a garage, hire staff, research tech, ship hits, expand into 4 business verticals, and build a gaming empire."
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     },
     "files": [
       "src/**/*",
+      "assets/**/*",
       "package.json"
     ],
     "directories": {

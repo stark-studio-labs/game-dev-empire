@@ -291,6 +291,80 @@ function App() {
     return () => { delete window._devAutoPlay; delete window._devLoadGame; };
   }, []);
 
+  // Keyboard shortcuts help overlay
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+
+  // Keyboard shortcuts — only active on game screen, ignored when typing in inputs
+  React.useEffect(() => {
+    const isTyping = () => {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+    };
+
+    // Close any open panel
+    const closeAllPanels = () => {
+      setShowStaff(false); setShowFinance(false); setShowResearch(false);
+      setShowMarket(false); setShowMorale(false); setShowMarketing(false);
+      setShowTraining(false); setShowHardware(false); setShowHistory(false);
+      setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
+      setShowTimeline(false); setShowCompetitors(false); setShowKeyboardHelp(false);
+    };
+
+    const anyPanelOpen = () =>
+      showStaff || showFinance || showResearch || showMarket || showMorale ||
+      showMarketing || showTraining || showHardware || showHistory || showSettings ||
+      showVerticals || showStoryteller || showTimeline || showCompetitors ||
+      showKeyboardHelp || showWizard || showReview || showPhaseModal || showConference ||
+      showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
+
+    const handleKey = (e) => {
+      if (isTyping()) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      // Escape closes any panel (including blocking modals)
+      if (e.key === 'Escape') {
+        closeAllPanels();
+        return;
+      }
+
+      // Ignore remaining shortcuts if a blocking modal is open
+      if (screen !== 'game') return;
+      if (showWizard || showReview || showPhaseModal || showConference ||
+          showIPO || showVictory || showRemaster || showPublisher ||
+          pendingEvent || eventConsequence) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          engine.setSpeed(engine.speed === 0 ? 1 : 0);
+          break;
+        case '1': engine.setSpeed(0); break;
+        case '2': engine.setSpeed(1); break;
+        case '3': engine.setSpeed(2); break;
+        case '4': engine.setSpeed(4); break;
+        case 's': case 'S': if (!anyPanelOpen()) setShowStaff(true); break;
+        case 'f': case 'F': if (!anyPanelOpen()) setShowFinance(true); break;
+        case 'r': case 'R': if (!anyPanelOpen()) setShowResearch(true); break;
+        case 'm': case 'M': if (!anyPanelOpen()) setShowMarket(true); break;
+        case 'h': case 'H': if (!anyPanelOpen()) setShowHistory(true); break;
+        case 't': case 'T': if (!anyPanelOpen()) setShowTraining(true); break;
+        case 'c': case 'C': if (!anyPanelOpen()) setShowMarketing(true); break;
+        case 'v': case 'V': if (!anyPanelOpen()) setShowVerticals(true); break;
+        case '?': setShowKeyboardHelp(true); break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [screen, showStaff, showFinance, showResearch, showMarket, showMorale,
+      showMarketing, showTraining, showHardware, showHistory, showSettings,
+      showVerticals, showStoryteller, showTimeline, showCompetitors, showKeyboardHelp,
+      showWizard, showReview, showPhaseModal, showConference, showIPO, showVictory,
+      showRemaster, showPublisher, pendingEvent, eventConsequence]);
+
   // Title screen
   if (screen === 'title') {
     const hasSave = !!localStorage.getItem('techEmpire_save');
@@ -332,12 +406,22 @@ function App() {
             Game Dev Tycoon
           </div>
           <div style={{
-            fontSize: '11px',
-            color: '#30363d',
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
             marginTop: '8px',
-            letterSpacing: '2px',
           }}>
-            by Stark Labs
+            <img
+              src="../../assets/brand/logo/logo.svg"
+              alt=""
+              style={{ width: '16px', height: '16px', opacity: 0.6 }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+            <span style={{
+              fontSize: '11px',
+              color: '#30363d',
+              letterSpacing: '2px',
+            }}>
+              by Stark Labs
+            </span>
           </div>
         </div>
 
@@ -601,6 +685,10 @@ function App() {
 
       {showSettings && (
         <SettingsPanel onClose={() => setShowSettings(false)} />
+      )}
+
+      {showKeyboardHelp && (
+        <KeyboardHelpModal onClose={() => setShowKeyboardHelp(false)} />
       )}
 
       {showRemaster && remasterGame && gameState && (
