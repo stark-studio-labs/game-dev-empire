@@ -386,6 +386,70 @@ const STAFF_LAST_NAMES = [
   'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright',
 ];
 
+// Staff roles — assigned based on dominant stat profile
+// Each role has a stat it favours (highest stat → role) and a display name
+const STAFF_ROLES = [
+  { id: 'game-designer',      name: 'Game Designer',      stat: 'design',   weight: { design: 1.0, tech: 0.3 } },
+  { id: 'artist',             name: 'Artist',             stat: 'design',   weight: { design: 0.9, speed: 0.4 } },
+  { id: 'ux-designer',        name: 'UX Designer',        stat: 'design',   weight: { design: 0.8, tech: 0.5 } },
+  { id: 'writer',             name: 'Writer',             stat: 'design',   weight: { design: 0.7, research: 0.6 } },
+  { id: 'engineer',           name: 'Engineer',           stat: 'tech',     weight: { tech: 1.0, speed: 0.3 } },
+  { id: 'tech-director',      name: 'Tech Director',      stat: 'tech',     weight: { tech: 0.9, research: 0.5 } },
+  { id: 'devops',             name: 'DevOps',             stat: 'tech',     weight: { tech: 0.8, speed: 0.6 } },
+  { id: 'sound-engineer',     name: 'Sound Engineer',     stat: 'tech',     weight: { tech: 0.6, design: 0.7 } },
+  { id: 'qa-tester',          name: 'QA Tester',          stat: 'speed',    weight: { speed: 1.0, tech: 0.4 } },
+  { id: 'producer',           name: 'Producer',           stat: 'speed',    weight: { speed: 0.8, design: 0.3, tech: 0.3 } },
+  { id: 'data-analyst',       name: 'Data Analyst',       stat: 'research', weight: { research: 1.0, tech: 0.5 } },
+  { id: 'marketing',          name: 'Marketing',          stat: 'research', weight: { research: 0.7, speed: 0.5 } },
+  { id: 'community-manager',  name: 'Community Manager',  stat: 'research', weight: { research: 0.6, design: 0.4 } },
+  { id: 'hr',                 name: 'HR',                 stat: 'speed',    weight: { speed: 0.6, research: 0.5 } },
+  { id: 'localization',       name: 'Localization',       stat: 'research', weight: { research: 0.5, design: 0.5 } },
+];
+
+// Map role IDs to SVG icon paths (relative to src/renderer/components/)
+const ROLE_ICONS = {
+  'artist':             '../../assets/staff/roles/artist.svg',
+  'community-manager':  '../../assets/staff/roles/community-manager.svg',
+  'data-analyst':       '../../assets/staff/roles/data-analyst.svg',
+  'devops':             '../../assets/staff/roles/devops.svg',
+  'engineer':           '../../assets/staff/roles/engineer.svg',
+  'game-designer':      '../../assets/staff/roles/game-designer.svg',
+  'hr':                 '../../assets/staff/roles/hr.svg',
+  'localization':       '../../assets/staff/roles/localization.svg',
+  'marketing':          '../../assets/staff/roles/marketing.svg',
+  'producer':           '../../assets/staff/roles/producer.svg',
+  'qa-tester':          '../../assets/staff/roles/qa-tester.svg',
+  'sound-engineer':     '../../assets/staff/roles/sound-engineer.svg',
+  'tech-director':      '../../assets/staff/roles/tech-director.svg',
+  'ux-designer':        '../../assets/staff/roles/ux-designer.svg',
+  'writer':             '../../assets/staff/roles/writer.svg',
+};
+
+// Assign a role to a staff member based on their stats
+function assignStaffRole(member) {
+  let bestRole = STAFF_ROLES[0];
+  let bestScore = -1;
+  for (const role of STAFF_ROLES) {
+    let score = 0;
+    for (const [stat, w] of Object.entries(role.weight)) {
+      score += (member[stat] || 0) * w;
+    }
+    // Add small randomness so not every high-design person is the same role
+    score += Math.random() * 5;
+    if (score > bestScore) {
+      bestScore = score;
+      bestRole = role;
+    }
+  }
+  return bestRole.id;
+}
+
+// Get display name for a role ID
+function getRoleName(roleId) {
+  const role = STAFF_ROLES.find(r => r.id === roleId);
+  return role ? role.name : 'Developer';
+}
+
 // Helper: parse date string "Y/M/W" to total weeks
 function dateToWeek(dateStr) {
   const parts = dateStr.split('/').map(Number);

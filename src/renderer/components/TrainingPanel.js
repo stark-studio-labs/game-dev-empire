@@ -208,7 +208,7 @@ function TrainingPanel({ state, onClose }) {
                   >
                     <option value="">-- Select --</option>
                     {availableStaff.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} (D:{Math.round(s.design)} T:{Math.round(s.tech)} S:{Math.round(s.speed)} R:{Math.round(s.research)})</option>
+                      <option key={s.id} value={s.id}>{s.name}{s.role ? ` [${getRoleName(s.role)}]` : ''} (D:{Math.round(s.design)} T:{Math.round(s.tech)} S:{Math.round(s.speed)} R:{Math.round(s.research)})</option>
                     ))}
                   </select>
                 </div>
@@ -255,7 +255,10 @@ function TrainingPanel({ state, onClose }) {
                 {/* Skill comparison */}
                 {selectedStaffObj && projection && (
                   <div style={{ marginTop: '12px' }}>
-                    <div className="panel-header" style={{ marginBottom: '8px' }}>
+                    <div className="panel-header" style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {selectedStaffObj.role && ROLE_ICONS[selectedStaffObj.role] && (
+                        <img src={ROLE_ICONS[selectedStaffObj.role]} alt="" style={{ width: '16px', height: '16px', opacity: 0.8 }} />
+                      )}
                       Skill Projection for {selectedStaffObj.name}
                     </div>
                     <StatBar value={selectedStaffObj.design} max={200} color="#da7cff" label="Design" projected={projection.design} />
@@ -297,14 +300,22 @@ function TrainingPanel({ state, onClose }) {
               return (
                 <div key={entry.staffId} className="glass-card" style={{ padding: '14px', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
-                        {staff.name}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#8b949e' }}>
-                        {course.icon} {course.name}
-                        {entry.genreChoice && <span style={{ color: '#da7cff' }}> ({entry.genreChoice})</span>}
-                        {entry.statChoice && <span style={{ color: '#da7cff' }}> ({entry.statChoice})</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {staff.role && ROLE_ICONS[staff.role] && (
+                        <img src={ROLE_ICONS[staff.role]} alt={getRoleName(staff.role)} style={{
+                          width: '20px', height: '20px', opacity: 0.8, flexShrink: 0,
+                        }} />
+                      )}
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#e6edf3' }}>
+                          {staff.name}
+                          {staff.role && <span style={{ fontSize: '11px', color: '#58a6ff', marginLeft: '6px', fontWeight: 400 }}>{getRoleName(staff.role)}</span>}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#8b949e' }}>
+                          {course.icon} {course.name}
+                          {entry.genreChoice && <span style={{ color: '#da7cff' }}> ({entry.genreChoice})</span>}
+                          {entry.statChoice && <span style={{ color: '#da7cff' }}> ({entry.statChoice})</span>}
+                        </div>
                       </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>

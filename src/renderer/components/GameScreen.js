@@ -53,12 +53,27 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
                   fontSize: '16px', fontWeight: 700, color: '#fff',
                   border: state.currentGame ? '2px solid #3fb950' : '2px solid transparent',
                   animation: state.currentGame ? 'pulse 2s infinite' : 'none',
+                  position: 'relative',
                 }}>
                   {member.name.charAt(0)}
+                  {/* Role icon badge */}
+                  {member.role && ROLE_ICONS[member.role] && (
+                    <img src={ROLE_ICONS[member.role]} alt="" style={{
+                      position: 'absolute', bottom: '-2px', right: '-2px',
+                      width: '16px', height: '16px',
+                      background: '#0d1117', borderRadius: '3px',
+                      padding: '1px',
+                    }} />
+                  )}
                 </div>
                 <div style={{ fontSize: '10px', color: '#8b949e', marginTop: '4px', maxWidth: '56px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {member.name}
                 </div>
+                {member.role && (
+                  <div style={{ fontSize: '9px', color: '#58a6ff', maxWidth: '56px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {getRoleName(member.role)}
+                  </div>
+                )}
               </div>
             ))}
           </div>

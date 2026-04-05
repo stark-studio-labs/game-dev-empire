@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Wireframe layout -->
+  <rect x="20" y="24" width="88" height="68" rx="6" fill="none" stroke="#58a6ff" stroke-width="3.5"/>
+  <!-- Header bar -->
+  <rect x="20" y="24" width="88" height="14" rx="6" fill="#58a6ff" opacity="0.2"/>
+  <!-- Left sidebar -->
+  <rect x="24" y="44" width="22" height="44" rx="3" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.6"/>
+  <!-- Content blocks -->
+  <rect x="52" y="44" width="52" height="18" rx="3" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.6"/>
+  <rect x="52" y="68" width="24" height="18" rx="3" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.4"/>
+  <rect x="80" y="68" width="24" height="18" rx="3" fill="none" stroke="#58a6ff" stroke-width="2" opacity="0.4"/>
+  <!-- Cursor -->
+  <polygon points="88,88 88,108 94,102 100,112 104,110 98,100 106,98" fill="#58a6ff" opacity="0.85"/>
+</svg>

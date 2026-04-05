@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="16" fill="#161b22"/>
+  <!-- Two people silhouettes -->
+  <circle cx="46" cy="36" r="12" fill="none" stroke="#58a6ff" stroke-width="3.5"/>
+  <path d="M20 80 C20 62 72 62 72 80" fill="none" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="82" cy="42" r="10" fill="none" stroke="#58a6ff" stroke-width="3" opacity="0.6"/>
+  <path d="M60 84 C60 68 108 68 108 84" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <!-- Handshake at bottom -->
+  <path d="M40 100 C48 96 56 104 64 100 C72 96 80 104 88 100" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+</svg>
