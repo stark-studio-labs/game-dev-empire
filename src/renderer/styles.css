@@ -1090,6 +1090,135 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   GameScreen — Layout & Staff Avatars
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.gs-root { flex: 1; display: flex; gap: var(--space-3); padding: 0 var(--space-3) var(--space-3); }
+.gs-left-col { flex: 1; display: flex; flex-direction: column; gap: var(--space-3); }
+.gs-right-col { width: 300px; display: flex; flex-direction: column; gap: var(--space-3); }
+
+.gs-office-card {
+  flex: 1; padding: var(--space-6); display: flex; flex-direction: column;
+  justify-content: center; align-items: center; position: relative;
+}
+.gs-office-card--overflow-hidden { overflow: hidden; }
+.gs-office-card--overflow-visible { overflow: visible; }
+
+.gs-office-emoji { font-size: 64px; margin-bottom: var(--space-4); opacity: 0.4; }
+
+.gs-staff-row {
+  display: flex; gap: var(--space-4); margin-bottom: var(--space-6);
+  flex-wrap: wrap; justify-content: center;
+}
+.gs-staff-item { text-align: center; }
+.gs-staff-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-lg); font-weight: 700; color: #fff;
+  border: 2px solid transparent; position: relative;
+  background: linear-gradient(135deg, rgba(88,166,255,0.3), rgba(88,166,255,0.1));
+}
+.gs-staff-avatar--founder {
+  background: linear-gradient(135deg, var(--color-accent), #1f6feb);
+}
+.gs-staff-avatar--developing {
+  border-color: var(--color-success);
+  animation: pulse 2s infinite;
+}
+.gs-role-badge {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 16px; height: 16px; background: var(--color-bg);
+  border-radius: 3px; padding: 1px;
+}
+.gs-staff-name {
+  font-size: 10px; color: var(--color-text-secondary); margin-top: var(--space-1);
+  max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gs-staff-role {
+  font-size: 9px; color: var(--color-accent);
+  max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Dev/Sales/Idle info cards inside office view */
+.gs-info-card { padding: var(--space-4); width: 100%; max-width: 400px; }
+.gs-info-title {
+  font-size: var(--text-lg); font-weight: 600;
+  color: var(--color-text-primary); margin-bottom: var(--space-1);
+}
+.gs-info-sub {
+  font-size: 12px; color: var(--color-text-secondary); margin-bottom: var(--space-3);
+}
+.gs-phase-row {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.gs-phase-label { font-size: var(--text-xs); color: var(--color-text-tertiary); }
+.gs-phase-label--active { color: var(--color-accent); }
+.gs-phase-line {
+  flex: 1; height: 1px; background: var(--color-border);
+}
+.gs-phase-line--complete { background: var(--color-success); }
+.gs-dt-row {
+  display: flex; justify-content: space-between; margin-top: var(--space-2);
+}
+.gs-dt-design { font-size: 12px; color: var(--color-purple); }
+.gs-dt-tech { font-size: 12px; color: var(--color-accent); }
+
+.gs-sales-value {
+  font-size: var(--text-base); color: var(--color-success); margin-top: var(--space-1);
+}
+.gs-idle-hint {
+  font-size: var(--text-base); color: var(--color-text-secondary); margin-bottom: var(--space-4);
+}
+.gs-new-game-btn { padding: var(--space-3) var(--space-8); font-size: 15px; }
+
+/* Morale mini-bar */
+.gs-morale-card {
+  padding: var(--space-2) var(--space-4); display: flex;
+  align-items: center; gap: 10px;
+}
+.gs-morale-emoji { font-size: var(--text-lg); }
+.gs-morale-head {
+  display: flex; justify-content: space-between;
+  font-size: var(--text-xs); margin-bottom: 3px;
+}
+.gs-morale-track {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.gs-morale-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+/* Action row */
+.gs-actions { display: flex; gap: var(--space-2); }
+
+/* Notifications + Game History right panel */
+.gs-notif-card { padding: var(--space-3); max-height: 200px; overflow-y: auto; }
+.gs-notif-item {
+  padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+}
+.gs-notif-msg { color: var(--color-text-body); }
+.gs-notif-time { font-size: 10px; color: var(--color-text-tertiary); margin-top: 2px; }
+
+.gs-history-card { padding: var(--space-3); flex: 1; overflow-y: auto; }
+.gs-history-empty {
+  font-size: var(--text-sm); color: var(--color-text-tertiary);
+  text-align: center; padding: 20px 0;
+}
+.gs-history-entry { padding: 10px; margin-bottom: 6px; cursor: default; }
+.gs-history-entry-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.gs-history-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); }
+.gs-history-sub { font-size: var(--text-xs); color: var(--color-text-secondary); }
+.gs-history-score { font-size: 18px; font-weight: 700; }
+.gs-history-meta {
+  display: flex; justify-content: space-between; margin-top: 6px;
+  font-size: var(--text-xs); color: var(--color-text-secondary);
+}
+.gs-history-publisher { font-size: 10px; color: var(--color-purple); margin-top: 2px; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Review Screen
    ═══════════════════════════════════════════════════════════════════════════ */
 

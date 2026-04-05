@@ -143,36 +143,36 @@ const TOPICS = [
   { name: 'Magic Academy',    tier: 2, unlockRequirement: 'Small Office', genreW: [0.7, 0.9, 1.0, 0.8, 0.7, 0.8], audienceW: [1.0, 1.0, 0.7] },
 
   // ── Tier 3: Scale-Up Era (29 topics, unlock via Research at Medium Office+) ──
-  // researchCategory maps to actual RESEARCH_CATEGORIES; researchCount = # completed items needed
-  { name: 'Space Opera',      tier: 3, unlockRequirement: 'Sci-Fi Research Lv2',     researchCategory: 'Engine',  researchCount: 2, genreW: [0.9, 1.0, 1.0, 0.7, 0.8, 0.6], audienceW: [0.8, 1.0, 1.0] },
-  { name: 'Robot Uprising',   tier: 3, unlockRequirement: 'AI Research Lv2',          researchCategory: 'AI',      researchCount: 2, genreW: [1.0, 0.9, 0.8, 0.7, 0.9, 0.6], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Terraform',        tier: 3, unlockRequirement: 'Sci-Fi Research Lv3',     researchCategory: 'Engine',  researchCount: 3, genreW: [0.6, 0.7, 0.7, 1.0, 1.0, 0.7], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Multiverse',       tier: 3, unlockRequirement: 'Sci-Fi Research Lv4',     researchCategory: 'Engine',  researchCount: 4, genreW: [0.8, 1.0, 1.0, 0.6, 0.7, 0.6], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Biotech',          tier: 3, unlockRequirement: 'Science Research Lv2',    researchCategory: 'AI',      researchCount: 2, genreW: [0.7, 0.8, 0.8, 1.0, 0.9, 0.6], audienceW: [0.6, 0.8, 1.0] },
-  { name: 'Nanobots',         tier: 3, unlockRequirement: 'Science Research Lv3',    researchCategory: 'AI',      researchCount: 3, genreW: [0.8, 0.7, 0.7, 1.0, 0.9, 0.6], audienceW: [0.6, 0.9, 1.0] },
-  { name: 'Colony Management',tier: 3, unlockRequirement: 'Strategy Research Lv2',   researchCategory: 'Engine',  researchCount: 2, genreW: [0.6, 0.7, 0.7, 1.0, 1.0, 0.7], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Dungeon Crawler',  tier: 3, unlockRequirement: 'RPG Research Lv1',         researchCategory: 'UX',      researchCount: 1, genreW: [1.0, 0.9, 1.0, 0.6, 0.8, 0.6], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Survival Horror',  tier: 3, unlockRequirement: 'Horror Research Lv2',      researchCategory: 'Graphics',researchCount: 2, genreW: [1.0, 1.0, 0.8, 0.6, 0.7, 0.6], audienceW: [0.6, 0.8, 1.0] },
-  { name: 'Psychological',    tier: 3, unlockRequirement: 'Story Research Lv3',      researchCategory: 'UX',      researchCount: 3, genreW: [0.7, 1.0, 0.8, 0.6, 0.6, 0.6], audienceW: [0.5, 0.7, 1.0] },
-  { name: 'Cosmic Horror',    tier: 3, unlockRequirement: 'Horror Research Lv3',      researchCategory: 'Graphics',researchCount: 3, genreW: [0.8, 1.0, 0.9, 0.6, 0.7, 0.6], audienceW: [0.5, 0.7, 1.0] },
-  { name: 'Spaceship Building',tier: 3, unlockRequirement: 'Engine Research Lv2',     researchCategory: 'Engine',  researchCount: 2, genreW: [0.6, 0.7, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
-  { name: 'Formula Racing',   tier: 3, unlockRequirement: 'Sports Research Lv2',     researchCategory: 'Engine',  researchCount: 2, genreW: [1.0, 0.6, 0.6, 1.0, 0.7, 0.8], audienceW: [0.9, 1.0, 0.9] },
-  { name: 'Olympics',         tier: 3, unlockRequirement: 'Sports Research Lv3',     researchCategory: 'Engine',  researchCount: 3, genreW: [1.0, 0.7, 0.6, 1.0, 0.7, 0.9], audienceW: [1.0, 1.0, 0.8] },
-  { name: 'Robotics',         tier: 3, unlockRequirement: 'AI Research Lv1',          researchCategory: 'AI',      researchCount: 1, genreW: [0.8, 0.7, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
-  { name: 'DNA',              tier: 3, unlockRequirement: 'Science Research Lv1',    researchCategory: 'AI',      researchCount: 1, genreW: [0.6, 0.7, 0.7, 1.0, 0.9, 0.6], audienceW: [0.6, 0.9, 1.0] },
-  { name: 'Space Program',    tier: 3, unlockRequirement: 'Sci-Fi Research Lv2',     researchCategory: 'Engine',  researchCount: 2, genreW: [0.7, 0.8, 0.7, 1.0, 1.0, 0.6], audienceW: [0.8, 1.0, 1.0] },
-  { name: 'Chemistry',        tier: 3, unlockRequirement: 'Science Research Lv2',    researchCategory: 'AI',      researchCount: 2, genreW: [0.6, 0.7, 0.6, 1.0, 0.8, 0.7], audienceW: [0.7, 0.9, 1.0] },
-  { name: 'Astronomy',        tier: 3, unlockRequirement: 'Science Research Lv1',    researchCategory: 'AI',      researchCount: 1, genreW: [0.6, 0.8, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
-  { name: 'Construction',     tier: 3, unlockRequirement: 'Sim Research Lv1',         researchCategory: 'Engine',  researchCount: 1, genreW: [0.6, 0.6, 0.6, 1.0, 0.8, 0.7], audienceW: [0.7, 1.0, 0.9] },
-  { name: 'Mining',           tier: 3, unlockRequirement: 'Sim Research Lv1',         researchCategory: 'Engine',  researchCount: 1, genreW: [0.7, 0.7, 0.6, 1.0, 0.9, 0.7], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Train',            tier: 3, unlockRequirement: 'Transport Research Lv1',  researchCategory: 'Engine',  researchCount: 1, genreW: [0.6, 0.7, 0.6, 1.0, 0.8, 0.8], audienceW: [0.8, 1.0, 0.8] },
-  { name: 'Submarine',        tier: 3, unlockRequirement: 'Tech Research Lv2',       researchCategory: 'Engine',  researchCount: 2, genreW: [0.8, 0.8, 0.7, 1.0, 0.9, 0.6], audienceW: [0.7, 1.0, 1.0] },
-  { name: 'Dream World',      tier: 3, unlockRequirement: 'Story Research Lv2',      researchCategory: 'UX',      researchCount: 2, genreW: [0.7, 1.0, 0.9, 0.7, 0.6, 0.7], audienceW: [0.9, 1.0, 0.9] },
-  { name: 'Time Loop',        tier: 3, unlockRequirement: 'Sci-Fi Research Lv3',     researchCategory: 'Engine',  researchCount: 3, genreW: [0.8, 1.0, 0.9, 0.6, 0.7, 0.6], audienceW: [0.8, 1.0, 1.0] },
-  { name: 'Conspiracy',       tier: 3, unlockRequirement: 'Story Research Lv1',      researchCategory: 'UX',      researchCount: 1, genreW: [0.7, 1.0, 0.8, 0.6, 0.7, 0.6], audienceW: [0.6, 0.9, 1.0] },
-  { name: 'Dimension Hopping',tier: 3, unlockRequirement: 'Sci-Fi Research Lv4',     researchCategory: 'Engine',  researchCount: 4, genreW: [0.8, 1.0, 1.0, 0.6, 0.7, 0.6], audienceW: [0.8, 1.0, 0.9] },
-  { name: 'Simulation Theory',tier: 3, unlockRequirement: 'Science Research Lv4',    researchCategory: 'AI',      researchCount: 4, genreW: [0.6, 0.8, 0.8, 1.0, 0.9, 0.6], audienceW: [0.6, 0.8, 1.0] },
-  { name: 'Aquarium',         tier: 3, unlockRequirement: 'Niche Research Lv1',      researchCategory: 'UX',      researchCount: 1, genreW: [0.6, 0.7, 0.6, 1.0, 0.7, 1.0], audienceW: [1.0, 1.0, 0.6] },
+  // unlockRequirement display string matches researchCategory + researchCount (kept in sync)
+  { name: 'Space Opera',      tier: 3, unlockRequirement: 'Engine Research Lv2',    researchCategory: 'Engine',  researchCount: 2, genreW: [0.9, 1.0, 1.0, 0.7, 0.8, 0.6], audienceW: [0.8, 1.0, 1.0] },
+  { name: 'Robot Uprising',   tier: 3, unlockRequirement: 'AI Research Lv2',        researchCategory: 'AI',      researchCount: 2, genreW: [1.0, 0.9, 0.8, 0.7, 0.9, 0.6], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Terraform',        tier: 3, unlockRequirement: 'Engine Research Lv3',    researchCategory: 'Engine',  researchCount: 3, genreW: [0.6, 0.7, 0.7, 1.0, 1.0, 0.7], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Multiverse',       tier: 3, unlockRequirement: 'Engine Research Lv4',    researchCategory: 'Engine',  researchCount: 4, genreW: [0.8, 1.0, 1.0, 0.6, 0.7, 0.6], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Biotech',          tier: 3, unlockRequirement: 'AI Research Lv2',        researchCategory: 'AI',      researchCount: 2, genreW: [0.7, 0.8, 0.8, 1.0, 0.9, 0.6], audienceW: [0.6, 0.8, 1.0] },
+  { name: 'Nanobots',         tier: 3, unlockRequirement: 'AI Research Lv3',        researchCategory: 'AI',      researchCount: 3, genreW: [0.8, 0.7, 0.7, 1.0, 0.9, 0.6], audienceW: [0.6, 0.9, 1.0] },
+  { name: 'Colony Management',tier: 3, unlockRequirement: 'Engine Research Lv2',    researchCategory: 'Engine',  researchCount: 2, genreW: [0.6, 0.7, 0.7, 1.0, 1.0, 0.7], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Dungeon Crawler',  tier: 3, unlockRequirement: 'UX Research Lv1',        researchCategory: 'UX',      researchCount: 1, genreW: [1.0, 0.9, 1.0, 0.6, 0.8, 0.6], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Survival Horror',  tier: 3, unlockRequirement: 'Graphics Research Lv2',  researchCategory: 'Graphics',researchCount: 2, genreW: [1.0, 1.0, 0.8, 0.6, 0.7, 0.6], audienceW: [0.6, 0.8, 1.0] },
+  { name: 'Psychological',    tier: 3, unlockRequirement: 'UX Research Lv3',        researchCategory: 'UX',      researchCount: 3, genreW: [0.7, 1.0, 0.8, 0.6, 0.6, 0.6], audienceW: [0.5, 0.7, 1.0] },
+  { name: 'Cosmic Horror',    tier: 3, unlockRequirement: 'Graphics Research Lv3',  researchCategory: 'Graphics',researchCount: 3, genreW: [0.8, 1.0, 0.9, 0.6, 0.7, 0.6], audienceW: [0.5, 0.7, 1.0] },
+  { name: 'Spaceship Building',tier: 3, unlockRequirement: 'Engine Research Lv2',   researchCategory: 'Engine',  researchCount: 2, genreW: [0.6, 0.7, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
+  { name: 'Formula Racing',   tier: 3, unlockRequirement: 'Engine Research Lv2',    researchCategory: 'Engine',  researchCount: 2, genreW: [1.0, 0.6, 0.6, 1.0, 0.7, 0.8], audienceW: [0.9, 1.0, 0.9] },
+  { name: 'Olympics',         tier: 3, unlockRequirement: 'Engine Research Lv3',    researchCategory: 'Engine',  researchCount: 3, genreW: [1.0, 0.7, 0.6, 1.0, 0.7, 0.9], audienceW: [1.0, 1.0, 0.8] },
+  { name: 'Robotics',         tier: 3, unlockRequirement: 'AI Research Lv1',        researchCategory: 'AI',      researchCount: 1, genreW: [0.8, 0.7, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
+  { name: 'DNA',              tier: 3, unlockRequirement: 'AI Research Lv1',        researchCategory: 'AI',      researchCount: 1, genreW: [0.6, 0.7, 0.7, 1.0, 0.9, 0.6], audienceW: [0.6, 0.9, 1.0] },
+  { name: 'Space Program',    tier: 3, unlockRequirement: 'Engine Research Lv2',    researchCategory: 'Engine',  researchCount: 2, genreW: [0.7, 0.8, 0.7, 1.0, 1.0, 0.6], audienceW: [0.8, 1.0, 1.0] },
+  { name: 'Chemistry',        tier: 3, unlockRequirement: 'AI Research Lv2',        researchCategory: 'AI',      researchCount: 2, genreW: [0.6, 0.7, 0.6, 1.0, 0.8, 0.7], audienceW: [0.7, 0.9, 1.0] },
+  { name: 'Astronomy',        tier: 3, unlockRequirement: 'AI Research Lv1',        researchCategory: 'AI',      researchCount: 1, genreW: [0.6, 0.8, 0.7, 1.0, 0.9, 0.7], audienceW: [0.8, 1.0, 0.9] },
+  { name: 'Construction',     tier: 3, unlockRequirement: 'Engine Research Lv1',    researchCategory: 'Engine',  researchCount: 1, genreW: [0.6, 0.6, 0.6, 1.0, 0.8, 0.7], audienceW: [0.7, 1.0, 0.9] },
+  { name: 'Mining',           tier: 3, unlockRequirement: 'Engine Research Lv1',    researchCategory: 'Engine',  researchCount: 1, genreW: [0.7, 0.7, 0.6, 1.0, 0.9, 0.7], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Train',            tier: 3, unlockRequirement: 'Engine Research Lv1',    researchCategory: 'Engine',  researchCount: 1, genreW: [0.6, 0.7, 0.6, 1.0, 0.8, 0.8], audienceW: [0.8, 1.0, 0.8] },
+  { name: 'Submarine',        tier: 3, unlockRequirement: 'Engine Research Lv2',    researchCategory: 'Engine',  researchCount: 2, genreW: [0.8, 0.8, 0.7, 1.0, 0.9, 0.6], audienceW: [0.7, 1.0, 1.0] },
+  { name: 'Dream World',      tier: 3, unlockRequirement: 'UX Research Lv2',        researchCategory: 'UX',      researchCount: 2, genreW: [0.7, 1.0, 0.9, 0.7, 0.6, 0.7], audienceW: [0.9, 1.0, 0.9] },
+  { name: 'Time Loop',        tier: 3, unlockRequirement: 'Engine Research Lv3',    researchCategory: 'Engine',  researchCount: 3, genreW: [0.8, 1.0, 0.9, 0.6, 0.7, 0.6], audienceW: [0.8, 1.0, 1.0] },
+  { name: 'Conspiracy',       tier: 3, unlockRequirement: 'UX Research Lv1',        researchCategory: 'UX',      researchCount: 1, genreW: [0.7, 1.0, 0.8, 0.6, 0.7, 0.6], audienceW: [0.6, 0.9, 1.0] },
+  { name: 'Dimension Hopping',tier: 3, unlockRequirement: 'Engine Research Lv4',    researchCategory: 'Engine',  researchCount: 4, genreW: [0.8, 1.0, 1.0, 0.6, 0.7, 0.6], audienceW: [0.8, 1.0, 0.9] },
+  { name: 'Simulation Theory',tier: 3, unlockRequirement: 'AI Research Lv4',        researchCategory: 'AI',      researchCount: 4, genreW: [0.6, 0.8, 0.8, 1.0, 0.9, 0.6], audienceW: [0.6, 0.8, 1.0] },
+  { name: 'Aquarium',         tier: 3, unlockRequirement: 'UX Research Lv1',        researchCategory: 'UX',      researchCount: 1, genreW: [0.6, 0.7, 0.6, 1.0, 0.7, 1.0], audienceW: [1.0, 1.0, 0.6] },
 ];
 
 /**
@@ -385,6 +385,23 @@ const STAFF_LAST_NAMES = [
   'Moore', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris', 'Clark', 'Lewis',
   'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright',
 ];
+
+// Platform company → SVG icon mapping (used across wizard, game history, details)
+const PLATFORM_ICONS = {
+  'Ninvento':   '../../assets/platforms/nintendo.svg',
+  'Vonny':      '../../assets/platforms/playstation.svg',
+  'Micronoft':  '../../assets/platforms/xbox.svg',
+  'Vena':       '../../assets/platforms/platform-console.svg',
+  'Govodore':   '../../assets/platforms/platform-console.svg',
+  'Grapple':    '../../assets/platforms/ios.svg',
+  'Various':    '../../assets/platforms/platform-pc.svg',
+};
+
+// Helper: get platform icon path by platform id (looks up company from PLATFORMS)
+function getPlatformIcon(platformId) {
+  const p = (typeof PLATFORMS !== 'undefined') ? PLATFORMS.find(pl => pl.id === platformId) : null;
+  return p && PLATFORM_ICONS[p.company] ? PLATFORM_ICONS[p.company] : null;
+}
 
 // Staff roles — assigned based on dominant stat profile
 // Each role has a stat it favours (highest stat → role) and a display name

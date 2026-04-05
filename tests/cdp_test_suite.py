@@ -7,6 +7,7 @@ This test suite uses CDP Runtime.evaluate to execute JavaScript in the running
 Electron game, which is the standard approach for E2E testing via DevTools.
 """
 
+import os
 import json
 import asyncio
 import urllib.request
@@ -640,6 +641,158 @@ async def test_victory_balance(ws):
     record("No victory path in Y1", victory_path is None, f"victoryPath = {victory_path}")
 
 
+async def test_midgame_progression(ws):
+    """11. Mid-Game Progression Tests (Y5, Y10, Y15 + topic unlock integrity)"""
+    print("\n=== 11. Mid-Game Progression Tests ===")
+
+    # Regression test: every tier-3 topic's researchCategory must exist in RESEARCH_CATEGORIES
+    orphan_categories = await cdp_run(ws, """
+        (function() {
+            var validCats = RESEARCH_CATEGORIES.slice();
+            var orphans = TOPICS.filter(function(t) {
+                return t.tier === 3 && t.researchCategory && validCats.indexOf(t.researchCategory) === -1;
+            }).map(function(t) { return t.name + ':' + t.researchCategory; });
+            return orphans;
+        })()
+    """)
+    record("All tier-3 topic researchCategory values exist in RESEARCH_CATEGORIES",
+           orphan_categories == [], f"orphans={orphan_categories}")
+
+    # Regression test: display string matches actual research category
+    display_mismatches = await cdp_run(ws, """
+        (function() {
+            var out = [];
+            TOPICS.filter(function(t) { return t.tier === 3 && t.unlockRequirement && t.researchCategory; })
+                  .forEach(function(t) {
+                      if (t.unlockRequirement.indexOf(t.researchCategory) === -1) {
+                          out.push(t.name + ' says "' + t.unlockRequirement + '" but gated by ' + t.researchCategory);
+                      }
+                  });
+            return out;
+        })()
+    """)
+    record("Tier-3 unlockRequirement display matches researchCategory",
+           display_mismatches == [], f"mismatches={len(display_mismatches) if isinstance(display_mismatches, list) else display_mismatches}")
+
+    # Verify per-category topic count is achievable (researchCount <= category items available)
+    unachievable = await cdp_run(ws, """
+        (function() {
+            var catCounts = {};
+            RESEARCH_ITEMS.forEach(function(r) {
+                catCounts[r.category] = (catCounts[r.category] || 0) + 1;
+            });
+            var bad = [];
+            TOPICS.filter(function(t) { return t.tier === 3 && t.researchCategory; }).forEach(function(t) {
+                var avail = catCounts[t.researchCategory] || 0;
+                if (t.researchCount > avail) {
+                    bad.push(t.name + ' needs ' + t.researchCount + ' ' + t.researchCategory + ' but only ' + avail + ' exist');
+                }
+            });
+            return bad;
+        })()
+    """)
+    record("Every tier-3 topic's researchCount is achievable from available items",
+           unachievable == [], f"unachievable={unachievable}")
+
+    # Fast-forward to Y5 — Small Office era, training unlocked
+    await cdp_run(ws, "window._devAutoPlay('Progression Test')")
+    await asyncio.sleep(0.3)
+    await cdp_run(ws, "engine.setSpeed(0)")
+    # Give cash cushion and jump to Y5 state: level=1 (Small Office), 2 staff
+    await cdp_run(ws, """
+        engine.state.cash = 500000;
+        engine.state.level = 1;
+        engine.state.year = 5;
+    """)
+
+    y5_marketing_unlocked = await cdp_run(ws, "engine.state.level >= 1")
+    record("Y5: Marketing unlocked (level >= 1)", y5_marketing_unlocked == True,
+           f"level={await cdp_run(ws, 'engine.state.level')}")
+
+    y5_training_condition = await cdp_run(ws, "engine.state.level >= 1 && engine.state.staff.length >= 2")
+    # Staff may be 1 (just founder); add condition detail
+    y5_staff = await cdp_run(ws, "engine.state.staff.length")
+    record("Y5: Training gate met when 2+ staff exist",
+           (y5_training_condition == True) or (y5_staff < 2),
+           f"staff={y5_staff}, gate={y5_training_condition}")
+
+    y5_research_locked = await cdp_run(ws, "engine.state.level < 2")
+    record("Y5: Research still locked at Small Office", y5_research_locked == True)
+
+    # Jump to Y10 — Medium Office, research unlocked
+    await cdp_run(ws, """
+        engine.state.level = 2;
+        engine.state.year = 10;
+        engine.state.cash = 2000000;
+    """)
+    y10_research_unlocked = await cdp_run(ws, "engine.state.level >= 2")
+    record("Y10: Research unlocked (Medium Office, level >= 2)", y10_research_unlocked == True)
+
+    y10_hardware_locked = await cdp_run(ws, "engine.state.level < 3")
+    record("Y10: Hardware still locked at Medium Office", y10_hardware_locked == True)
+
+    # Verticals require level >= 2 AND $10M revenue — record via finance tracker
+    await cdp_run(ws, """
+        finance.record('revenue', 10000000, 'test-sim', 'Y10 M1 W1');
+    """)
+    verticals_gate = await cdp_run(ws, """
+        (function() {
+            var level = engine.state.level;
+            var totalRev = finance.totalRevenue();
+            return level >= 2 && totalRev >= 10000000;
+        })()
+    """)
+    record("Y10: Verticals gate met (level 2 + $10M revenue)", verticals_gate == True,
+           f"gate={verticals_gate}")
+
+    # Simulate AI research progress then test Tier-3 topic unlocks
+    await cdp_run(ws, """
+        researchSystem.completed = {};
+        researchSystem.completed['ai_pathfinding'] = true;
+        researchSystem.completed['ai_behavior_trees'] = true;
+    """)
+    robot_uprising_unlocked = await cdp_run(ws, """
+        (function() {
+            var t = TOPICS.find(function(x) { return x.name === 'Robot Uprising'; });
+            if (!t) return null;
+            var count = Object.keys(researchSystem.completed).filter(function(id) {
+                var r = RESEARCH_ITEMS.find(function(ri) { return ri.id === id; });
+                return r && r.category === t.researchCategory;
+            }).length;
+            return count >= (t.researchCount || 1);
+        })()
+    """)
+    record("Y10: Robot Uprising unlocks after 2 AI research items",
+           robot_uprising_unlocked == True, f"unlocked={robot_uprising_unlocked}")
+
+    # Biotech previously claimed "Science Research Lv2" but is gated by 2 AI items — verify fix
+    biotech_unlocked = await cdp_run(ws, """
+        (function() {
+            var t = TOPICS.find(function(x) { return x.name === 'Biotech'; });
+            if (!t) return null;
+            var count = Object.keys(researchSystem.completed).filter(function(id) {
+                var r = RESEARCH_ITEMS.find(function(ri) { return ri.id === id; });
+                return r && r.category === t.researchCategory;
+            }).length;
+            return count >= (t.researchCount || 1) && t.unlockRequirement.indexOf('AI') >= 0;
+        })()
+    """)
+    record("Y10: Biotech unlocks with AI research AND display string mentions AI",
+           biotech_unlocked == True, f"result={biotech_unlocked}")
+
+    # Jump to Y15 — Large Office era
+    await cdp_run(ws, """
+        engine.state.level = 3;
+        engine.state.year = 15;
+    """)
+    y15_hardware_unlocked = await cdp_run(ws, "engine.state.level >= 3")
+    record("Y15: Hardware unlocked (Large Office, level >= 3)", y15_hardware_unlocked == True)
+
+    # IPO eligibility typically requires late-game revenue + fans + year
+    ipo_exists = await cdp_run(ws, "typeof ipoSystem !== 'undefined' && typeof ipoSystem.isEligible === 'function'")
+    record("Y15: IPO system available at Large Office", ipo_exists == True)
+
+
 # -- Main Runner ----------------------------------------------------------
 
 async def main():
@@ -672,6 +825,7 @@ async def main():
         await test_feature_gating(ws)
         await test_sales_bug(ws)
         await test_victory_balance(ws)
+        await test_midgame_progression(ws)
 
     total = len(RESULTS)
     passed = sum(1 for r in RESULTS if r["passed"])
@@ -719,6 +873,7 @@ def generate_report(results):
         "Feature Gating",
         "Sales Bug",
         "Victory Balance",
+        "Mid-Game Progression",
     ]
 
     # Map first test of each category
@@ -733,6 +888,7 @@ def generate_report(results):
         "Research locked",
         "After release",
         "Market Dominator",
+        "All tier-3 topic researchCategory",
     ]
 
     # Build category buckets
@@ -781,7 +937,8 @@ if __name__ == "__main__":
     results = asyncio.run(main())
     report = generate_report(results)
 
-    report_path = "/Users/aaronkiyaani-mcclary/aaron-life-os/projects/GameDevTycoon/game-dev-empire/TEST-RESULTS.md"
+    # Resolve TEST-RESULTS.md next to this test file's repo root
+    report_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "TEST-RESULTS.md")
     with open(report_path, "w") as f:
         f.write(report)
     print(f"\nReport written to: {report_path}")

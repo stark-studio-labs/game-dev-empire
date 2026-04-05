@@ -24,17 +24,6 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
 
-  // Map platform companies to SVG icons
-  const PLATFORM_ICONS = {
-    'Ninvento':   '../../assets/platforms/nintendo.svg',
-    'Vonny':      '../../assets/platforms/playstation.svg',
-    'Micronoft':  '../../assets/platforms/xbox.svg',
-    'Vena':       '../../assets/platforms/platform-console.svg',
-    'Govodore':   '../../assets/platforms/platform-console.svg',
-    'Grapple':    '../../assets/platforms/ios.svg',
-    'Various':    '../../assets/platforms/platform-pc.svg',
-  };
-
   // Topic unlock logic — Tier 1 always available, Tier 2 at Small Office, Tier 3 via research
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;

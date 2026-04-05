@@ -254,20 +254,26 @@ game-dev-empire/
 - [x] Micro-animations and visual polish
 - [x] Save/load system
 - [x] Dev mode
-- [x] 87 automated tests (100% pass)
+- [x] 100 automated tests, 100% pass rate (core engine, topics, scoring, finance, staff, gating, sales, victory, mid-game progression)
 - [x] macOS DMG packaging
 
-### Planned
+### Planned — Pre-Launch
 - [ ] Commissioned T1 raster art (office backgrounds, platform hardware, staff portraits)
-- [ ] T2 SVG icon families (topics, genres, platforms, verticals, achievements)
-- [ ] Sound design and music
+- [ ] T2 SVG icon families for topics, genres, achievements
 - [ ] Keyboard navigation and focus states
-- [ ] Extended mid-game balance testing
 - [ ] Steam distribution
-- [ ] DLC Pack 1: Modding Community (let players mod your games)
-- [ ] DLC Pack 2: Online Multiplayer (add online features to your games)
-- [ ] DLC Pack 3: Esports (competitive gaming vertical)
 - [ ] Windows and Linux builds
+
+### Post-Launch Expansion — 10 Additional Verticals (Assets Prepared)
+Launch version ships with the 4 core verticals above. The following expansion verticals
+have SVG icons prepared (`assets/verticals/`) and are slated for post-launch DLC drops
+once the core loop has proven out with players:
+
+- Robotics, Semiconductor, Defense, CGI/VFX, AV Lighting,
+  Touring, Telecom, Social Network, Esports, Modding Community
+
+Each DLC will introduce 2-3 new verticals plus cross-vertical synergies. No ship date
+committed — sequencing will be driven by post-launch player feedback.
 
 ---
 

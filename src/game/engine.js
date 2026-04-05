@@ -1085,6 +1085,7 @@ class GameEngine {
       message: msg,
       time: `Y${this.state.year} M${this.state.month} W${this.state.week}`,
     });
+    if (typeof audioManager !== 'undefined') audioManager.playSFX('notification');
     // Keep last 20
     if (this.state.notifications.length > 20) {
       this.state.notifications = this.state.notifications.slice(-20);
