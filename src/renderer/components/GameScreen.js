@@ -35,7 +35,7 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
       {/* Left panel — Office view + actions */}
       <div className="gs-left-col">
         {/* Office visualization */}
-        <div className={`glass-card gs-office-card ${overflowClass} ${fanMilestoneGlow ? 'animate-glow animate-confetti' : ''}`}>
+        <div className={`gs-office-card ${overflowClass} ${fanMilestoneGlow ? 'animate-glow animate-confetti' : ''}`}>
           <div className="gs-office-emoji">{officeEmoji}</div>
 
           {/* Staff avatars */}

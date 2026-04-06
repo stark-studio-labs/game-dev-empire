@@ -1100,6 +1100,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .gs-office-card {
   flex: 1; padding: var(--space-6); display: flex; flex-direction: column;
   justify-content: center; align-items: center; position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  /* No backdrop-filter blur — office background must be fully visible */
 }
 .gs-office-card--overflow-hidden { overflow: hidden; }
 .gs-office-card--overflow-visible { overflow: visible; }
