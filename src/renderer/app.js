@@ -35,6 +35,7 @@ function App() {
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
   const [companyName, setCompanyName] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [showPhaseModal, setShowPhaseModal] = useState(false);
   const [devMode, setDevMode] = useState(settingsSystem.devMode);
 
@@ -190,7 +191,7 @@ function App() {
 
   const handleNewCompany = () => {
     const name = companyName.trim() || 'Indie Studio';
-    engine.newGame(name);
+    engine.newGame(name, selectedAvatar);
     setScreen('game');
     if (typeof audioManager !== 'undefined') audioManager.playMusic();
     // Reset unlock tracking for new game
