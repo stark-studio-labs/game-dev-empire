@@ -26,6 +26,7 @@ function App() {
   const [showVictory, setShowVictory] = useState(false);
   const [showCompetitors, setShowCompetitors] = useState(false);
   const [showEngineBuilder, setShowEngineBuilder] = useState(false);
+  const [showContracts, setShowContracts] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -371,14 +372,14 @@ function App() {
       setShowTraining(false); setShowHardware(false); setShowHistory(false);
       setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
       setShowTimeline(false); setShowCompetitors(false); setShowEngineBuilder(false);
-      setShowKeyboardHelp(false);
+      setShowContracts(false); setShowKeyboardHelp(false);
     };
 
     const anyPanelOpen = () =>
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
       showVerticals || showStoryteller || showTimeline || showCompetitors || showEngineBuilder ||
-      showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
+      showContracts || showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
     const handleKey = (e) => {
@@ -424,7 +425,7 @@ function App() {
   }, [screen, showStaff, showFinance, showResearch, showMarket, showMorale,
       showMarketing, showTraining, showHardware, showHistory, showSettings,
       showVerticals, showStoryteller, showTimeline, showCompetitors, showEngineBuilder,
-      showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
+      showContracts, showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
       showVictory, showRemaster, showPublisher, pendingEvent, eventConsequence]);
 
   // Title screen
@@ -592,6 +593,8 @@ function App() {
         showCompetitors={showCompetitors}
         onToggleEngineBuilder={() => setShowEngineBuilder(v => !v)}
         showEngineBuilder={showEngineBuilder}
+        onToggleContracts={() => setShowContracts(v => !v)}
+        showContracts={showContracts}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -743,6 +746,13 @@ function App() {
         <EngineBuilderPanel
           state={gameState}
           onClose={() => setShowEngineBuilder(false)}
+        />
+      )}
+
+      {showContracts && gameState && (
+        <ContractPanel
+          state={gameState}
+          onClose={() => setShowContracts(false)}
         />
       )}
 

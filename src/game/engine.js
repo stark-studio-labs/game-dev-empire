@@ -47,6 +47,7 @@ class GameEngine {
     victorySystem.reset();
     competitorSystem.reset();
     engineBuilderSystem.reset();
+    contractSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       avatarId: avatarId || 0,
@@ -179,6 +180,7 @@ class GameEngine {
         victorySystem.deserialize(this.state._victory || null);
         competitorSystem.deserialize(this.state._competitors || null);
         engineBuilderSystem.deserialize(this.state._engineBuilder || null);
+        contractSystem.deserialize(this.state._contracts || null);
         // Migrate: assign roles to staff from older saves
         if (this.state.staff) {
           for (const member of this.state.staff) {
@@ -225,6 +227,7 @@ class GameEngine {
       this.state._victory = victorySystem.serialize();
       this.state._competitors = competitorSystem.serialize();
       this.state._engineBuilder = engineBuilderSystem.serialize();
+      this.state._contracts = contractSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -319,6 +322,9 @@ class GameEngine {
       const trainedStaff = s.staff.find(m => m.id === tc.staffId);
       this._notify(`${trainedStaff ? trainedStaff.name : 'Staff'} completed ${tc.courseName}!`);
     }
+
+    // Contract system refresh (every 4 weeks)
+    contractSystem.refreshContracts(s);
 
     // Hardware sales tick (only if player has consoles)
     if (s.level >= 3) {
@@ -774,6 +780,18 @@ class GameEngine {
       breakdown: scoreResult.breakdown,
       fanMail: (typeof fanMailSystem !== 'undefined') ? fanMailSystem.generateMail({ title: game.title, genre: game.genre, topic: game.topic, reviewAvg: criticAvg }) : [],
     };
+
+    // Check contract completion
+    if (typeof contractSystem !== 'undefined') {
+      const contractResult = contractSystem.completeContract(completedGame, s);
+      if (contractResult) {
+        if (contractResult.success) {
+          this._notify(`Contract complete! Earned $${(contractResult.payment / 1000).toFixed(0)}K + ${contractResult.rpReward} RP`);
+        } else {
+          this._notify(`Contract failed: ${contractResult.reason}`);
+        }
+      }
+    }
 
     s.games.push(completedGame);
 
