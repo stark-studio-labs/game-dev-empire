@@ -25,6 +25,7 @@ function App() {
   const [showIPO, setShowIPO] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
   const [showCompetitors, setShowCompetitors] = useState(false);
+  const [showEngineBuilder, setShowEngineBuilder] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -35,8 +36,12 @@ function App() {
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
   const [companyName, setCompanyName] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [showPhaseModal, setShowPhaseModal] = useState(false);
   const [devMode, setDevMode] = useState(settingsSystem.devMode);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState(null);
 
   // Micro-animation states
   const [screenShake, setScreenShake] = React.useState(false);
@@ -190,7 +195,7 @@ function App() {
 
   const handleNewCompany = () => {
     const name = companyName.trim() || 'Indie Studio';
-    engine.newGame(name);
+    engine.newGame(name, selectedAvatar);
     setScreen('game');
     if (typeof audioManager !== 'undefined') audioManager.playMusic();
     // Reset unlock tracking for new game
@@ -225,6 +230,24 @@ function App() {
 
   const handleUpgrade = () => {
     engine.upgradeOffice();
+  };
+
+  const handleOfficeClick = (x, y) => {
+    setContextMenu({ x, y });
+  };
+
+  const handleContextAction = (action) => {
+    switch (action) {
+      case 'newGame': handleNewGame(); break;
+      case 'staff': setShowStaff(true); break;
+      case 'finance': setShowFinance(true); break;
+      case 'marketing': setShowMarketing(true); break;
+      case 'research': setShowResearch(true); break;
+      case 'training': setShowTraining(true); break;
+      case 'market': setShowMarket(true); break;
+      case 'settings': setShowSettings(true); break;
+      default: break;
+    }
   };
 
   const handleReviewClose = () => {
@@ -347,13 +370,14 @@ function App() {
       setShowMarket(false); setShowMorale(false); setShowMarketing(false);
       setShowTraining(false); setShowHardware(false); setShowHistory(false);
       setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
-      setShowTimeline(false); setShowCompetitors(false); setShowKeyboardHelp(false);
+      setShowTimeline(false); setShowCompetitors(false); setShowEngineBuilder(false);
+      setShowKeyboardHelp(false);
     };
 
     const anyPanelOpen = () =>
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
-      showVerticals || showStoryteller || showTimeline || showCompetitors ||
+      showVerticals || showStoryteller || showTimeline || showCompetitors || showEngineBuilder ||
       showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
@@ -399,9 +423,9 @@ function App() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [screen, showStaff, showFinance, showResearch, showMarket, showMorale,
       showMarketing, showTraining, showHardware, showHistory, showSettings,
-      showVerticals, showStoryteller, showTimeline, showCompetitors, showKeyboardHelp,
-      showWizard, showReview, showPhaseModal, showConference, showIPO, showVictory,
-      showRemaster, showPublisher, pendingEvent, eventConsequence]);
+      showVerticals, showStoryteller, showTimeline, showCompetitors, showEngineBuilder,
+      showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
+      showVictory, showRemaster, showPublisher, pendingEvent, eventConsequence]);
 
   // Title screen
   if (screen === 'title') {
@@ -465,6 +489,7 @@ function App() {
 
         {/* New Game */}
         <div className="glass-card" style={{ padding: '32px', width: '360px', marginBottom: '16px' }}>
+          <AvatarSelect selected={selectedAvatar} onSelect={setSelectedAvatar} />
           <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
             Company Name
           </label>
@@ -565,6 +590,8 @@ function App() {
         showVictory={showVictory}
         onToggleCompetitors={() => setShowCompetitors(v => !v)}
         showCompetitors={showCompetitors}
+        onToggleEngineBuilder={() => setShowEngineBuilder(v => !v)}
+        showEngineBuilder={showEngineBuilder}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -578,6 +605,7 @@ function App() {
         onStaff={() => setShowStaff(true)}
         onUpgrade={handleUpgrade}
         fanMilestoneGlow={fanMilestoneGlow}
+        onOfficeClick={handleOfficeClick}
       />
 
       {showWizard && gameState && (
@@ -711,6 +739,13 @@ function App() {
         />
       )}
 
+      {showEngineBuilder && gameState && (
+        <EngineBuilderPanel
+          state={gameState}
+          onClose={() => setShowEngineBuilder(false)}
+        />
+      )}
+
       {showPublisher && publisherGame && gameState && (
         <PublisherPanel
           state={gameState}
@@ -763,6 +798,17 @@ function App() {
       )}
 
       <TutorialOverlay />
+
+      {/* Office context menu */}
+      {contextMenu && gameState && (
+        <OfficeContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          state={gameState}
+          onAction={handleContextAction}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
 
       {/* Global Toast notifications */}
       <ToastContainer />

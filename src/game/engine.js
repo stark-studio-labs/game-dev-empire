@@ -24,7 +24,8 @@ class GameEngine {
   }
 
   /** Create a new game state */
-  newGame(companyName) {
+  newGame(companyName, avatarId) {
+    this._pendingAvatarId = avatarId || 0;
     finance.reset();
     franchiseTracker.reset();
     moraleSystem.reset();
@@ -45,8 +46,10 @@ class GameEngine {
     conferenceSystem.reset();
     victorySystem.reset();
     competitorSystem.reset();
+    engineBuilderSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
+      avatarId: avatarId || 0,
       cash: 70000,
       fans: 0,
       level: 0, // index into OFFICE_LEVELS
@@ -135,6 +138,10 @@ class GameEngine {
       // Victory tracking counters
       gamesHighScore: 0,     // games with reviewAvg >= 8.5
       moonshots: 0,          // AAA games with reviewAvg >= 9.5
+
+      // Research Points currency
+      researchPoints: 0,
+      unlockedTopics: [], // topic names manually unlocked with RP
     };
 
     this._updateAvailablePlatforms();
@@ -168,12 +175,16 @@ class GameEngine {
         conferenceSystem.deserialize(this.state._conferences || null);
         victorySystem.deserialize(this.state._victory || null);
         competitorSystem.deserialize(this.state._competitors || null);
+        engineBuilderSystem.deserialize(this.state._engineBuilder || null);
         // Migrate: assign roles to staff from older saves
         if (this.state.staff) {
           for (const member of this.state.staff) {
             if (!member.role) member.role = assignStaffRole(member);
           }
         }
+        // Migrate: Research Points (added in sprint-2)
+        if (this.state.researchPoints === undefined) this.state.researchPoints = 0;
+        if (!this.state.unlockedTopics) this.state.unlockedTopics = [];
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -207,6 +218,7 @@ class GameEngine {
       this.state._conferences = conferenceSystem.serialize();
       this.state._victory = victorySystem.serialize();
       this.state._competitors = competitorSystem.serialize();
+      this.state._engineBuilder = engineBuilderSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -513,6 +525,7 @@ class GameEngine {
       startWeek: s.totalWeeks,
       isRemaster: config.isRemaster || false,
       remasterBonus: config.remasterBonus || 0,
+      engineId: config.engineId || null,
     };
 
     // Phase 1 sliders from wizard; phases 2 & 3 default to 33/33/33 until player sets them
@@ -655,6 +668,7 @@ class GameEngine {
       staffCount: s.staff.length,
       title: game.title,
       totalWeeks: s.totalWeeks,
+      engineId: game.engineId || null,
     });
 
     // Compute reviews (relative to personal best)
@@ -744,6 +758,12 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+
+    // Earn Research Points from shipping games
+    const rpEarned = 10 + Math.floor(reviewResult.average * 2); // 12-30 RP per game
+    s.researchPoints = (s.researchPoints || 0) + rpEarned;
+    this._notify('Earned ' + rpEarned + ' Research Points!');
+
     if (typeof audioManager !== 'undefined') audioManager.playSFX('game-release');
 
     // Track victory counters
@@ -928,6 +948,7 @@ class GameEngine {
       salary: 0,
       isFounder: true,
       gamesWorked: 0,
+      avatarId: this._pendingAvatarId || 0,
     };
     founder.role = assignStaffRole(founder);
     return founder;

@@ -1,20 +1,22 @@
 /**
  * GameScreen — Main game view with office, staff, actions, notifications, game history
  */
-function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) {
+const AVATAR_EMOJIS = ['😎', '🧑‍💻', '👩‍💻', '🎮', '🚀', '🎯', '🧠', '🎨', '⚡', '🔥', '💎', '🌟'];
+
+function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow, onOfficeClick }) {
   if (!state) return null;
 
   const officeClass = ['office-garage', 'office-small', 'office-medium', 'office-large'][state.level];
   const officeEmoji = ['\uD83C\uDFE0', '\uD83C\uDFE2', '\uD83C\uDFEC', '\uD83C\uDFEF'][state.level];
 
-  // Track office level for slide-expand animation on upgrade
+  // Track office level for establishing shot animation on upgrade
   const prevLevelRef = React.useRef(state.level);
   const [officeAnimating, setOfficeAnimating] = React.useState(false);
 
   React.useEffect(() => {
     if (state.level > prevLevelRef.current) {
       setOfficeAnimating(true);
-      const timer = setTimeout(() => setOfficeAnimating(false), 800);
+      const timer = setTimeout(() => setOfficeAnimating(false), 3500);
       prevLevelRef.current = state.level;
       return () => clearTimeout(timer);
     }
@@ -52,116 +54,98 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
   };
 
   const canStartGame = !state.currentGame && !state.sellingGame;
-  const overflowClass = fanMilestoneGlow ? 'gs-office-card--overflow-visible' : 'gs-office-card--overflow-hidden';
 
   return (
     <div className={`gs-root ${officeClass} ${officeAnimating ? 'animate-slide-expand' : ''}`}>
+      {/* Establishing shot overlay on office upgrade */}
+      {officeAnimating && (
+        <div className={`office-establishing-shot ${officeClass}`}>
+          <div className="office-establishing-name">
+            {typeof OFFICE_LEVELS !== 'undefined' ? OFFICE_LEVELS[state.level].name : ''}
+          </div>
+        </div>
+      )}
+
       {/* Left panel — Office view + actions */}
       <div className="gs-left-col">
-        {/* Office visualization */}
-        <div className={`gs-office-card ${overflowClass} ${fanMilestoneGlow ? 'animate-glow animate-confetti' : ''}`}>
-          <div className="gs-office-emoji">{officeEmoji}</div>
+        {/* Office floor — transparent, staff positioned inside */}
+        <div
+          className={`gs-office-card ${fanMilestoneGlow ? 'animate-glow animate-confetti' : ''}`}
+          onContextMenu={(e) => { e.preventDefault(); if (onOfficeClick) onOfficeClick(e.clientX, e.clientY); }}
+        >
+          <div className="gs-office-floor">
+            <div className="gs-office-emoji">{officeEmoji}</div>
 
-          {/* Staff avatars */}
-          <div className="gs-staff-row">
-            {state.staff.map((member) => {
-              const avatarClasses = ['gs-staff-avatar'];
-              if (member.isFounder) avatarClasses.push('gs-staff-avatar--founder');
-              if (state.currentGame) avatarClasses.push('gs-staff-avatar--developing');
-              return (
-                <div key={member.id} className="gs-staff-item">
-                  <div className={avatarClasses.join(' ')}>
-                    {member.name.charAt(0)}
-                    {member.role && ROLE_ICONS[member.role] && (
-                      <img src={ROLE_ICONS[member.role]} alt="" className="gs-role-badge" />
+            {/* Staff avatars — spread desk layout */}
+            <div className="gs-staff-positions">
+              {state.staff.map((member) => {
+                const avatarClasses = ['gs-staff-avatar'];
+                if (member.isFounder) avatarClasses.push('gs-staff-avatar--founder');
+                if (state.currentGame) avatarClasses.push('gs-staff-avatar--developing');
+                return (
+                  <div key={member.id} className="gs-staff-item">
+                    <div className={avatarClasses.join(' ')}>
+                      {member.avatarId !== undefined && typeof AVATAR_EMOJIS !== 'undefined'
+                        ? AVATAR_EMOJIS[member.avatarId] || member.name.charAt(0)
+                        : member.name.charAt(0)}
+                      {member.role && ROLE_ICONS[member.role] && (
+                        <img src={ROLE_ICONS[member.role]} alt="" className="gs-role-badge" />
+                      )}
+                    </div>
+                    <div className="gs-staff-name">{member.name}</div>
+                    {member.role && (
+                      <div className="gs-staff-role">{getRoleName(member.role)}</div>
                     )}
+                    {bubbles.filter(b => b.staffId === member.id).map(b => (
+                      <span key={b.id} className={`skill-bubble skill-bubble--${b.type}`}>{b.label}</span>
+                    ))}
                   </div>
-                  <div className="gs-staff-name">{member.name}</div>
-                  {member.role && (
-                    <div className="gs-staff-role">{getRoleName(member.role)}</div>
-                  )}
-                  {bubbles.filter(b => b.staffId === member.id).map(b => (
-                    <span key={b.id} className={`skill-bubble skill-bubble--${b.type}`}>{b.label}</span>
-                  ))}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          {/* Polish phase — bug-fixing before release */}
+          {/* Dev bar — compact status at bottom of office */}
           {state.finishingPhase && (
-            <div className="glass-card gs-info-card">
-              <div className="panel-header" style={{ marginBottom: '4px', color: 'var(--color-warning)' }}>
-                Polishing
-              </div>
-              <div className="gs-info-title">Fixing Bugs...</div>
-              <div className="gs-info-sub">
-                {state.bugs} bugs remaining (started with {state.bugsInitial})
-              </div>
-              <div className="progress-bar" style={{ height: '8px' }}>
+            <div className="gs-dev-bar">
+              <span style={{ color: 'var(--color-warning)', fontSize: '14px' }}>&#x1F41B;</span>
+              <span className="gs-dev-bar-title">Fixing bugs...</span>
+              <span className="gs-dev-bar-sub">{state.bugs} remaining</span>
+              <div className="progress-bar" style={{ flex: 1, height: '6px' }}>
                 <div className="progress-fill" style={{ width: `${state.devProgress}%`, background: 'linear-gradient(90deg, var(--color-warning), var(--color-success))' }} />
               </div>
             </div>
           )}
 
-          {/* Current activity */}
           {state.currentGame && !state.finishingPhase && (
-            <div className="glass-card gs-info-card">
-              <div className="panel-header" style={{ marginBottom: '4px' }}>
-                Now Developing
-              </div>
-              <div className="gs-info-title">{state.currentGame.title}</div>
-              <div className="gs-info-sub">
-                {state.currentGame.topic} / {state.currentGame.genre} / {state.currentGame.size}
-              </div>
-
-              {/* Phase indicators */}
-              <div className="gs-phase-row">
-                {(typeof DEV_PHASES !== 'undefined' ? DEV_PHASES : []).map((phase, i) => (
-                  <React.Fragment key={i}>
-                    <div className={`phase-dot ${i < state.devPhase ? 'complete' : i === state.devPhase ? 'active' : ''}`} />
-                    <span className={`gs-phase-label ${i === state.devPhase ? 'gs-phase-label--active' : ''}`}>
-                      {phase.name}
-                    </span>
-                    {i < (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length - 1 : 2) && <div className={`gs-phase-line ${i < state.devPhase ? 'gs-phase-line--complete' : ''}`} />}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* Progress bar */}
-              <div className="progress-bar" style={{ height: '8px' }}>
+            <div className="gs-dev-bar">
+              {(typeof DEV_PHASES !== 'undefined' ? DEV_PHASES : []).map((phase, i) => (
+                <div key={i} className={`phase-dot ${i < state.devPhase ? 'complete' : i === state.devPhase ? 'active' : ''}`} />
+              ))}
+              <span className="gs-dev-bar-title">{state.currentGame.title}</span>
+              <span className="gs-dev-bar-sub">D:{Math.round(state.devDesign)} T:{Math.round(state.devTech)}</span>
+              <div className="progress-bar" style={{ flex: 1, height: '6px' }}>
                 <div className="progress-fill" style={{ width: `${(state.devPhase * 100 + state.devProgress) / (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length : 4)}%` }} />
-              </div>
-
-              {/* D/T points */}
-              <div className="gs-dt-row">
-                <span className="gs-dt-design">Design: {Math.round(state.devDesign)}</span>
-                <span className="gs-dt-tech">Tech: {Math.round(state.devTech)}</span>
               </div>
             </div>
           )}
 
-          {/* Sales activity */}
           {state.sellingGame && !state.currentGame && (
-            <div className="glass-card gs-info-card">
-              <div className="panel-header" style={{ color: 'var(--color-success)', marginBottom: '4px' }}>
-                Now Selling
-              </div>
-              <div className="gs-info-title">{state.sellingGame.title}</div>
-              <div className="gs-sales-value">
-                {formatCash(state.salesRevenue)} / {formatCash(state.salesTotalTarget)}
-              </div>
-              <div className="progress-bar" style={{ marginTop: '8px' }}>
+            <div className="gs-dev-bar">
+              <span style={{ color: 'var(--color-success)', fontSize: '14px' }}>&#x1F4B0;</span>
+              <span className="gs-dev-bar-title">{state.sellingGame.title}</span>
+              <span className="gs-dev-bar-sub">{formatCash(state.salesRevenue)} / {formatCash(state.salesTotalTarget)}</span>
+              <div className="progress-bar" style={{ flex: 1, height: '6px' }}>
                 <div className="progress-fill" style={{ width: `${(state.salesRevenue / Math.max(state.salesTotalTarget, 1)) * 100}%`, background: 'linear-gradient(90deg, var(--color-success), #2ea043)' }} />
               </div>
             </div>
           )}
 
-          {/* Idle state */}
           {canStartGame && (
-            <div style={{ textAlign: 'center' }}>
-              <div className="gs-idle-hint">Ready to start your next project</div>
-              <button className="btn-accent gs-new-game-btn" onClick={onNewGame}>
+            <div className="gs-dev-bar" style={{ justifyContent: 'center' }}>
+              <span style={{ fontSize: '14px' }}>&#x2705;</span>
+              <span className="gs-dev-bar-title" style={{ marginRight: '12px' }}>Ready</span>
+              <button className="btn-accent" onClick={onNewGame} style={{ padding: '4px 16px', fontSize: '12px' }}>
                 Create New Game
               </button>
             </div>

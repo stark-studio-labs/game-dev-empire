@@ -78,6 +78,11 @@ function ResearchPanel({ state, onClose }) {
           </button>
         </div>
 
+        {/* Research Points balance */}
+        <div style={{ fontSize: '13px', color: '#da7cff', marginBottom: '12px' }}>
+          Research Points: {state.researchPoints || 0}
+        </div>
+
         {/* Lab not unlocked warning */}
         {!labUnlocked && (
           <div className="alert alert--danger">
@@ -186,6 +191,9 @@ function ResearchPanel({ state, onClose }) {
                         {!isDone && <span>Lv{item.techLevel}</span>}
                         {!isDone && <span>{formatCash(item.cost)}</span>}
                         {!isDone && <span>{item.durationWeeks}w</span>}
+                        {!isDone && item.rpCost > 0 && (
+                          <span style={{ color: '#da7cff' }}>{item.rpCost} RP</span>
+                        )}
                         {isDone && <span style={{ color: '#3fb950' }}>Completed</span>}
                       </div>
 

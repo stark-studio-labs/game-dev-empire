@@ -8,52 +8,52 @@ const RESEARCH_CATEGORIES = ['AI', 'Networking', 'Graphics', 'Audio', 'UX', 'Mon
 
 const RESEARCH_ITEMS = [
   // ── AI (5 items) ──────────────────────────────────────────────
-  { id: 'ai_pathfinding',      name: 'Advanced Pathfinding',     category: 'AI',           techLevel: 2,  cost: 15000,  durationWeeks: 4,  description: 'A* and navmesh algorithms for smarter NPC navigation.' },
-  { id: 'ai_behavior_trees',   name: 'Behavior Trees',           category: 'AI',           techLevel: 4,  cost: 25000,  durationWeeks: 6,  description: 'Complex decision-making systems for believable AI.' },
-  { id: 'ai_procedural_gen',   name: 'Procedural Generation',    category: 'AI',           techLevel: 6,  cost: 40000,  durationWeeks: 8,  description: 'Algorithmically generate worlds, dungeons, and quests.' },
-  { id: 'ai_ml_npcs',          name: 'Machine Learning NPCs',    category: 'AI',           techLevel: 10, cost: 80000,  durationWeeks: 12, description: 'NPCs that learn from player behavior and adapt.' },
-  { id: 'ai_llm_dialogue',     name: 'LLM-Powered Dialogue',     category: 'AI',           techLevel: 13, cost: 120000, durationWeeks: 14, description: 'AI-generated dynamic conversations with infinite branching.' },
+  { id: 'ai_pathfinding',      name: 'Advanced Pathfinding',     category: 'AI',           techLevel: 2,  cost: 15000,  durationWeeks: 4,  rpCost: 5, description: 'A* and navmesh algorithms for smarter NPC navigation.' },
+  { id: 'ai_behavior_trees',   name: 'Behavior Trees',           category: 'AI',           techLevel: 4,  cost: 25000,  durationWeeks: 6,  rpCost: 5, description: 'Complex decision-making systems for believable AI.' },
+  { id: 'ai_procedural_gen',   name: 'Procedural Generation',    category: 'AI',           techLevel: 6,  cost: 40000,  durationWeeks: 8,  rpCost: 5, description: 'Algorithmically generate worlds, dungeons, and quests.' },
+  { id: 'ai_ml_npcs',          name: 'Machine Learning NPCs',    category: 'AI',           techLevel: 10, cost: 80000,  durationWeeks: 12, rpCost: 5, description: 'NPCs that learn from player behavior and adapt.' },
+  { id: 'ai_llm_dialogue',     name: 'LLM-Powered Dialogue',     category: 'AI',           techLevel: 13, cost: 120000, durationWeeks: 14, rpCost: 5, description: 'AI-generated dynamic conversations with infinite branching.' },
 
   // ── Networking (5 items) ──────────────────────────────────────
-  { id: 'net_basic_multi',     name: 'Basic Multiplayer',        category: 'Networking',   techLevel: 3,  cost: 20000,  durationWeeks: 6,  description: 'Peer-to-peer networking for small lobbies.' },
-  { id: 'net_dedicated',       name: 'Dedicated Servers',        category: 'Networking',   techLevel: 5,  cost: 35000,  durationWeeks: 8,  description: 'Server infrastructure for stable online play.' },
-  { id: 'net_mmo',             name: 'MMO Architecture',         category: 'Networking',   techLevel: 8,  cost: 60000,  durationWeeks: 10, description: 'Massively multiplayer infrastructure supporting thousands.' },
-  { id: 'net_crossplay',       name: 'Cross-Platform Play',      category: 'Networking',   techLevel: 11, cost: 75000,  durationWeeks: 10, description: 'Unified matchmaking across all platforms.' },
-  { id: 'net_cloud_gaming',    name: 'Cloud Gaming Support',     category: 'Networking',   techLevel: 14, cost: 100000, durationWeeks: 12, description: 'Stream your games to any device, anywhere.' },
+  { id: 'net_basic_multi',     name: 'Basic Multiplayer',        category: 'Networking',   techLevel: 3,  cost: 20000,  durationWeeks: 6,  rpCost: 5, description: 'Peer-to-peer networking for small lobbies.' },
+  { id: 'net_dedicated',       name: 'Dedicated Servers',        category: 'Networking',   techLevel: 5,  cost: 35000,  durationWeeks: 8,  rpCost: 5, description: 'Server infrastructure for stable online play.' },
+  { id: 'net_mmo',             name: 'MMO Architecture',         category: 'Networking',   techLevel: 8,  cost: 60000,  durationWeeks: 10, rpCost: 5, description: 'Massively multiplayer infrastructure supporting thousands.' },
+  { id: 'net_crossplay',       name: 'Cross-Platform Play',      category: 'Networking',   techLevel: 11, cost: 75000,  durationWeeks: 10, rpCost: 5, description: 'Unified matchmaking across all platforms.' },
+  { id: 'net_cloud_gaming',    name: 'Cloud Gaming Support',     category: 'Networking',   techLevel: 14, cost: 100000, durationWeeks: 12, rpCost: 5, description: 'Stream your games to any device, anywhere.' },
 
   // ── Graphics (5 items) ────────────────────────────────────────
-  { id: 'gfx_sprites',        name: '2D Sprite Engine',         category: 'Graphics',     techLevel: 1,  cost: 10000,  durationWeeks: 3,  description: 'Efficient sprite rendering with animation support.' },
-  { id: 'gfx_3d_basic',       name: '3D Rendering',             category: 'Graphics',     techLevel: 3,  cost: 25000,  durationWeeks: 6,  description: 'Basic 3D engine with texturing and lighting.' },
-  { id: 'gfx_shaders',        name: 'Shader Pipeline',          category: 'Graphics',     techLevel: 6,  cost: 45000,  durationWeeks: 8,  description: 'Programmable shader system for custom visual effects.' },
-  { id: 'gfx_raytracing',     name: 'Ray Tracing',              category: 'Graphics',     techLevel: 11, cost: 90000,  durationWeeks: 12, description: 'Real-time ray traced reflections, shadows, and GI.' },
-  { id: 'gfx_nanite',         name: 'Nanite Geometry',          category: 'Graphics',     techLevel: 14, cost: 130000, durationWeeks: 14, description: 'Virtualized geometry rendering billions of polygons.' },
+  { id: 'gfx_sprites',        name: '2D Sprite Engine',         category: 'Graphics',     techLevel: 1,  cost: 10000,  durationWeeks: 3,  rpCost: 5, description: 'Efficient sprite rendering with animation support.' },
+  { id: 'gfx_3d_basic',       name: '3D Rendering',             category: 'Graphics',     techLevel: 3,  cost: 25000,  durationWeeks: 6,  rpCost: 5, description: 'Basic 3D engine with texturing and lighting.' },
+  { id: 'gfx_shaders',        name: 'Shader Pipeline',          category: 'Graphics',     techLevel: 6,  cost: 45000,  durationWeeks: 8,  rpCost: 5, description: 'Programmable shader system for custom visual effects.' },
+  { id: 'gfx_raytracing',     name: 'Ray Tracing',              category: 'Graphics',     techLevel: 11, cost: 90000,  durationWeeks: 12, rpCost: 5, description: 'Real-time ray traced reflections, shadows, and GI.' },
+  { id: 'gfx_nanite',         name: 'Nanite Geometry',          category: 'Graphics',     techLevel: 14, cost: 130000, durationWeeks: 14, rpCost: 5, description: 'Virtualized geometry rendering billions of polygons.' },
 
   // ── Audio (4 items) ───────────────────────────────────────────
-  { id: 'aud_basic',          name: 'Spatial Audio',            category: 'Audio',        techLevel: 2,  cost: 12000,  durationWeeks: 3,  description: '3D positional audio for immersive soundscapes.' },
-  { id: 'aud_dynamic_music',  name: 'Dynamic Music System',    category: 'Audio',        techLevel: 5,  cost: 30000,  durationWeeks: 6,  description: 'Music that adapts to gameplay intensity in real-time.' },
-  { id: 'aud_voice_synth',    name: 'Voice Synthesis',          category: 'Audio',        techLevel: 9,  cost: 55000,  durationWeeks: 8,  description: 'AI-generated voice acting for unlimited dialogue.' },
-  { id: 'aud_ambisonics',     name: 'Ambisonics Engine',        category: 'Audio',        techLevel: 12, cost: 70000,  durationWeeks: 10, description: 'Full-sphere surround sound for VR and cinema audio.' },
+  { id: 'aud_basic',          name: 'Spatial Audio',            category: 'Audio',        techLevel: 2,  cost: 12000,  durationWeeks: 3,  rpCost: 5, description: '3D positional audio for immersive soundscapes.' },
+  { id: 'aud_dynamic_music',  name: 'Dynamic Music System',    category: 'Audio',        techLevel: 5,  cost: 30000,  durationWeeks: 6,  rpCost: 5, description: 'Music that adapts to gameplay intensity in real-time.' },
+  { id: 'aud_voice_synth',    name: 'Voice Synthesis',          category: 'Audio',        techLevel: 9,  cost: 55000,  durationWeeks: 8,  rpCost: 5, description: 'AI-generated voice acting for unlimited dialogue.' },
+  { id: 'aud_ambisonics',     name: 'Ambisonics Engine',        category: 'Audio',        techLevel: 12, cost: 70000,  durationWeeks: 10, rpCost: 5, description: 'Full-sphere surround sound for VR and cinema audio.' },
 
   // ── UX (6 items) ──────────────────────────────────────────────
-  { id: 'ux_market_research', name: 'Market Research',          category: 'UX',           techLevel: 1,  cost: 8000,   durationWeeks: 3,  description: 'Analyze market data to reveal topic/genre/audience compatibility ratings.' },
-  { id: 'ux_tutorials',       name: 'Smart Tutorials',          category: 'UX',           techLevel: 2,  cost: 10000,  durationWeeks: 3,  description: 'Context-aware tutorials that adapt to player skill.' },
-  { id: 'ux_accessibility',   name: 'Accessibility Suite',      category: 'UX',           techLevel: 4,  cost: 20000,  durationWeeks: 5,  description: 'Colorblind modes, subtitles, remappable controls.' },
-  { id: 'ux_analytics',       name: 'Player Analytics',         category: 'UX',           techLevel: 6,  cost: 30000,  durationWeeks: 6,  description: 'Track player behavior to optimize game design.' },
-  { id: 'ux_live_ops',        name: 'Live Ops Dashboard',       category: 'UX',           techLevel: 9,  cost: 50000,  durationWeeks: 8,  description: 'Real-time monitoring and content deployment tools.' },
-  { id: 'ux_haptic_feedback',  name: 'Haptic Feedback Engine',   category: 'UX',           techLevel: 12, cost: 65000,  durationWeeks: 10, description: 'Advanced controller vibration patterns and triggers.' },
+  { id: 'ux_market_research', name: 'Market Research',          category: 'UX',           techLevel: 1,  cost: 8000,   durationWeeks: 3,  rpCost: 5, description: 'Analyze market data to reveal topic/genre/audience compatibility ratings.' },
+  { id: 'ux_tutorials',       name: 'Smart Tutorials',          category: 'UX',           techLevel: 2,  cost: 10000,  durationWeeks: 3,  rpCost: 5, description: 'Context-aware tutorials that adapt to player skill.' },
+  { id: 'ux_accessibility',   name: 'Accessibility Suite',      category: 'UX',           techLevel: 4,  cost: 20000,  durationWeeks: 5,  rpCost: 5, description: 'Colorblind modes, subtitles, remappable controls.' },
+  { id: 'ux_analytics',       name: 'Player Analytics',         category: 'UX',           techLevel: 6,  cost: 30000,  durationWeeks: 6,  rpCost: 5, description: 'Track player behavior to optimize game design.' },
+  { id: 'ux_live_ops',        name: 'Live Ops Dashboard',       category: 'UX',           techLevel: 9,  cost: 50000,  durationWeeks: 8,  rpCost: 5, description: 'Real-time monitoring and content deployment tools.' },
+  { id: 'ux_haptic_feedback',  name: 'Haptic Feedback Engine',   category: 'UX',           techLevel: 12, cost: 65000,  durationWeeks: 10, rpCost: 5, description: 'Advanced controller vibration patterns and triggers.' },
 
   // ── Monetization (4 items) ────────────────────────────────────
-  { id: 'mon_dlc',            name: 'DLC Framework',            category: 'Monetization', techLevel: 4,  cost: 18000,  durationWeeks: 4,  description: 'Downloadable content packaging and distribution.' },
-  { id: 'mon_mtx',            name: 'Microtransaction Engine',  category: 'Monetization', techLevel: 7,  cost: 35000,  durationWeeks: 6,  description: 'In-game store with virtual currency support.' },
-  { id: 'mon_battle_pass',    name: 'Battle Pass System',       category: 'Monetization', techLevel: 10, cost: 50000,  durationWeeks: 8,  description: 'Seasonal progression tracks with premium tiers.' },
-  { id: 'mon_nft',            name: 'Digital Ownership Layer',  category: 'Monetization', techLevel: 13, cost: 90000,  durationWeeks: 10, description: 'Player-owned digital assets and marketplace.' },
+  { id: 'mon_dlc',            name: 'DLC Framework',            category: 'Monetization', techLevel: 4,  cost: 18000,  durationWeeks: 4,  rpCost: 5, description: 'Downloadable content packaging and distribution.' },
+  { id: 'mon_mtx',            name: 'Microtransaction Engine',  category: 'Monetization', techLevel: 7,  cost: 35000,  durationWeeks: 6,  rpCost: 5, description: 'In-game store with virtual currency support.' },
+  { id: 'mon_battle_pass',    name: 'Battle Pass System',       category: 'Monetization', techLevel: 10, cost: 50000,  durationWeeks: 8,  rpCost: 5, description: 'Seasonal progression tracks with premium tiers.' },
+  { id: 'mon_nft',            name: 'Digital Ownership Layer',  category: 'Monetization', techLevel: 13, cost: 90000,  durationWeeks: 10, rpCost: 5, description: 'Player-owned digital assets and marketplace.' },
 
   // ── Engine (5 items) ──────────────────────────────────────────
-  { id: 'eng_physics',        name: 'Physics Engine',           category: 'Engine',       techLevel: 2,  cost: 15000,  durationWeeks: 5,  description: 'Rigid body physics, collision detection, raycasting.' },
-  { id: 'eng_scripting',      name: 'Scripting Language',       category: 'Engine',       techLevel: 4,  cost: 22000,  durationWeeks: 6,  description: 'Embedded scripting for rapid content creation.' },
-  { id: 'eng_ecs',            name: 'Entity Component System',  category: 'Engine',       techLevel: 7,  cost: 40000,  durationWeeks: 8,  description: 'Data-oriented architecture for massive game worlds.' },
-  { id: 'eng_hot_reload',     name: 'Hot Reload Pipeline',      category: 'Engine',       techLevel: 9,  cost: 55000,  durationWeeks: 8,  description: 'Live code changes without restarting the game.' },
-  { id: 'eng_voxel',          name: 'Voxel Engine',             category: 'Engine',       techLevel: 12, cost: 85000,  durationWeeks: 12, description: 'Fully destructible voxel-based worlds.' },
+  { id: 'eng_physics',        name: 'Physics Engine',           category: 'Engine',       techLevel: 2,  cost: 15000,  durationWeeks: 5,  rpCost: 5, description: 'Rigid body physics, collision detection, raycasting.' },
+  { id: 'eng_scripting',      name: 'Scripting Language',       category: 'Engine',       techLevel: 4,  cost: 22000,  durationWeeks: 6,  rpCost: 5, description: 'Embedded scripting for rapid content creation.' },
+  { id: 'eng_ecs',            name: 'Entity Component System',  category: 'Engine',       techLevel: 7,  cost: 40000,  durationWeeks: 8,  rpCost: 5, description: 'Data-oriented architecture for massive game worlds.' },
+  { id: 'eng_hot_reload',     name: 'Hot Reload Pipeline',      category: 'Engine',       techLevel: 9,  cost: 55000,  durationWeeks: 8,  rpCost: 5, description: 'Live code changes without restarting the game.' },
+  { id: 'eng_voxel',          name: 'Voxel Engine',             category: 'Engine',       techLevel: 12, cost: 85000,  durationWeeks: 12, rpCost: 5, description: 'Fully destructible voxel-based worlds.' },
 ];
 
 /**
@@ -111,6 +111,13 @@ class ResearchSystem {
     if (item.techLevel > maxTech + 3) return { success: false, message: 'Tech level too high! Complete earlier research first.' };
 
     if (state.cash < item.cost) return { success: false, message: 'Not enough cash!' };
+
+    // Add RP check
+    const rpCost = item.rpCost || 0;
+    if (rpCost > 0) {
+      if ((state.researchPoints || 0) < rpCost) return { success: false, message: `Need ${rpCost} Research Points! Ship more games to earn RP.` };
+      state.researchPoints -= rpCost;
+    }
 
     // Deduct cost and record in finance
     state.cash -= item.cost;

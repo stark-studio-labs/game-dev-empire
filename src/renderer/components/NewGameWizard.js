@@ -10,6 +10,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const [audience, setAudience] = React.useState('Everyone');
   const [platformIds, setPlatformIds] = React.useState([]);
   const [size, setSize] = React.useState('Small');
+  const [selectedEngine, setSelectedEngine] = React.useState(null);
 
   const togglePlatform = (id) => {
     setPlatformIds(prev => {
@@ -27,6 +28,8 @@ function NewGameWizard({ state, onStart, onCancel }) {
   // Topic unlock logic — 6 tiers keyed to progression milestones
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;
+    // Check if manually unlocked via RP
+    if (state.unlockedTopics && state.unlockedTopics.includes(t.name)) return true;
     if (t.tier === 1) return true;
     if (t.tier === 2) return state.staff.length >= 2;
     if (t.tier === 3) return (state.level || 0) >= 1;
@@ -52,6 +55,9 @@ function NewGameWizard({ state, onStart, onCancel }) {
   // Gate: show compatibility only after 5 games shipped + Market Research completed
   const showCompat = state.devMode || (state.games.length >= 5 &&
     typeof researchSystem !== 'undefined' && researchSystem.completed && researchSystem.completed['ux_market_research']);
+
+  // Gate: audience selection unlocks in Year 3
+  const audienceUnlocked = (state.year || 1) >= 3 || state.devMode;
 
   // Compatibility indicator
   const getCompat = (val) => {
@@ -102,6 +108,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
       platformIds,
       size,
       sliders, // Only Phase 1 (3 values) — engine fills defaults for phases 2 & 3
+      engineId: selectedEngine,
     };
     onStart(config);
   };
@@ -223,7 +230,23 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     }}
                     title={unlocked ? t.name : `Unlock: ${t.unlockRequirement}`}
                   >
-                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{t.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 500 }}>{t.name}</span>
+                      {!unlocked && (t.tier === 5 || t.tier === 6) && (state.researchPoints || 0) >= (t.rpCost || 10) && (
+                        <button
+                          className="btn-secondary"
+                          style={{ fontSize: '10px', padding: '2px 6px', marginLeft: '4px' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            engine.state.researchPoints -= (t.rpCost || 10);
+                            engine.state.unlockedTopics.push(t.name);
+                            engine._emit(); engine._save();
+                          }}
+                        >
+                          Unlock ({t.rpCost || 10} RP)
+                        </button>
+                      )}
+                    </div>
                     {!unlocked && (
                       <div style={{ fontSize: '10px', color: '#6e7681', marginTop: '2px', lineHeight: 1.2 }}>
                         {t.unlockRequirement}
@@ -285,28 +308,34 @@ function NewGameWizard({ state, onStart, onCancel }) {
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
               Target Audience
             </label>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              {AUDIENCES.map(a => {
-                const topicData = TOPICS.find(t => t.name === topic);
-                const audIdx = AUDIENCES.indexOf(a);
-                const compat = topicData ? getCompat(topicData.audienceW[audIdx]) : null;
-                return (
-                  <div
-                    key={a}
-                    className={`selection-item ${audience === a ? 'selected' : ''}`}
-                    onClick={() => setAudience(a)}
-                    style={{ flex: 1, padding: '12px' }}
-                  >
-                    <div style={{ fontWeight: 600 }}>{a}</div>
-                    {showCompat && compat ? (
-                      <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>
-                    ) : (
-                      <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {audienceUnlocked ? (
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                {AUDIENCES.map(a => {
+                  const topicData = TOPICS.find(t => t.name === topic);
+                  const audIdx = AUDIENCES.indexOf(a);
+                  const compat = topicData ? getCompat(topicData.audienceW[audIdx]) : null;
+                  return (
+                    <div
+                      key={a}
+                      className={`selection-item ${audience === a ? 'selected' : ''}`}
+                      onClick={() => setAudience(a)}
+                      style={{ flex: 1, padding: '12px' }}
+                    >
+                      <div style={{ fontWeight: 600 }}>{a}</div>
+                      {showCompat && compat ? (
+                        <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ fontSize: '12px', color: '#8b949e', padding: '8px 0' }}>
+                Audience targeting unlocks in Year 3. Default: Everyone.
+              </div>
+            )}
 
             {/* Game Size */}
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
@@ -371,6 +400,31 @@ function NewGameWizard({ state, onStart, onCancel }) {
                 );
               })}
             </div>
+
+            {/* Engine Selection (if engines exist) */}
+            {typeof engineBuilderSystem !== 'undefined' && engineBuilderSystem.getEngines().length > 0 && (
+              <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+                  Game Engine (Optional)
+                </label>
+                <select
+                  value={selectedEngine || ''}
+                  onChange={e => setSelectedEngine(e.target.value ? parseInt(e.target.value) : null)}
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e6edf3', fontSize: '14px', outline: 'none',
+                  }}
+                >
+                  <option value="">No Custom Engine</option>
+                  {engineBuilderSystem.getEngines().map(eng => (
+                    <option key={eng.id} value={eng.id}>
+                      {eng.name} (Tech Lv{eng.techLevel}, +{Math.round((engineBuilderSystem.getEngineBonus(eng.id) - 1) * 100)}% quality)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
               <button className="btn-secondary" onClick={() => setStep(2)}>Back</button>
