@@ -27,6 +27,7 @@ function App() {
   const [showCompetitors, setShowCompetitors] = useState(false);
   const [showEngineBuilder, setShowEngineBuilder] = useState(false);
   const [showContracts, setShowContracts] = useState(false);
+  const [showHandbook, setShowHandbook] = useState(false);
   const [showAwards, setShowAwards] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
@@ -378,14 +379,14 @@ function App() {
       setShowTraining(false); setShowHardware(false); setShowHistory(false);
       setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
       setShowTimeline(false); setShowCompetitors(false); setShowEngineBuilder(false);
-      setShowContracts(false); setShowKeyboardHelp(false);
+      setShowContracts(false); setShowHandbook(false); setShowKeyboardHelp(false);
     };
 
     const anyPanelOpen = () =>
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
       showVerticals || showStoryteller || showTimeline || showCompetitors || showEngineBuilder ||
-      showContracts || showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
+      showContracts || showHandbook || showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
     const handleKey = (e) => {
@@ -421,6 +422,7 @@ function App() {
         case 't': case 'T': if (!anyPanelOpen()) setShowTraining(true); break;
         case 'c': case 'C': if (!anyPanelOpen()) setShowMarketing(true); break;
         case 'v': case 'V': if (!anyPanelOpen()) setShowVerticals(true); break;
+        case 'b': case 'B': if (!anyPanelOpen()) setShowHandbook(true); break;
         case '?': setShowKeyboardHelp(true); break;
         default: break;
       }
@@ -431,7 +433,7 @@ function App() {
   }, [screen, showStaff, showFinance, showResearch, showMarket, showMorale,
       showMarketing, showTraining, showHardware, showHistory, showSettings,
       showVerticals, showStoryteller, showTimeline, showCompetitors, showEngineBuilder,
-      showContracts, showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
+      showContracts, showHandbook, showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
       showVictory, showRemaster, showPublisher, pendingEvent, eventConsequence]);
 
   // Title screen
@@ -601,6 +603,8 @@ function App() {
         showEngineBuilder={showEngineBuilder}
         onToggleContracts={() => setShowContracts(v => !v)}
         showContracts={showContracts}
+        onToggleHandbook={() => setShowHandbook(v => !v)}
+        showHandbook={showHandbook}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -759,6 +763,13 @@ function App() {
         <ContractPanel
           state={gameState}
           onClose={() => setShowContracts(false)}
+        />
+      )}
+
+      {showHandbook && gameState && (
+        <HandbookPanel
+          state={gameState}
+          onClose={() => setShowHandbook(false)}
         />
       )}
 
