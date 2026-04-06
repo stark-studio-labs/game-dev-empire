@@ -208,8 +208,20 @@ function GameHistory({ state, onClose, onRemaster }) {
             </div>
           )}
 
+          {/* DLC History */}
+          {typeof dlcSystem !== 'undefined' && dlcSystem.getDLCsForGame(g.title).length > 0 && (
+            <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px' }}>
+              <div className="panel-header" style={{ color: '#ffa657', marginBottom: '6px' }}>DLC History</div>
+              {dlcSystem.getDLCsForGame(g.title).map((dlc, i) => (
+                <div key={i} style={{ fontSize: '12px', color: '#8b949e', padding: '2px 0' }}>
+                  {dlc.name} — {dlc.score.toFixed(1)}/10 — ${dlc.revenue.toLocaleString()}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Actions */}
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button className="btn-secondary" onClick={() => setSelectedGame(null)} style={{ flex: 1 }}>
               Back to History
             </button>
@@ -235,6 +247,17 @@ function GameHistory({ state, onClose, onRemaster }) {
                 title={`Remaster: ~${Math.round(30)}% of original dev cost, targets new platforms`}
               >
                 Remaster
+              </button>
+            )}
+            {typeof dlcSystem !== 'undefined' && dlcSystem.canCreateDLC(g) && !state.activeDLC && !state.currentGame && (
+              <button className="btn-secondary" onClick={() => {
+                const name = prompt('Name your DLC:');
+                if (name) {
+                  const result = dlcSystem.startDLC(g, name, state);
+                  if (result.success) { engine._emit(); engine._save(); }
+                }
+              }} style={{ flex: 1, color: '#ffa657' }}>
+                Create DLC (${dlcSystem.getDLCCost(g).toLocaleString()})
               </button>
             )}
             <button className="btn-accent" onClick={onClose} style={{ flex: 1 }}>
