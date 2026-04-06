@@ -29,6 +29,8 @@ function App() {
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+  const [reportData, setReportData] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
@@ -58,6 +60,10 @@ function App() {
     marketing: false,
     training: false,
     morale: false,
+    tier2: false,
+    tier3: false,
+    tier4: false,
+    tier5: false,
   });
 
   // Check for newly unlocked features and show toast
@@ -77,6 +83,19 @@ function App() {
       if (condition && !unlockedFeaturesRef.current[key]) {
         unlockedFeaturesRef.current[key] = true;
         showToast(`${label} unlocked!`, 'success', 5000);
+      }
+    }
+
+    const tierChecks = {
+      tier2: { condition: state.staff.length >= 2, label: 'New Topics Unlocked (Tier 2)' },
+      tier3: { condition: state.level >= 1, label: 'New Topics Unlocked (Tier 3)' },
+      tier4: { condition: state.level >= 2, label: 'New Topics Unlocked (Tier 4)' },
+      tier5: { condition: state.games.length >= 5, label: 'New Topics Unlocked (Tier 5)' },
+    };
+    for (const [key, { condition, label }] of Object.entries(tierChecks)) {
+      if (condition && !unlockedFeaturesRef.current[key]) {
+        unlockedFeaturesRef.current[key] = true;
+        showToast(label, 'success', 5000);
       }
     }
   }, [devMode]);
@@ -210,11 +229,29 @@ function App() {
 
   const handleReviewClose = () => {
     setShowReview(false);
-    // After closing review, show publisher panel for the just-released game
-    if (reviewGame) {
-      setPublisherGame(reviewGame);
+    // Generate and show research report before publisher panel
+    if (reviewGame && typeof gameReportGenerator !== 'undefined') {
+      const report = gameReportGenerator.generateReport(reviewGame, gameState.games.length);
+      setReportData({ game: reviewGame, report });
+      setShowReport(true);
+    } else {
+      // Fallback: skip report, go to publisher
+      if (reviewGame) {
+        setPublisherGame(reviewGame);
+        setShowPublisher(true);
+      }
+      setReviewGame(null);
+    }
+  };
+
+  const handleReportClose = () => {
+    setShowReport(false);
+    // Now show publisher panel
+    if (reportData && reportData.game) {
+      setPublisherGame(reportData.game);
       setShowPublisher(true);
     }
+    setReportData(null);
     setReviewGame(null);
   };
 
@@ -317,7 +354,7 @@ function App() {
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
       showVerticals || showStoryteller || showTimeline || showCompetitors ||
-      showKeyboardHelp || showWizard || showReview || showPhaseModal || showConference ||
+      showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
     const handleKey = (e) => {
@@ -332,7 +369,7 @@ function App() {
 
       // Ignore remaining shortcuts if a blocking modal is open
       if (screen !== 'game') return;
-      if (showWizard || showReview || showPhaseModal || showConference ||
+      if (showWizard || showReview || showReport || showPhaseModal || showConference ||
           showIPO || showVictory || showRemaster || showPublisher ||
           pendingEvent || eventConsequence) return;
 
@@ -562,6 +599,14 @@ function App() {
         <ReviewScreen
           game={reviewGame}
           onClose={handleReviewClose}
+        />
+      )}
+
+      {showReport && reportData && (
+        <GameReportPanel
+          game={reportData.game}
+          report={reportData.report}
+          onClose={handleReportClose}
         />
       )}
 

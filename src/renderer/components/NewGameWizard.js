@@ -24,13 +24,16 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
 
-  // Topic unlock logic — Tier 1 always available, Tier 2 at Small Office, Tier 3 via research
+  // Topic unlock logic — 6 tiers keyed to progression milestones
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;
     if (t.tier === 1) return true;
-    if (t.tier === 2) return (state.level || 0) >= 1;
-    if (t.tier === 3) {
-      if ((state.level || 0) < 2) return false;
+    if (t.tier === 2) return state.staff.length >= 2;
+    if (t.tier === 3) return (state.level || 0) >= 1;
+    if (t.tier === 4) return (state.level || 0) >= 2;
+    if (t.tier === 5) return state.games.length >= 5;
+    if (t.tier === 6) {
+      if ((state.level || 0) < 3) return false;
       if (!t.researchCategory) return true;
       const completedInCat = Object.keys(
         (typeof researchSystem !== 'undefined' && researchSystem.completed) ? researchSystem.completed : {}
@@ -45,6 +48,10 @@ function NewGameWizard({ state, onStart, onCancel }) {
 
   const unlockedTopics = TOPICS.filter(t => isTopicUnlocked(t));
   const totalTopics = TOPICS.length;
+
+  // Gate: show compatibility only after 5 games shipped + Market Research completed
+  const showCompat = state.devMode || (state.games.length >= 5 &&
+    typeof researchSystem !== 'undefined' && researchSystem.completed && researchSystem.completed['ux_market_research']);
 
   // Compatibility indicator
   const getCompat = (val) => {
@@ -253,10 +260,12 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     style={{ padding: '14px', position: 'relative' }}
                   >
                     <div style={{ fontWeight: 600, fontSize: '14px' }}>{g}</div>
-                    {compat && (
+                    {showCompat && compat ? (
                       <div style={{ fontSize: '12px', color: compat.color, marginTop: '4px' }}>
                         {compat.label}
                       </div>
+                    ) : (
+                      <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
                     )}
                   </div>
                 );
@@ -289,7 +298,11 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     style={{ flex: 1, padding: '12px' }}
                   >
                     <div style={{ fontWeight: 600 }}>{a}</div>
-                    {compat && <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>}
+                    {showCompat && compat ? (
+                      <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>
+                    ) : (
+                      <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
+                    )}
                   </div>
                 );
               })}
@@ -347,7 +360,11 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     </div>
                     <div style={{ fontSize: '11px', color: '#8b949e' }}>{p.company}</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                      {compat && <span style={{ fontSize: '11px', color: compat.color }}>{compat.label}</span>}
+                      {showCompat && compat ? (
+                        <span style={{ fontSize: '11px', color: compat.color }}>{compat.label}</span>
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
+                      )}
                       <span style={{ fontSize: '11px', color: '#8b949e' }}>${(p.licenseFee/1000).toFixed(0)}K</span>
                     </div>
                   </div>

@@ -34,7 +34,8 @@ const RESEARCH_ITEMS = [
   { id: 'aud_voice_synth',    name: 'Voice Synthesis',          category: 'Audio',        techLevel: 9,  cost: 55000,  durationWeeks: 8,  description: 'AI-generated voice acting for unlimited dialogue.' },
   { id: 'aud_ambisonics',     name: 'Ambisonics Engine',        category: 'Audio',        techLevel: 12, cost: 70000,  durationWeeks: 10, description: 'Full-sphere surround sound for VR and cinema audio.' },
 
-  // ── UX (5 items) ──────────────────────────────────────────────
+  // ── UX (6 items) ──────────────────────────────────────────────
+  { id: 'ux_market_research', name: 'Market Research',          category: 'UX',           techLevel: 1,  cost: 8000,   durationWeeks: 3,  description: 'Analyze market data to reveal topic/genre/audience compatibility ratings.' },
   { id: 'ux_tutorials',       name: 'Smart Tutorials',          category: 'UX',           techLevel: 2,  cost: 10000,  durationWeeks: 3,  description: 'Context-aware tutorials that adapt to player skill.' },
   { id: 'ux_accessibility',   name: 'Accessibility Suite',      category: 'UX',           techLevel: 4,  cost: 20000,  durationWeeks: 5,  description: 'Colorblind modes, subtitles, remappable controls.' },
   { id: 'ux_analytics',       name: 'Player Analytics',         category: 'UX',           techLevel: 6,  cost: 30000,  durationWeeks: 6,  description: 'Track player behavior to optimize game design.' },

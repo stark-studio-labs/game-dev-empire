@@ -9,7 +9,12 @@ class GameEngine {
     this.tickInterval = null;
     this.speed = 0; // 0=paused, 1=1x, 2=2x, 4=4x, 8=8x
     this.listeners = [];
-    this.TICK_MS = 5000; // base tick speed in ms (1x) — 1 year ≈ 4 min for deliberate pacing
+    this.TICK_MS = 5000; // legacy default — use getTickMs() instead
+  }
+
+  /** Dynamic tick speed: slower at level 0-1 for early-game pacing */
+  getTickMs() {
+    return (this.state && this.state.level <= 1) ? 7000 : 5000;
   }
 
   /** Date string helper for finance records */
@@ -90,6 +95,11 @@ class GameEngine {
 
       // Office upgrade offered
       upgradeAvailable: false,
+
+      // Bug-fixing polish phase
+      bugs: 0,
+      bugsInitial: 0,
+      finishingPhase: false,
 
       // Pending event for UI
       pendingEvent: null,
@@ -223,7 +233,7 @@ class GameEngine {
       this.tickInterval = null;
     }
     if (speed > 0) {
-      const ms = this.TICK_MS / speed;
+      const ms = this.getTickMs() / speed;
       this.tickInterval = setInterval(() => this.tick(), ms);
     }
     this._emit();
@@ -528,6 +538,19 @@ class GameEngine {
   /** Process one development tick */
   _devTick() {
     const s = this.state;
+
+    // Polish phase: auto-remove bugs
+    if (s.finishingPhase) {
+      s.bugs = Math.max(0, s.bugs - 5);
+      s.devProgress = Math.round(((s.bugsInitial - s.bugs) / Math.max(s.bugsInitial, 1)) * 100);
+      if (s.bugs <= 0) {
+        s.finishingPhase = false;
+        this._releaseGame();
+      }
+      this._emit();
+      return;
+    }
+
     const phase = DEV_PHASES[s.devPhase];
     const sizeData = GAME_SIZES[s.currentGame.size];
     const platformMult = s.currentGame.platformMultiplier || 1;
@@ -579,8 +602,13 @@ class GameEngine {
         this.setSpeed(0); // Pause the game
         this._notify(`Phase ${s.devPhase + 1} complete! Set focus for Phase ${s.devPhase + 2}.`);
       } else {
-        // Development complete — release the game
-        this._releaseGame();
+        // Enter Polish phase — visual bug-fixing before release
+        s.devPhase = 3;
+        s.devProgress = 0;
+        s.finishingPhase = true;
+        s.bugs = Math.max(5, Math.floor(20 + Math.random() * 15));
+        s.bugsInitial = s.bugs;
+        this._notify('Entering Polish phase: ' + s.bugs + ' bugs to squash!');
       }
     }
   }
@@ -712,6 +740,7 @@ class GameEngine {
       fansGained: newFans,
       releaseYear: s.year,
       releaseMonth: s.month,
+      breakdown: scoreResult.breakdown,
     };
 
     s.games.push(completedGame);

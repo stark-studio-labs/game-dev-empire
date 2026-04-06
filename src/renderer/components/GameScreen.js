@@ -21,6 +21,30 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
     prevLevelRef.current = state.level;
   }, [state.level]);
 
+  const [bubbles, setBubbles] = React.useState([]);
+  const bubbleIdRef = React.useRef(0);
+
+  React.useEffect(() => {
+    if (!state.currentGame || state.devPhase === null || state.finishingPhase) {
+      setBubbles([]); return;
+    }
+    const interval = setInterval(() => {
+      const newBubbles = state.staff.map(member => {
+        const type = Math.random() < 0.15 ? 'bug' : Math.random() < 0.5 ? 'design' : 'tech';
+        const label = type === 'design' ? 'D' : type === 'tech' ? 'T' : '!';
+        return { id: bubbleIdRef.current++, staffId: member.id, type, label };
+      });
+      setBubbles(prev => [...prev.slice(-30), ...newBubbles]);
+    }, 1200);
+    return () => clearInterval(interval);
+  }, [state.currentGame, state.devPhase, state.finishingPhase, state.staff.length]);
+
+  React.useEffect(() => {
+    if (bubbles.length === 0) return;
+    const timer = setTimeout(() => setBubbles(prev => prev.slice(state.staff.length)), 1500);
+    return () => clearTimeout(timer);
+  }, [bubbles.length]);
+
   const formatCash = (n) => {
     if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
@@ -56,13 +80,32 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
                   {member.role && (
                     <div className="gs-staff-role">{getRoleName(member.role)}</div>
                   )}
+                  {bubbles.filter(b => b.staffId === member.id).map(b => (
+                    <span key={b.id} className={`skill-bubble skill-bubble--${b.type}`}>{b.label}</span>
+                  ))}
                 </div>
               );
             })}
           </div>
 
+          {/* Polish phase — bug-fixing before release */}
+          {state.finishingPhase && (
+            <div className="glass-card gs-info-card">
+              <div className="panel-header" style={{ marginBottom: '4px', color: 'var(--color-warning)' }}>
+                Polishing
+              </div>
+              <div className="gs-info-title">Fixing Bugs...</div>
+              <div className="gs-info-sub">
+                {state.bugs} bugs remaining (started with {state.bugsInitial})
+              </div>
+              <div className="progress-bar" style={{ height: '8px' }}>
+                <div className="progress-fill" style={{ width: `${state.devProgress}%`, background: 'linear-gradient(90deg, var(--color-warning), var(--color-success))' }} />
+              </div>
+            </div>
+          )}
+
           {/* Current activity */}
-          {state.currentGame && (
+          {state.currentGame && !state.finishingPhase && (
             <div className="glass-card gs-info-card">
               <div className="panel-header" style={{ marginBottom: '4px' }}>
                 Now Developing
@@ -80,14 +123,14 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
                     <span className={`gs-phase-label ${i === state.devPhase ? 'gs-phase-label--active' : ''}`}>
                       {phase.name}
                     </span>
-                    {i < 2 && <div className={`gs-phase-line ${i < state.devPhase ? 'gs-phase-line--complete' : ''}`} />}
+                    {i < (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length - 1 : 2) && <div className={`gs-phase-line ${i < state.devPhase ? 'gs-phase-line--complete' : ''}`} />}
                   </React.Fragment>
                 ))}
               </div>
 
               {/* Progress bar */}
               <div className="progress-bar" style={{ height: '8px' }}>
-                <div className="progress-fill" style={{ width: `${(state.devPhase * 100 + state.devProgress) / 3}%` }} />
+                <div className="progress-fill" style={{ width: `${(state.devPhase * 100 + state.devProgress) / (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length : 4)}%` }} />
               </div>
 
               {/* D/T points */}
