@@ -135,9 +135,23 @@ const Scoring = {
     const modifiers = 1 + dtBalance + timeMgmt;
     const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult * sequelMult;
 
+    // Build per-aspect ratings for the research report
+    const aspectNames = DEV_PHASES.flatMap(p => p.aspects);
+    const importance = GENRE_IMPORTANCE[genre] || [];
+    const aspectRatings = aspectNames.map((name, i) => {
+      const imp = importance[i] || 0.5;
+      const pct = (sliders && sliders[i]) || 0;
+      let rating = 'neutral';
+      if (imp >= 0.9 && pct >= 40) rating = 'good';
+      else if (imp >= 0.9 && pct < 20) rating = 'bad';
+      else if (imp <= 0.1 && pct <= 20) rating = 'good';
+      else if (imp <= 0.1 && pct > 40) rating = 'bad';
+      return { name, importance: imp, rating };
+    });
+
     return {
       gameScore: Math.max(0, gameScore),
-      breakdown: { rawPoints, dtBalance, timeMgmt, topicGenre, topicAud, platGenre, bugs, sequelMult },
+      breakdown: { rawPoints, dtBalance, timeMgmt, topicGenre, topicAud, platGenre, bugs, sequelMult, aspectRatings },
     };
   },
 

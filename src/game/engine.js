@@ -740,6 +740,7 @@ class GameEngine {
       fansGained: newFans,
       releaseYear: s.year,
       releaseMonth: s.month,
+      breakdown: scoreResult.breakdown,
     };
 
     s.games.push(completedGame);

@@ -29,6 +29,8 @@ function App() {
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
   const [publisherGame, setPublisherGame] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+  const [reportData, setReportData] = useState(null);
   const [pendingEvent, setPendingEvent] = useState(null);
   const [eventConsequence, setEventConsequence] = useState(null);
   const [reviewGame, setReviewGame] = useState(null);
@@ -227,11 +229,29 @@ function App() {
 
   const handleReviewClose = () => {
     setShowReview(false);
-    // After closing review, show publisher panel for the just-released game
-    if (reviewGame) {
-      setPublisherGame(reviewGame);
+    // Generate and show research report before publisher panel
+    if (reviewGame && typeof gameReportGenerator !== 'undefined') {
+      const report = gameReportGenerator.generateReport(reviewGame, gameState.games.length);
+      setReportData({ game: reviewGame, report });
+      setShowReport(true);
+    } else {
+      // Fallback: skip report, go to publisher
+      if (reviewGame) {
+        setPublisherGame(reviewGame);
+        setShowPublisher(true);
+      }
+      setReviewGame(null);
+    }
+  };
+
+  const handleReportClose = () => {
+    setShowReport(false);
+    // Now show publisher panel
+    if (reportData && reportData.game) {
+      setPublisherGame(reportData.game);
       setShowPublisher(true);
     }
+    setReportData(null);
     setReviewGame(null);
   };
 
@@ -334,7 +354,7 @@ function App() {
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
       showVerticals || showStoryteller || showTimeline || showCompetitors ||
-      showKeyboardHelp || showWizard || showReview || showPhaseModal || showConference ||
+      showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
     const handleKey = (e) => {
@@ -349,7 +369,7 @@ function App() {
 
       // Ignore remaining shortcuts if a blocking modal is open
       if (screen !== 'game') return;
-      if (showWizard || showReview || showPhaseModal || showConference ||
+      if (showWizard || showReview || showReport || showPhaseModal || showConference ||
           showIPO || showVictory || showRemaster || showPublisher ||
           pendingEvent || eventConsequence) return;
 
@@ -579,6 +599,14 @@ function App() {
         <ReviewScreen
           game={reviewGame}
           onClose={handleReviewClose}
+        />
+      )}
+
+      {showReport && reportData && (
+        <GameReportPanel
+          game={reportData.game}
+          report={reportData.report}
+          onClose={handleReportClose}
         />
       )}
 
