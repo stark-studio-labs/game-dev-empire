@@ -25,6 +25,7 @@ function App() {
   const [showIPO, setShowIPO] = useState(false);
   const [showVictory, setShowVictory] = useState(false);
   const [showCompetitors, setShowCompetitors] = useState(false);
+  const [showEngineBuilder, setShowEngineBuilder] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -38,6 +39,9 @@ function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(0);
   const [showPhaseModal, setShowPhaseModal] = useState(false);
   const [devMode, setDevMode] = useState(settingsSystem.devMode);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState(null);
 
   // Micro-animation states
   const [screenShake, setScreenShake] = React.useState(false);
@@ -226,6 +230,24 @@ function App() {
 
   const handleUpgrade = () => {
     engine.upgradeOffice();
+  };
+
+  const handleOfficeClick = (x, y) => {
+    setContextMenu({ x, y });
+  };
+
+  const handleContextAction = (action) => {
+    switch (action) {
+      case 'newGame': handleNewGame(); break;
+      case 'staff': setShowStaff(true); break;
+      case 'finance': setShowFinance(true); break;
+      case 'marketing': setShowMarketing(true); break;
+      case 'research': setShowResearch(true); break;
+      case 'training': setShowTraining(true); break;
+      case 'market': setShowMarket(true); break;
+      case 'settings': setShowSettings(true); break;
+      default: break;
+    }
   };
 
   const handleReviewClose = () => {
@@ -567,6 +589,8 @@ function App() {
         showVictory={showVictory}
         onToggleCompetitors={() => setShowCompetitors(v => !v)}
         showCompetitors={showCompetitors}
+        onToggleEngineBuilder={() => setShowEngineBuilder(v => !v)}
+        showEngineBuilder={showEngineBuilder}
         onToggleHistory={() => setShowHistory(v => !v)}
         showHistory={showHistory}
         onToggleSettings={() => setShowSettings(v => !v)}
@@ -580,6 +604,7 @@ function App() {
         onStaff={() => setShowStaff(true)}
         onUpgrade={handleUpgrade}
         fanMilestoneGlow={fanMilestoneGlow}
+        onOfficeClick={handleOfficeClick}
       />
 
       {showWizard && gameState && (
@@ -713,6 +738,13 @@ function App() {
         />
       )}
 
+      {showEngineBuilder && gameState && (
+        <EngineBuilderPanel
+          state={gameState}
+          onClose={() => setShowEngineBuilder(false)}
+        />
+      )}
+
       {showPublisher && publisherGame && gameState && (
         <PublisherPanel
           state={gameState}
@@ -765,6 +797,17 @@ function App() {
       )}
 
       <TutorialOverlay />
+
+      {/* Office context menu */}
+      {contextMenu && gameState && (
+        <OfficeContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          state={gameState}
+          onAction={handleContextAction}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
 
       {/* Global Toast notifications */}
       <ToastContainer />
