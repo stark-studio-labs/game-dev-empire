@@ -146,20 +146,23 @@ const Scoring = {
    * Uses GDT's relative scoring: compared to personal best.
    */
   computeReviewScores(gameScore, topScore, topScoreDelta, currentYear) {
-    // Target Game Score
+    // Target Game Score — sets the bar for a "perfect" review
+    // First game TGS must be high enough that a mediocre game scores 4-6, not 9+
     let tgs;
     if (topScore <= 0) {
-      tgs = 20;
+      tgs = 80;  // Was 20 — far too low, every first game hit 9.5+
     } else {
       const yearMod = 1 + (currentYear - 1) * 0.02;
       tgs = topScore + topScoreDelta * yearMod;
     }
 
     let baseScore;
-    if (gameScore >= tgs) {
-      baseScore = 9.5;
+    if (gameScore >= tgs * 1.2) {
+      baseScore = 9.5;  // Exceptional — well above target
+    } else if (gameScore >= tgs) {
+      baseScore = 7.5 + 2.0 * ((gameScore - tgs) / (tgs * 0.2));  // 7.5-9.5 range
     } else {
-      baseScore = Math.max(1, 9.5 * (gameScore / tgs));
+      baseScore = Math.max(1, 7.5 * (gameScore / tgs));  // Scale 1-7.5
     }
 
     // Generate 4 reviewer scores with slight randomization

@@ -47,6 +47,8 @@ function App() {
   const wasPublicRef = useRef(false);
   // Track market crash events
   const lastEventIdRef = useRef(null);
+  // Prevent review from re-triggering after close (fixes infinite loop)
+  const lastReviewedGameRef = useRef(null);
 
   // Track which features have been unlocked (to show toast only once)
   const unlockedFeaturesRef = useRef({
@@ -86,12 +88,11 @@ function App() {
       // Check if a game was just released (games array grew + we're paused)
       if (state.games.length > 0 && engine.speed === 0) {
         const latest = state.games[state.games.length - 1];
-        if (latest && latest !== reviewGame && !showReview) {
-          // Only show review if this is a newly released game
-          if (!reviewGame || latest.title !== reviewGame.title) {
-            setReviewGame(latest);
-            setShowReview(true);
-          }
+        // Only show review for a genuinely NEW game we haven't already reviewed
+        if (latest && !showReview && latest !== lastReviewedGameRef.current) {
+          setReviewGame(latest);
+          setShowReview(true);
+          lastReviewedGameRef.current = latest;
         }
       }
 
