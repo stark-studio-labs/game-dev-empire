@@ -58,6 +58,10 @@ function App() {
     marketing: false,
     training: false,
     morale: false,
+    tier2: false,
+    tier3: false,
+    tier4: false,
+    tier5: false,
   });
 
   // Check for newly unlocked features and show toast
@@ -77,6 +81,19 @@ function App() {
       if (condition && !unlockedFeaturesRef.current[key]) {
         unlockedFeaturesRef.current[key] = true;
         showToast(`${label} unlocked!`, 'success', 5000);
+      }
+    }
+
+    const tierChecks = {
+      tier2: { condition: state.staff.length >= 2, label: 'New Topics Unlocked (Tier 2)' },
+      tier3: { condition: state.level >= 1, label: 'New Topics Unlocked (Tier 3)' },
+      tier4: { condition: state.level >= 2, label: 'New Topics Unlocked (Tier 4)' },
+      tier5: { condition: state.games.length >= 5, label: 'New Topics Unlocked (Tier 5)' },
+    };
+    for (const [key, { condition, label }] of Object.entries(tierChecks)) {
+      if (condition && !unlockedFeaturesRef.current[key]) {
+        unlockedFeaturesRef.current[key] = true;
+        showToast(label, 'success', 5000);
       }
     }
   }, [devMode]);

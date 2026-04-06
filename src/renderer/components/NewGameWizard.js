@@ -24,13 +24,16 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const availableSizes = engine.getAvailableSizes();
   const availablePlatforms = state.availablePlatforms || [];
 
-  // Topic unlock logic — Tier 1 always available, Tier 2 at Small Office, Tier 3 via research
+  // Topic unlock logic — 6 tiers keyed to progression milestones
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;
     if (t.tier === 1) return true;
-    if (t.tier === 2) return (state.level || 0) >= 1;
-    if (t.tier === 3) {
-      if ((state.level || 0) < 2) return false;
+    if (t.tier === 2) return state.staff.length >= 2;
+    if (t.tier === 3) return (state.level || 0) >= 1;
+    if (t.tier === 4) return (state.level || 0) >= 2;
+    if (t.tier === 5) return state.games.length >= 5;
+    if (t.tier === 6) {
+      if ((state.level || 0) < 3) return false;
       if (!t.researchCategory) return true;
       const completedInCat = Object.keys(
         (typeof researchSystem !== 'undefined' && researchSystem.completed) ? researchSystem.completed : {}
