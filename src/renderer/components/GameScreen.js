@@ -1,6 +1,8 @@
 /**
  * GameScreen — Main game view with office, staff, actions, notifications, game history
  */
+const AVATAR_EMOJIS = ['😎', '🧑‍💻', '👩‍💻', '🎮', '🚀', '🎯', '🧠', '🎨', '⚡', '🔥', '💎', '🌟'];
+
 function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) {
   if (!state) return null;
 
@@ -71,7 +73,9 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
               return (
                 <div key={member.id} className="gs-staff-item">
                   <div className={avatarClasses.join(' ')}>
-                    {member.name.charAt(0)}
+                    {member.avatarId !== undefined && typeof AVATAR_EMOJIS !== 'undefined'
+                      ? AVATAR_EMOJIS[member.avatarId] || member.name.charAt(0)
+                      : member.name.charAt(0)}
                     {member.role && ROLE_ICONS[member.role] && (
                       <img src={ROLE_ICONS[member.role]} alt="" className="gs-role-badge" />
                     )}

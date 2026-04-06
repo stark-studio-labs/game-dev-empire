@@ -466,6 +466,7 @@ function App() {
 
         {/* New Game */}
         <div className="glass-card" style={{ padding: '32px', width: '360px', marginBottom: '16px' }}>
+          <AvatarSelect selected={selectedAvatar} onSelect={setSelectedAvatar} />
           <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
             Company Name
           </label>

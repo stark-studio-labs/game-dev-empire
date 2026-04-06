@@ -24,7 +24,8 @@ class GameEngine {
   }
 
   /** Create a new game state */
-  newGame(companyName) {
+  newGame(companyName, avatarId) {
+    this._pendingAvatarId = avatarId || 0;
     finance.reset();
     franchiseTracker.reset();
     moraleSystem.reset();
@@ -47,6 +48,7 @@ class GameEngine {
     competitorSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
+      avatarId: avatarId || 0,
       cash: 70000,
       fans: 0,
       level: 0, // index into OFFICE_LEVELS
@@ -928,6 +930,7 @@ class GameEngine {
       salary: 0,
       isFounder: true,
       gamesWorked: 0,
+      avatarId: this._pendingAvatarId || 0,
     };
     founder.role = assignStaffRole(founder);
     return founder;
