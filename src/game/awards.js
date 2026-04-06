@@ -36,10 +36,11 @@ class AwardSystem {
       nominees.push({ title: compNames[Math.floor(Math.random() * compNames.length)], score: compScore, isPlayer: false });
       nominees.sort((a, b) => b.score - a.score);
 
-      const winner = nominees[0];
+      const displayNominees = nominees.slice(0, 4); // show all 4 including competitor
+      const winner = displayNominees[0];
       ceremony.categories.push({
         ...cat,
-        nominees: nominees.slice(0, 3),
+        nominees: displayNominees,
         winner: winner,
         playerWon: winner.isPlayer,
       });

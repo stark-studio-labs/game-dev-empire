@@ -295,10 +295,8 @@ class GameEngine {
         s.month = 1;
         s.year++;
       }
-      // Monthly costs
+      // Monthly costs (includes vertical tick)
       this._monthlyExpenses();
-      // Vertical revenue tick
-      this._verticalTick();
       // Competitor studios release games
       this._competitorTick();
     }
@@ -343,6 +341,15 @@ class GameEngine {
 
     // Contract system refresh (every 4 weeks)
     contractSystem.refreshContracts(s);
+
+    // Contract deadline enforcement
+    if (contractSystem.activeContract && contractSystem.activeContract.acceptedWeek != null) {
+      const elapsed = s.totalWeeks - contractSystem.activeContract.acceptedWeek;
+      if (elapsed > contractSystem.activeContract.deadline) {
+        this._notify('Contract expired! ' + contractSystem.activeContract.publisher + ' is disappointed.');
+        contractSystem.activeContract = null;
+      }
+    }
 
     // Hardware sales tick (only if player has consoles)
     if (s.level >= 3) {
@@ -1242,8 +1249,9 @@ class GameEngine {
 
   _notify(msg) {
     if (!this.state) return;
+    this._notifyId = (this._notifyId || 0) + 1;
     this.state.notifications.push({
-      id: Date.now(),
+      id: this._notifyId,
       message: msg,
       time: `Y${this.state.year} M${this.state.month} W${this.state.week}`,
     });

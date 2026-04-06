@@ -1,6 +1,6 @@
 # Tech Empire -- Automated Test Results
 
-**Date:** 2026-04-05 21:58:26
+**Date:** 2026-04-05 23:00:47
 **Method:** Chrome DevTools Protocol (CDP) against live game instance
 **Total Tests:** 103
 **Passed:** 103
@@ -62,15 +62,15 @@
 |--------|------|--------|
 | PASS | At least 1 game released | games count: 1 |
 | PASS | Game has avgScore between 1-10 | reviewAvg = 9.8 |
-| PASS | Revenue is positive | totalRevenue = 122815 |
-| PASS | Fans gained on release | fansGained = 50250 |
+| PASS | Revenue is positive | totalRevenue = 97823 |
+| PASS | Fans gained on release | fansGained = 50178 |
 | PASS | Sequel modifier applies for same title | sequel multiplier = 1.0499999999999998 |
 
 ## Financial (10/10 PASS)
 
 | Status | Test | Detail |
 |--------|------|--------|
-| PASS | Cash changed from initial $70K after release | cash = 100704 |
+| PASS | Cash changed from initial $70K after release | cash = 94456 |
 | PASS | Monthly expenses function exists |  |
 | PASS | Salary/rent transactions recorded after month tick | salary/rent records = 0 |
 | PASS | Tax system tick function exists |  |
@@ -95,7 +95,7 @@
 | PASS | fireStaff() removes non-founder | got True |
 | PASS | Staff count is 1 after fire | got 1 |
 | PASS | Cannot fire founder | got False |
-| PASS | Energy system tracks founder energy | energy = 100 |
+| PASS | Energy system tracks founder energy | energy = 91 |
 
 ## System Integration (16/16 PASS)
 
@@ -106,7 +106,7 @@
 | PASS | 5 victory paths loaded | got 5 |
 | PASS | Victory path IDs match expected | got ['brand_empire', 'innovation_leader', 'market_dominator', 'financial_titan', 'industry_kingmaker'] |
 | PASS | Storyteller loaded with dramaScore property |  |
-| PASS | Drama score is a number 0-100 | dramaScore = 99 |
+| PASS | Drama score is a number 0-100 | dramaScore = 84.57910399999999 |
 | PASS | Timeline events exist (20+) | got 29 |
 | PASS | Conferences defined (3) | got 3 |
 | PASS | IPO system loaded |  |
@@ -133,8 +133,8 @@
 | Status | Test | Detail |
 |--------|------|--------|
 | PASS | After release, sellingGame exists | got True |
-| PASS | salesWeeksLeft is positive after release | got 7 |
-| PASS | salesWeeksLeft decreases after tick | before=7, after=6 |
+| PASS | salesWeeksLeft is positive after release | got 9 |
+| PASS | salesWeeksLeft decreases after tick | before=9, after=8 |
 | PASS | Sales eventually complete (sellingGame becomes null) | salesWeeksLeft=0 |
 
 ## Victory Balance (5/5 PASS)

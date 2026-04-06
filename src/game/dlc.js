@@ -25,6 +25,9 @@ class DLCSystem {
     const cost = this.getDLCCost(game);
     if (state.cash < cost) return { success: false, reason: 'Insufficient funds' };
     state.cash -= cost;
+    if (typeof finance !== 'undefined') {
+      finance.record('dev_cost', -cost, dlcName + ' (DLC Dev)', '');
+    }
     state.activeDLC = {
       baseGame: game.title,
       dlcName: dlcName,
