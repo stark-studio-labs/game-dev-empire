@@ -47,6 +47,23 @@ function MarketPanel({ state, onClose }) {
           </button>
         </div>
 
+        {/* Active Market Event */}
+        {typeof storyteller !== 'undefined' && storyteller.getActiveMarketEvent() && (() => {
+          const evt = storyteller.getActiveMarketEvent();
+          const weeksLeft = evt.endWeek - (state.totalWeeks || 0);
+          return (
+            <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px', borderColor: 'rgba(255,166,87,0.3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffa657' }}>{evt.badge} {evt.title}</div>
+                  <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '2px' }}>{evt.effect}</div>
+                </div>
+                <div style={{ fontSize: '11px', color: '#8b949e' }}>{weeksLeft}w left</div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Market Sentiment Card */}
         <div className="glass-card" style={{ padding: '20px', marginBottom: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

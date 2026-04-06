@@ -4,60 +4,21 @@
  */
 
 const TUTORIAL_STEPS = [
-  {
-    id: 'welcome',
-    message: "Welcome to Tech Empire! You're starting in a garage with $70K and a dream. Let's make your first game.",
-    target: null,
-    position: 'center',
-  },
-  {
-    id: 'new_game',
-    message: "Click 'Create New Game' to start developing your first title.",
-    target: '.btn-accent',
-    position: 'bottom',
-  },
-  {
-    id: 'topic',
-    message: "Pick a topic -- this affects what audience your game appeals to. Some topics work better with certain genres.",
-    target: '.selection-grid',
-    position: 'right',
-  },
-  {
-    id: 'genre',
-    message: "Choose a genre -- some genre + topic combos are golden. RPG + Fantasy? Chef's kiss. Casual + Military? Not so much.",
-    target: '.selection-grid',
-    position: 'right',
-  },
-  {
-    id: 'sliders',
-    message: "Set your development focus -- balance Design and Tech for your genre. Action games need more Tech; Adventure games need more Design.",
-    target: null,
-    position: 'center',
-  },
-  {
-    id: 'dev_phases',
-    message: "Watch your game develop through 3 phases. Use the speed controls to speed up or pause anytime.",
-    target: '.speed-btn',
-    position: 'bottom',
-  },
-  {
-    id: 'reviews',
-    message: "Review scores are in! Higher scores = more sales = more fans. Aim for 7+ to build momentum.",
-    target: null,
-    position: 'center',
-  },
-  {
-    id: 'grow',
-    message: "Use your profits to hire staff, research new tech, and grow your studio. Check the top bar icons for Market, Research, Morale, and Finance panels.",
-    target: null,
-    position: 'center',
-  },
-  {
-    id: 'good_luck',
-    message: "Good luck, CEO! Build your tech empire. Remember: great games need the right topic + genre combo, balanced sliders, and a talented team.",
-    target: null,
-    position: 'center',
-  },
+  { id: 'welcome', message: 'Welcome to Tech Empire! You\'re about to build a game development studio from scratch. Let\'s make your first game together.', target: null, position: 'center' },
+  { id: 'pick_avatar', message: 'First, choose an avatar that represents you as CEO.', target: null, position: 'center' },
+  { id: 'name_studio', message: 'Name your studio. This is your brand — make it memorable!', target: 'input[type="text"]', position: 'bottom' },
+  { id: 'start_game', message: 'Click "New Game" to start your first project. In the early days, you do everything yourself.', target: '.btn-accent', position: 'bottom' },
+  { id: 'pick_title', message: 'Give your game a title. Something catchy!', target: 'input[type="text"]', position: 'bottom' },
+  { id: 'pick_topic', message: 'Choose a topic for your game. Start with something familiar — you\'ll unlock more topics as you grow.', target: null, position: 'center' },
+  { id: 'pick_genre', message: 'Now pick a genre. Some topics work better with certain genres — you\'ll discover the best combinations through experience.', target: null, position: 'center' },
+  { id: 'pick_platform', message: 'Select a platform to release on. Each platform has different audiences and market conditions.', target: null, position: 'center' },
+  { id: 'explain_sliders', message: 'These sliders control where your team focuses during development. Each game genre has different priorities — experiment to find what works!', target: null, position: 'center' },
+  { id: 'watch_dev', message: 'Development is underway! Watch the Design and Tech bubbles appear as your team works. Use the speed controls to fast-forward.', target: null, position: 'bottom' },
+  { id: 'phase_break', message: 'Between phases, you can adjust your focus. Try different allocations to see what produces the best results.', target: null, position: 'center' },
+  { id: 'reviews', message: 'Your game is done! Four critics will review it. Early games usually score 4-7 — don\'t worry, you\'ll improve with experience.', target: null, position: 'center' },
+  { id: 'game_report', message: 'This research report shows what worked and what didn\'t. Pay attention — these insights will help you make better games.', target: null, position: 'center' },
+  { id: 'growing', message: 'Great start! As you ship more games, you\'ll unlock new topics, features, and business opportunities. Hire staff to grow your studio.', target: null, position: 'center' },
+  { id: 'good_luck', message: 'You\'re on your own now! Press ? anytime for keyboard shortcuts. Good luck building your empire!', target: null, position: 'center' },
 ];
 
 /**
@@ -157,6 +118,9 @@ class TutorialSystem {
       total: TUTORIAL_STEPS.length,
     };
   }
+
+  /** Check if tutorial is currently active */
+  isActive() { return this.active; }
 }
 
 // Global instance

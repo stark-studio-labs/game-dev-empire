@@ -12,6 +12,9 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const [size, setSize] = React.useState('Small');
   const [selectedEngine, setSelectedEngine] = React.useState(null);
 
+  const isTutorial = typeof tutorialSystem !== 'undefined' && tutorialSystem.isActive && tutorialSystem.isActive();
+  const tutorialTopics = ['Fantasy', 'Sci-Fi', 'Sports'];
+
   const canMultiPlatform = (state.level || 0) >= 3 || state.devMode;
   const togglePlatform = (id) => {
     setPlatformIds(prev => {
@@ -51,7 +54,9 @@ function NewGameWizard({ state, onStart, onCancel }) {
     return true;
   };
 
-  const unlockedTopics = TOPICS.filter(t => isTopicUnlocked(t));
+  const unlockedTopics = isTutorial
+    ? TOPICS.filter(t => tutorialTopics.includes(t.name))
+    : TOPICS.filter(t => isTopicUnlocked(t));
   const totalTopics = TOPICS.length;
 
   // Gate: show compatibility only after 5 games shipped + Market Research completed

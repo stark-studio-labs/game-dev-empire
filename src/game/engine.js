@@ -40,6 +40,7 @@ class GameEngine {
     notificationManager.reset();
     verticalManager.reset();
     storyteller.reset();
+    if (typeof handbookSystem !== 'undefined') handbookSystem.reset();
     personalitySystem.reset();
     techTimeline.reset();
     ipoSystem.reset();
@@ -48,6 +49,8 @@ class GameEngine {
     competitorSystem.reset();
     engineBuilderSystem.reset();
     contractSystem.reset();
+    dlcSystem.reset();
+    awardSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       avatarId: avatarId || 0,
@@ -146,6 +149,12 @@ class GameEngine {
       // Research Points currency
       researchPoints: 0,
       unlockedTopics: [], // topic names manually unlocked with RP
+
+      // DLC system
+      activeDLC: null,
+
+      // Awards system
+      pendingAwards: null,
     };
 
     this._updateAvailablePlatforms();
@@ -181,6 +190,9 @@ class GameEngine {
         competitorSystem.deserialize(this.state._competitors || null);
         engineBuilderSystem.deserialize(this.state._engineBuilder || null);
         contractSystem.deserialize(this.state._contracts || null);
+        dlcSystem.deserialize(this.state._dlc || null);
+        awardSystem.deserialize(this.state._awards || null);
+        if (typeof handbookSystem !== 'undefined') handbookSystem.deserialize(this.state._handbook || null);
         // Migrate: assign roles to staff from older saves
         if (this.state.staff) {
           for (const member of this.state.staff) {
@@ -193,6 +205,9 @@ class GameEngine {
         // Migrate: Genre mastery (added in sprint-3)
         if (!this.state.genreMastery) this.state.genreMastery = {};
         if (!this.state.unlockedTopics) this.state.unlockedTopics = [];
+        // Migrate: DLC and awards (added in sprint-4)
+        if (this.state.activeDLC === undefined) this.state.activeDLC = null;
+        if (this.state.pendingAwards === undefined) this.state.pendingAwards = null;
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -228,6 +243,9 @@ class GameEngine {
       this.state._competitors = competitorSystem.serialize();
       this.state._engineBuilder = engineBuilderSystem.serialize();
       this.state._contracts = contractSystem.serialize();
+      this.state._dlc = dlcSystem.serialize();
+      this.state._awards = awardSystem.serialize();
+      if (typeof handbookSystem !== 'undefined') this.state._handbook = handbookSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -445,11 +463,34 @@ class GameEngine {
       s.negativeWeeks = 0;
     }
 
+    // DLC system tick
+    const dlcResult = dlcSystem.tickDLC(s);
+    if (dlcResult) {
+      this._notify('DLC "' + dlcResult.dlcName + '" released! Revenue: $' + dlcResult.revenue.toLocaleString());
+    }
+
     // Moonshot project tick (weekly)
     const moonshotResult = victorySystem.tick(s);
     if (moonshotResult && moonshotResult.completed) {
       this._notify(`MOONSHOT COMPLETE: ${moonshotResult.name}!`);
       notificationManager.add('info', 'Moonshot Complete', `${moonshotResult.name} — a breakthrough that will reshape the industry.`, s);
+    }
+
+    // Market events: tick active event expiry + evaluate new event at year-end
+    if (typeof storyteller !== 'undefined') {
+      storyteller.tickMarketEvent(s);
+      if (s.month === 12 && s.week === 4) {
+        const mktEvent = storyteller.evaluateMarketEvent(s);
+        if (mktEvent) {
+          this._notify(mktEvent.badge + ' ' + mktEvent.title + ': ' + mktEvent.effect);
+        }
+      }
+    }
+
+    // Game of the Year Awards (year-end ceremony)
+    if (s.month === 12 && s.week === 4 && !s.pendingAwards) {
+      const ceremony = awardSystem.checkYearEnd(s);
+      if (ceremony) s.pendingAwards = ceremony;
     }
 
     // Victory conditions: 5 Civ-style paths (checked monthly on week 1)
@@ -794,6 +835,9 @@ class GameEngine {
     }
 
     s.games.push(completedGame);
+
+    // Handbook: discover design insights from this game
+    if (typeof handbookSystem !== 'undefined') handbookSystem.discoverFromGame(completedGame, s);
 
     // Check genre specialty for each staff member
     for (const member of s.staff) {
