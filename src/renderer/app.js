@@ -27,6 +27,7 @@ function App() {
   const [showCompetitors, setShowCompetitors] = useState(false);
   const [showEngineBuilder, setShowEngineBuilder] = useState(false);
   const [showContracts, setShowContracts] = useState(false);
+  const [showAwards, setShowAwards] = useState(false);
   const [showRemaster, setShowRemaster] = useState(false);
   const [remasterGame, setRemasterGame] = useState(null);
   const [showPublisher, setShowPublisher] = useState(false);
@@ -140,6 +141,11 @@ function App() {
         setShowConference(true);
       }
 
+      // Check for pending awards ceremony
+      if (state.pendingAwards && !showAwards) {
+        setShowAwards(true);
+      }
+
       // Check feature unlocks for toast notifications
       checkFeatureUnlocks(state);
 
@@ -171,7 +177,7 @@ function App() {
     });
 
     return () => unsub();
-  }, [reviewGame, showReview, pendingEvent, eventConsequence, showPhaseModal, showConference, checkFeatureUnlocks]);
+  }, [reviewGame, showReview, pendingEvent, eventConsequence, showPhaseModal, showConference, showAwards, checkFeatureUnlocks]);
 
   const handleNewGame = () => {
     engine.setSpeed(0);
@@ -804,6 +810,17 @@ function App() {
           event={pendingEvent}
           consequence={eventConsequence}
           onChoice={handleEventChoice}
+        />
+      )}
+
+      {showAwards && gameState && gameState.pendingAwards && (
+        <AwardsModal
+          ceremony={gameState.pendingAwards}
+          onClose={() => {
+            setShowAwards(false);
+            engine.state.pendingAwards = null;
+            engine._emit();
+          }}
         />
       )}
 
