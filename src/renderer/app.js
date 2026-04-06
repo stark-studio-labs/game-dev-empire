@@ -370,13 +370,14 @@ function App() {
       setShowMarket(false); setShowMorale(false); setShowMarketing(false);
       setShowTraining(false); setShowHardware(false); setShowHistory(false);
       setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
-      setShowTimeline(false); setShowCompetitors(false); setShowKeyboardHelp(false);
+      setShowTimeline(false); setShowCompetitors(false); setShowEngineBuilder(false);
+      setShowKeyboardHelp(false);
     };
 
     const anyPanelOpen = () =>
       showStaff || showFinance || showResearch || showMarket || showMorale ||
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
-      showVerticals || showStoryteller || showTimeline || showCompetitors ||
+      showVerticals || showStoryteller || showTimeline || showCompetitors || showEngineBuilder ||
       showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
       showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
 
@@ -422,9 +423,9 @@ function App() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [screen, showStaff, showFinance, showResearch, showMarket, showMorale,
       showMarketing, showTraining, showHardware, showHistory, showSettings,
-      showVerticals, showStoryteller, showTimeline, showCompetitors, showKeyboardHelp,
-      showWizard, showReview, showPhaseModal, showConference, showIPO, showVictory,
-      showRemaster, showPublisher, pendingEvent, eventConsequence]);
+      showVerticals, showStoryteller, showTimeline, showCompetitors, showEngineBuilder,
+      showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
+      showVictory, showRemaster, showPublisher, pendingEvent, eventConsequence]);
 
   // Title screen
   if (screen === 'title') {

@@ -46,6 +46,7 @@ class GameEngine {
     conferenceSystem.reset();
     victorySystem.reset();
     competitorSystem.reset();
+    engineBuilderSystem.reset();
     this.state = {
       companyName: companyName || 'Indie Studio',
       avatarId: avatarId || 0,
@@ -170,6 +171,7 @@ class GameEngine {
         conferenceSystem.deserialize(this.state._conferences || null);
         victorySystem.deserialize(this.state._victory || null);
         competitorSystem.deserialize(this.state._competitors || null);
+        engineBuilderSystem.deserialize(this.state._engineBuilder || null);
         // Migrate: assign roles to staff from older saves
         if (this.state.staff) {
           for (const member of this.state.staff) {
@@ -209,6 +211,7 @@ class GameEngine {
       this.state._conferences = conferenceSystem.serialize();
       this.state._victory = victorySystem.serialize();
       this.state._competitors = competitorSystem.serialize();
+      this.state._engineBuilder = engineBuilderSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -515,6 +518,7 @@ class GameEngine {
       startWeek: s.totalWeeks,
       isRemaster: config.isRemaster || false,
       remasterBonus: config.remasterBonus || 0,
+      engineId: config.engineId || null,
     };
 
     // Phase 1 sliders from wizard; phases 2 & 3 default to 33/33/33 until player sets them
@@ -657,6 +661,7 @@ class GameEngine {
       staffCount: s.staff.length,
       title: game.title,
       totalWeeks: s.totalWeeks,
+      engineId: game.engineId || null,
     });
 
     // Compute reviews (relative to personal best)

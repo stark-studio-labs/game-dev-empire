@@ -105,7 +105,7 @@ const Scoring = {
   /**
    * Compute the full game score.
    */
-  computeGameScore({ design, tech, genre, topic, audience, platformId, size, sliders, devWeeks, staffCount, title, totalWeeks }) {
+  computeGameScore({ design, tech, genre, topic, audience, platformId, size, sliders, devWeeks, staffCount, title, totalWeeks, engineId }) {
     const sizeData = GAME_SIZES[size] || GAME_SIZES.Small;
     const divisor = sizeData.divisor;
 
@@ -132,8 +132,13 @@ const Scoring = {
       }
     }
 
+    // Custom engine quality bonus
+    const engineBonus = (typeof engineBuilderSystem !== 'undefined' && engineId)
+      ? engineBuilderSystem.getEngineBonus(engineId)
+      : 1.0;
+
     const modifiers = 1 + dtBalance + timeMgmt;
-    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult * sequelMult;
+    const gameScore = rawPoints * modifiers * topicGenre * topicAud * platGenre * bugs * researchBonus * moraleMult * sequelMult * engineBonus;
 
     // Build per-aspect ratings for the research report
     const aspectNames = DEV_PHASES.flatMap(p => p.aspects);

@@ -2,7 +2,7 @@
  * TopBar — Cash, fans, date, game progress, speed controls
  * Feature icons are locked until earned (office level / staff count).
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleVictory, showVictory, onToggleCompetitors, showCompetitors, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleVictory, showVictory, onToggleCompetitors, showCompetitors, onToggleEngineBuilder, showEngineBuilder, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -324,6 +324,22 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
             </button>
             <span className="topbar__tooltip">Industry Competition</span>
           </div>
+
+          {/* Engine Builder (gear/cog icon — gated to level 2 or devMode) */}
+          {(devMode || state.level >= 2) && (
+            <div className="topbar__icon-wrap">
+              <button
+                className={`speed-btn${showEngineBuilder ? ' active' : ''}`}
+                onClick={onToggleEngineBuilder}
+                style={{ fontSize: '13px' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                  <path d="M6.5 0L5.7 2.6 3.2 1.5 1.5 3.2l1.1 2.5L0 6.5v2.4l2.6.8 1.1 2.5-1.7 1.7 1.2 1.2 1.7-1.7 2.5 1.1.8 2.6h2.4l.8-2.6 2.5-1.1 1.7 1.7 1.2-1.2-1.7-1.7 1.1-2.5L16 8.9V6.5l-2.6-.8-1.1-2.5 1.7-1.7-1.2-1.2-1.7 1.7-2.5-1.1L7.7 0H6.5zm.8 5a2.7 2.7 0 110 5.4A2.7 2.7 0 017.3 5z"/>
+                </svg>
+              </button>
+              <span className="topbar__tooltip">Engine Builder</span>
+            </div>
+          )}
 
           <div className="topbar-divider" />
 

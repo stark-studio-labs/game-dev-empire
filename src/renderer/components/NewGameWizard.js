@@ -10,6 +10,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const [audience, setAudience] = React.useState('Everyone');
   const [platformIds, setPlatformIds] = React.useState([]);
   const [size, setSize] = React.useState('Small');
+  const [selectedEngine, setSelectedEngine] = React.useState(null);
 
   const togglePlatform = (id) => {
     setPlatformIds(prev => {
@@ -105,6 +106,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
       platformIds,
       size,
       sliders, // Only Phase 1 (3 values) — engine fills defaults for phases 2 & 3
+      engineId: selectedEngine,
     };
     onStart(config);
   };
@@ -380,6 +382,31 @@ function NewGameWizard({ state, onStart, onCancel }) {
                 );
               })}
             </div>
+
+            {/* Engine Selection (if engines exist) */}
+            {typeof engineBuilderSystem !== 'undefined' && engineBuilderSystem.getEngines().length > 0 && (
+              <div style={{ marginBottom: '16px', marginTop: '16px' }}>
+                <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
+                  Game Engine (Optional)
+                </label>
+                <select
+                  value={selectedEngine || ''}
+                  onChange={e => setSelectedEngine(e.target.value ? parseInt(e.target.value) : null)}
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e6edf3', fontSize: '14px', outline: 'none',
+                  }}
+                >
+                  <option value="">No Custom Engine</option>
+                  {engineBuilderSystem.getEngines().map(eng => (
+                    <option key={eng.id} value={eng.id}>
+                      {eng.name} (Tech Lv{eng.techLevel}, +{Math.round((engineBuilderSystem.getEngineBonus(eng.id) - 1) * 100)}% quality)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
               <button className="btn-secondary" onClick={() => setStep(2)}>Back</button>
