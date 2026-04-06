@@ -2,7 +2,7 @@
  * TopBar — Cash, fans, date, game progress, speed controls
  * Feature icons are locked until earned (office level / staff count).
  */
-function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleVictory, showVictory, onToggleCompetitors, showCompetitors, onToggleEngineBuilder, showEngineBuilder, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
+function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleResearch, showResearch, onToggleMarket, showMarket, onToggleMorale, showMorale, onToggleMarketing, showMarketing, onToggleTraining, showTraining, onToggleHardware, showHardware, onToggleVerticals, showVerticals, onToggleStoryteller, showStoryteller, onToggleTimeline, showTimeline, onToggleConference, showConference, onToggleIPO, showIPO, onToggleVictory, showVictory, onToggleCompetitors, showCompetitors, onToggleEngineBuilder, showEngineBuilder, onToggleContracts, showContracts, onToggleHistory, showHistory, onToggleSettings, showSettings, devMode }) {
   if (!state) return null;
 
   const formatCash = (n) => {
@@ -346,6 +346,22 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
                 </svg>
               </button>
               <span className="topbar__tooltip">Engine Builder</span>
+            </div>
+          )}
+
+          {/* Contracts (clipboard icon — gated to level 1 or devMode) */}
+          {(devMode || state.level >= 1) && (
+            <div className="topbar__icon-wrap">
+              <button
+                className={`speed-btn${showContracts ? ' active' : ''}`}
+                onClick={onToggleContracts}
+                style={{ fontSize: '13px' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style={{ verticalAlign: 'middle' }}>
+                  <path d="M4 0a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V2a2 2 0 00-2-2H4zm0 1h8a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1zm1 3a.5.5 0 000 1h6a.5.5 0 000-1H5zm0 3a.5.5 0 000 1h6a.5.5 0 000-1H5zm0 3a.5.5 0 000 1h4a.5.5 0 000-1H5z"/>
+                </svg>
+              </button>
+              <span className="topbar__tooltip">Contracts</span>
             </div>
           )}
 

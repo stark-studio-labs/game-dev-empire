@@ -130,6 +130,47 @@ function StaffPanel({ state, onClose }) {
                   ))}
                 </div>
               )}
+              {/* XP Progress */}
+              {member.xp && Object.keys(member.xp).length > 0 && (
+                <div style={{ marginTop: '6px' }}>
+                  <div style={{ fontSize: '10px', color: '#8b949e', marginBottom: '3px' }}>Genre XP</div>
+                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                    {Object.entries(member.xp).filter(([,v]) => v > 0).sort((a,b) => b[1] - a[1]).slice(0, 4).map(([genre, xp]) => (
+                      <span key={genre} style={{
+                        fontSize: '10px', padding: '1px 6px', borderRadius: '4px',
+                        background: 'rgba(218,124,255,0.1)', border: '1px solid rgba(218,124,255,0.2)',
+                        color: xp >= 50 ? '#da7cff' : '#8b949e',
+                      }}>
+                        {genre} {xp}/50
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Specialization button */}
+              {!member.specialization && !member.isFounder && (() => {
+                const combined = (member.design || 0) + (member.tech || 0) + (member.speed || 0) + (member.research || 0);
+                return combined >= 300;
+              })() && (
+                <div style={{ marginTop: '6px', display: 'flex', gap: '4px' }}>
+                  <button className="btn-secondary" style={{ fontSize: '10px', padding: '2px 8px' }}
+                    onClick={() => engine.specializeStaff(member.id, 'design')}>
+                    Design Specialist (20 RP)
+                  </button>
+                  <button className="btn-secondary" style={{ fontSize: '10px', padding: '2px 8px' }}
+                    onClick={() => engine.specializeStaff(member.id, 'tech')}>
+                    Tech Specialist (20 RP)
+                  </button>
+                </div>
+              )}
+              {/* Specialist badge */}
+              {member.specialization && (
+                <div style={{ marginTop: '4px' }}>
+                  <span className="badge badge--blue" style={{ background: member.specialization === 'design' ? 'rgba(218,124,255,0.15)' : 'rgba(88,166,255,0.15)', color: member.specialization === 'design' ? '#da7cff' : '#58a6ff' }}>
+                    {member.specialization === 'design' ? '🎨 Design Specialist' : '⚙️ Tech Specialist'}
+                  </span>
+                </div>
+              )}
               {member.salary > 0 && (
                 <div style={{ fontSize: '11px', color: '#8b949e' }}>
                   Salary: ${member.salary.toLocaleString()}/mo

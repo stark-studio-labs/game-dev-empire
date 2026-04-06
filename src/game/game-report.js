@@ -54,6 +54,24 @@ class GameReportGenerator {
       if (badNames.length > 0) insights.push('Weak areas: ' + badNames.join(', '));
     }
 
+    // Genre mastery insight — unlocks after 3+ games in the same genre
+    const genreMastery = (typeof engine !== 'undefined' && engine.state) ? (engine.state.genreMastery || {}) : {};
+    const genreCount = genreMastery[game.genre] || 0;
+    if (genreCount >= 3 && detail !== 'vague') {
+      const genreIdx = (typeof GENRES !== 'undefined') ? GENRES.indexOf(game.genre) : -1;
+      if (genreIdx >= 0 && typeof GENRE_IMPORTANCE !== 'undefined') {
+        const imp = GENRE_IMPORTANCE[GENRES[genreIdx]];
+        if (imp) {
+          const aspects = (typeof DEV_PHASES !== 'undefined') ? DEV_PHASES.flatMap(p => p.aspects).filter(a => a) : [];
+          const important = aspects.filter((_, i) => imp[i] >= 0.9);
+          const restricted = aspects.filter((_, i) => imp[i] <= 0.1);
+          let masteryMsg = 'Genre Mastery (' + game.genre + '): Focus on ' + important.join(', ') + '.';
+          if (restricted.length > 0) masteryMsg += ' Minimize ' + restricted.join(', ') + '.';
+          insights.push(masteryMsg);
+        }
+      }
+    }
+
     return { insights, detail, aspectRatings: detail === 'detailed' ? aspectRatings : null };
   }
 }

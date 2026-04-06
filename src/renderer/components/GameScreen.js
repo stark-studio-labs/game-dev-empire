@@ -107,12 +107,26 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow, on
 
           {/* Dev bar — compact status at bottom of office */}
           {state.finishingPhase && (
-            <div className="gs-dev-bar">
-              <span style={{ color: 'var(--color-warning)', fontSize: '14px' }}>&#x1F41B;</span>
-              <span className="gs-dev-bar-title">Fixing bugs...</span>
-              <span className="gs-dev-bar-sub">{state.bugs} remaining</span>
-              <div className="progress-bar" style={{ flex: 1, height: '6px' }}>
-                <div className="progress-fill" style={{ width: `${state.devProgress}%`, background: 'linear-gradient(90deg, var(--color-warning), var(--color-success))' }} />
+            <div className="gs-dev-bar" style={{ flexDirection: 'column', alignItems: 'stretch', padding: '12px 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div className="gs-dev-bar-title" style={{ color: 'var(--color-warning)' }}>
+                  🐛 Polishing — {state.bugs} bugs remaining
+                </div>
+                <div className="gs-dev-bar-sub">
+                  {Math.round(state.devProgress)}% complete
+                </div>
+              </div>
+              <div className="progress-bar" style={{ height: '6px' }}>
+                <div className="progress-fill" style={{
+                  width: `${state.devProgress}%`,
+                  background: 'linear-gradient(90deg, var(--color-warning), var(--color-success))',
+                }} />
+              </div>
+              {/* Bug icons that disappear as bugs are squashed */}
+              <div style={{ display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap' }}>
+                {Array.from({ length: Math.min(state.bugs, 20) }, (_, i) => (
+                  <span key={i} style={{ fontSize: '12px', opacity: 0.6 + Math.random() * 0.4 }}>🐛</span>
+                ))}
               </div>
             </div>
           )}

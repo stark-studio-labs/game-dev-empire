@@ -159,6 +159,23 @@ function ReviewScreen({ game, onClose }) {
           })}
         </div>
 
+        {/* Fan Reactions */}
+        {revealed >= 4 && game.fanMail && game.fanMail.length > 0 && (
+          <div style={{ marginTop: '16px', marginBottom: '16px', textAlign: 'left' }}>
+            <div className="panel-header" style={{ marginBottom: '8px', color: 'var(--color-text-secondary, #8b949e)' }}>
+              Fan Reactions
+            </div>
+            {game.fanMail.map((mail, i) => (
+              <div key={i} style={{ padding: '6px 0', borderBottom: i < game.fanMail.length - 1 ? '1px solid var(--color-border, #30363d)' : 'none' }}>
+                <span style={{ fontSize: '11px', color: 'var(--color-accent, #58a6ff)', fontWeight: 600 }}>@{mail.user}</span>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-body, #c9d1d9)', marginTop: '2px', fontStyle: 'italic' }}>
+                  "{mail.text}"
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Average score with confetti */}
         {revealed >= 4 && (
           <div

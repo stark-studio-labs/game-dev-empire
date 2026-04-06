@@ -12,6 +12,7 @@ function GameHistory({ state, onClose, onRemaster }) {
   const [filterScoreMax, setFilterScoreMax] = React.useState(10);
   const [filterRevenueMin, setFilterRevenueMin] = React.useState(0);
   const [selectedGame, setSelectedGame] = React.useState(null);
+  const [detailReport, setDetailReport] = React.useState(null);
 
   React.useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -81,6 +82,9 @@ function GameHistory({ state, onClose, onRemaster }) {
     score: g.reviewAvg,
     title: g.title,
   }));
+
+  // Clear report when switching games
+  React.useEffect(() => { setDetailReport(null); }, [selectedGame]);
 
   // Detail view for selected game
   if (selectedGame) {
@@ -187,11 +191,42 @@ function GameHistory({ state, onClose, onRemaster }) {
             </div>
           )}
 
+          {/* Post-game report */}
+          {detailReport && (
+            <div className="glass-card" style={{ padding: '12px 16px', marginBottom: '16px' }}>
+              <div className="panel-header" style={{ color: '#d29922', marginBottom: '8px' }}>
+                Research Report
+              </div>
+              <div style={{ fontSize: '11px', color: '#484f58', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {detailReport.detail} analysis — game #{state.games.length}
+              </div>
+              {detailReport.insights.map((insight, i) => (
+                <div key={i} style={{ fontSize: '13px', color: '#e6edf3', padding: '4px 0', borderBottom: i < detailReport.insights.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                  {insight}
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Actions */}
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className="btn-secondary" onClick={() => setSelectedGame(null)} style={{ flex: 1 }}>
               Back to History
             </button>
+            {g.breakdown && (
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  const report = typeof gameReportGenerator !== 'undefined'
+                    ? gameReportGenerator.generateReport(g, state.games.length)
+                    : null;
+                  if (report) setDetailReport(report);
+                }}
+                style={{ flex: 1 }}
+              >
+                View Report
+              </button>
+            )}
             {onRemaster && !state.currentGame && (state.year - g.releaseYear) >= 5 && (
               <button
                 className="btn-secondary"
