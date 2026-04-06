@@ -123,8 +123,9 @@ function PhaseSliderModal({ state, onSubmit }) {
           {phase.aspects.map((aspect, ai) => {
             const globalIdx = phaseIdx * 3 + ai;
             const imp = importance[globalIdx];
-            const impLabel = imp >= 0.9 ? 'Important' : imp <= 0.1 ? 'Restricted' : '';
-            const impColor = imp >= 0.9 ? '#3fb950' : imp <= 0.1 ? '#f85149' : '';
+            const showHints = state.games && state.games.length >= 3;
+            const impLabel = showHints ? (imp >= 0.9 ? 'Important' : imp <= 0.1 ? 'Restricted' : '') : '';
+            const impColor = showHints ? (imp >= 0.9 ? '#3fb950' : imp <= 0.1 ? '#f85149' : '') : '';
             return (
               <div key={ai} style={{ marginBottom: ai < 2 ? '14px' : '0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
