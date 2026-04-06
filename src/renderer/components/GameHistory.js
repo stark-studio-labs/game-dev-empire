@@ -254,7 +254,10 @@ function GameHistory({ state, onClose, onRemaster }) {
                 const name = prompt('Name your DLC:');
                 if (name) {
                   const result = dlcSystem.startDLC(g, name, state);
-                  if (result.success) { engine._emit(); engine._save(); }
+                  if (result.success) {
+                    finance.record('dev_cost', -result.cost, name + ' (DLC Dev)', engine._dateStr());
+                    engine._emit(); engine._save();
+                  }
                 }
               }} style={{ flex: 1, color: '#ffa657' }}>
                 Create DLC (${dlcSystem.getDLCCost(g).toLocaleString()})

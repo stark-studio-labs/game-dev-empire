@@ -46,7 +46,7 @@ class ContractSystem {
     if (this.activeContract) return false;
     const contract = this.available.find(c => c.id === contractId);
     if (!contract) return false;
-    this.activeContract = { ...contract, acceptedWeek: 0 }; // caller sets acceptedWeek
+    this.activeContract = { ...contract, acceptedWeek: null }; // caller sets acceptedWeek
     this.available = this.available.filter(c => c.id !== contractId);
     return true;
   }

@@ -467,6 +467,7 @@ class GameEngine {
     const dlcResult = dlcSystem.tickDLC(s);
     if (dlcResult) {
       this._notify('DLC "' + dlcResult.dlcName + '" released! Revenue: $' + dlcResult.revenue.toLocaleString());
+      finance.record('revenue', dlcResult.revenue, dlcResult.dlcName + ' (DLC)', this._dateStr());
     }
 
     // Moonshot project tick (weekly)

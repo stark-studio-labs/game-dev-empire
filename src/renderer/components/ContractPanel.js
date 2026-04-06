@@ -69,9 +69,9 @@ function ContractPanel({ state, onClose }) {
               </div>
               <div>
                 <span style={{ color: '#8b949e' }}>Deadline: </span>
-                <span style={{ color: active.acceptedWeek && (state.totalWeeks - active.acceptedWeek) > active.deadline ? '#f85149' : '#e6edf3' }}>
+                <span style={{ color: active.acceptedWeek != null && (state.totalWeeks - active.acceptedWeek) > active.deadline ? '#f85149' : '#e6edf3' }}>
                   {active.deadline}w
-                  {active.acceptedWeek ? ` (${Math.max(0, active.deadline - (state.totalWeeks - active.acceptedWeek))}w left)` : ''}
+                  {active.acceptedWeek != null ? ` (${Math.max(0, active.deadline - (state.totalWeeks - active.acceptedWeek))}w left)` : ''}
                 </span>
               </div>
             </div>

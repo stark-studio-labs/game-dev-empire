@@ -209,6 +209,7 @@ function App() {
     // Reset unlock tracking for new game
     unlockedFeaturesRef.current = {
       research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
+      tier2: false, tier3: false, tier4: false, tier5: false,
     };
     // Reset animation tracking for new game
     fanMilestonesRef.current = { '10000': false, '100000': false, '1000000': false };
@@ -347,6 +348,7 @@ function App() {
       setScreen('game');
       unlockedFeaturesRef.current = {
         research: false, hardware: false, verticals: false, marketing: false, training: false, morale: false,
+        tier2: false, tier3: false, tier4: false, tier5: false,
       };
       fanMilestonesRef.current = { '10000': false, '100000': false, '1000000': false };
       wasPublicRef.current = false;
@@ -380,6 +382,7 @@ function App() {
       setShowSettings(false); setShowVerticals(false); setShowStoryteller(false);
       setShowTimeline(false); setShowCompetitors(false); setShowEngineBuilder(false);
       setShowContracts(false); setShowHandbook(false); setShowKeyboardHelp(false);
+      setShowAwards(false);
     };
 
     const anyPanelOpen = () =>
@@ -387,7 +390,7 @@ function App() {
       showMarketing || showTraining || showHardware || showHistory || showSettings ||
       showVerticals || showStoryteller || showTimeline || showCompetitors || showEngineBuilder ||
       showContracts || showHandbook || showKeyboardHelp || showWizard || showReview || showReport || showPhaseModal || showConference ||
-      showIPO || showVictory || showRemaster || showPublisher || pendingEvent || eventConsequence;
+      showIPO || showVictory || showRemaster || showPublisher || showAwards || pendingEvent || eventConsequence;
 
     const handleKey = (e) => {
       if (isTyping()) return;
@@ -434,7 +437,7 @@ function App() {
       showMarketing, showTraining, showHardware, showHistory, showSettings,
       showVerticals, showStoryteller, showTimeline, showCompetitors, showEngineBuilder,
       showContracts, showHandbook, showKeyboardHelp, showWizard, showReview, showPhaseModal, showConference, showIPO,
-      showVictory, showRemaster, showPublisher, pendingEvent, eventConsequence]);
+      showVictory, showRemaster, showPublisher, showAwards, pendingEvent, eventConsequence]);
 
   // Title screen
   if (screen === 'title') {
@@ -626,6 +629,7 @@ function App() {
           state={gameState}
           onStart={handleStartDev}
           onCancel={() => setShowWizard(false)}
+          devMode={devMode}
         />
       )}
 
@@ -831,6 +835,7 @@ function App() {
             setShowAwards(false);
             engine.state.pendingAwards = null;
             engine._emit();
+            engine._save();
           }}
         />
       )}

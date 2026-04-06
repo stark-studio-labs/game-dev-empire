@@ -27,7 +27,7 @@ class AwardSystem {
       if (candidates.length === 0) continue;
 
       // Sort by score, pick top 3 nominees
-      const sorted = candidates.sort((a, b) => b.reviewAvg - a.reviewAvg);
+      const sorted = [...candidates].sort((a, b) => b.reviewAvg - a.reviewAvg);
       const nominees = sorted.slice(0, 3).map(g => ({ title: g.title, score: g.reviewAvg, isPlayer: true }));
 
       // Add a competitor nominee for drama

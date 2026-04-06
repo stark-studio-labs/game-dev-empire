@@ -2,7 +2,7 @@
  * NewGameWizard — Step-by-step game creation:
  * 1. Topic → 2. Genre → 3. Platform + Audience + Size → 4. Slider allocation → 5. Confirm
  */
-function NewGameWizard({ state, onStart, onCancel }) {
+function NewGameWizard({ state, onStart, onCancel, devMode }) {
   const [step, setStep] = React.useState(0);
   const [title, setTitle] = React.useState('');
   const [topic, setTopic] = React.useState(null);
@@ -15,7 +15,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const isTutorial = typeof tutorialSystem !== 'undefined' && tutorialSystem.isActive && tutorialSystem.isActive();
   const tutorialTopics = ['Fantasy', 'Sci-Fi', 'Sports'];
 
-  const canMultiPlatform = (state.level || 0) >= 3 || state.devMode;
+  const canMultiPlatform = (state.level || 0) >= 3 || devMode;
   const togglePlatform = (id) => {
     setPlatformIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
@@ -32,7 +32,7 @@ function NewGameWizard({ state, onStart, onCancel }) {
 
   // Topic unlock logic — 6 tiers keyed to progression milestones
   const isTopicUnlocked = (t) => {
-    if (state.devMode) return true;
+    if (devMode) return true;
     // Check if manually unlocked via RP
     if (state.unlockedTopics && state.unlockedTopics.includes(t.name)) return true;
     if (t.tier === 1) return true;
@@ -60,11 +60,11 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const totalTopics = TOPICS.length;
 
   // Gate: show compatibility only after 5 games shipped + Market Research completed
-  const showCompat = state.devMode || (state.games.length >= 5 &&
+  const showCompat = devMode || (state.games.length >= 5 &&
     typeof researchSystem !== 'undefined' && researchSystem.completed && researchSystem.completed['ux_market_research']);
 
   // Gate: audience selection unlocks in Year 3
-  const audienceUnlocked = (state.year || 1) >= 3 || state.devMode;
+  const audienceUnlocked = (state.year || 1) >= 3 || devMode;
 
   // Compatibility indicator
   const getCompat = (val) => {
@@ -245,6 +245,9 @@ function NewGameWizard({ state, onStart, onCancel }) {
                           style={{ fontSize: '10px', padding: '2px 6px', marginLeft: '4px' }}
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (!engine.state || !engine.state.unlockedTopics) return;
+                            if (engine.state.unlockedTopics.includes(t.name)) return; // prevent dupes
+                            if ((engine.state.researchPoints || 0) < (t.rpCost || 10)) return;
                             engine.state.researchPoints -= (t.rpCost || 10);
                             engine.state.unlockedTopics.push(t.name);
                             engine._emit(); engine._save();
