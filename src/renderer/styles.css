@@ -1114,7 +1114,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex; gap: var(--space-4); margin-bottom: var(--space-6);
   flex-wrap: wrap; justify-content: center;
 }
-.gs-staff-item { text-align: center; }
+.gs-staff-item { text-align: center; position: relative; }
 .gs-staff-avatar {
   width: 48px; height: 48px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -1129,6 +1129,25 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border-color: var(--color-success);
   animation: pulse 2s infinite;
 }
+
+/* Skill bubbles during development */
+@keyframes skillBubbleFloat {
+  0%   { opacity: 1; transform: translateY(0) scale(0.5); }
+  15%  { opacity: 1; transform: translateY(-10px) scale(1); }
+  100% { opacity: 0; transform: translateY(-55px) scale(0.7); }
+}
+.skill-bubble {
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  width: 14px; height: 14px; border-radius: 50%;
+  font-size: 8px; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  animation: skillBubbleFloat 1.4s ease-out forwards;
+  pointer-events: none; z-index: 10;
+}
+.skill-bubble--design { background: var(--color-purple); }
+.skill-bubble--tech { background: var(--color-accent); }
+.skill-bubble--bug { background: var(--color-danger); }
+
 .gs-role-badge {
   position: absolute; bottom: -2px; right: -2px;
   width: 16px; height: 16px; background: var(--color-bg);

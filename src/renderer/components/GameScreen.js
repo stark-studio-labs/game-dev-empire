@@ -21,6 +21,30 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
     prevLevelRef.current = state.level;
   }, [state.level]);
 
+  const [bubbles, setBubbles] = React.useState([]);
+  const bubbleIdRef = React.useRef(0);
+
+  React.useEffect(() => {
+    if (!state.currentGame || state.devPhase === null || state.finishingPhase) {
+      setBubbles([]); return;
+    }
+    const interval = setInterval(() => {
+      const newBubbles = state.staff.map(member => {
+        const type = Math.random() < 0.15 ? 'bug' : Math.random() < 0.5 ? 'design' : 'tech';
+        const label = type === 'design' ? 'D' : type === 'tech' ? 'T' : '!';
+        return { id: bubbleIdRef.current++, staffId: member.id, type, label };
+      });
+      setBubbles(prev => [...prev.slice(-30), ...newBubbles]);
+    }, 1200);
+    return () => clearInterval(interval);
+  }, [state.currentGame, state.devPhase, state.finishingPhase, state.staff.length]);
+
+  React.useEffect(() => {
+    if (bubbles.length === 0) return;
+    const timer = setTimeout(() => setBubbles(prev => prev.slice(state.staff.length)), 1500);
+    return () => clearTimeout(timer);
+  }, [bubbles.length]);
+
   const formatCash = (n) => {
     if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
@@ -56,6 +80,9 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
                   {member.role && (
                     <div className="gs-staff-role">{getRoleName(member.role)}</div>
                   )}
+                  {bubbles.filter(b => b.staffId === member.id).map(b => (
+                    <span key={b.id} className={`skill-bubble skill-bubble--${b.type}`}>{b.label}</span>
+                  ))}
                 </div>
               );
             })}
