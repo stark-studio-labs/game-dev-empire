@@ -53,6 +53,9 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const showCompat = state.devMode || (state.games.length >= 5 &&
     typeof researchSystem !== 'undefined' && researchSystem.completed && researchSystem.completed['ux_market_research']);
 
+  // Gate: audience selection unlocks in Year 3
+  const audienceUnlocked = (state.year || 1) >= 3 || state.devMode;
+
   // Compatibility indicator
   const getCompat = (val) => {
     if (val >= 1.0) return { label: '+++', color: '#3fb950' };
@@ -285,28 +288,34 @@ function NewGameWizard({ state, onStart, onCancel }) {
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
               Target Audience
             </label>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              {AUDIENCES.map(a => {
-                const topicData = TOPICS.find(t => t.name === topic);
-                const audIdx = AUDIENCES.indexOf(a);
-                const compat = topicData ? getCompat(topicData.audienceW[audIdx]) : null;
-                return (
-                  <div
-                    key={a}
-                    className={`selection-item ${audience === a ? 'selected' : ''}`}
-                    onClick={() => setAudience(a)}
-                    style={{ flex: 1, padding: '12px' }}
-                  >
-                    <div style={{ fontWeight: 600 }}>{a}</div>
-                    {showCompat && compat ? (
-                      <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>
-                    ) : (
-                      <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {audienceUnlocked ? (
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                {AUDIENCES.map(a => {
+                  const topicData = TOPICS.find(t => t.name === topic);
+                  const audIdx = AUDIENCES.indexOf(a);
+                  const compat = topicData ? getCompat(topicData.audienceW[audIdx]) : null;
+                  return (
+                    <div
+                      key={a}
+                      className={`selection-item ${audience === a ? 'selected' : ''}`}
+                      onClick={() => setAudience(a)}
+                      style={{ flex: 1, padding: '12px' }}
+                    >
+                      <div style={{ fontWeight: 600 }}>{a}</div>
+                      {showCompat && compat ? (
+                        <div style={{ fontSize: '12px', color: compat.color }}>{compat.label}</div>
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#484f58' }}>???</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ fontSize: '12px', color: '#8b949e', padding: '8px 0' }}>
+                Audience targeting unlocks in Year 3. Default: Everyone.
+              </div>
+            )}
 
             {/* Game Size */}
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '8px' }}>
