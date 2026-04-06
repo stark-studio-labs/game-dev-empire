@@ -40,6 +40,7 @@ class GameEngine {
     notificationManager.reset();
     verticalManager.reset();
     storyteller.reset();
+    if (typeof handbookSystem !== 'undefined') handbookSystem.reset();
     personalitySystem.reset();
     techTimeline.reset();
     ipoSystem.reset();
@@ -191,6 +192,7 @@ class GameEngine {
         contractSystem.deserialize(this.state._contracts || null);
         dlcSystem.deserialize(this.state._dlc || null);
         awardSystem.deserialize(this.state._awards || null);
+        if (typeof handbookSystem !== 'undefined') handbookSystem.deserialize(this.state._handbook || null);
         // Migrate: assign roles to staff from older saves
         if (this.state.staff) {
           for (const member of this.state.staff) {
@@ -243,6 +245,7 @@ class GameEngine {
       this.state._contracts = contractSystem.serialize();
       this.state._dlc = dlcSystem.serialize();
       this.state._awards = awardSystem.serialize();
+      if (typeof handbookSystem !== 'undefined') this.state._handbook = handbookSystem.serialize();
       localStorage.setItem('techEmpire_save', JSON.stringify(this.state));
     } catch (e) {
       console.error('Failed to save:', e);
@@ -832,6 +835,9 @@ class GameEngine {
     }
 
     s.games.push(completedGame);
+
+    // Handbook: discover design insights from this game
+    if (typeof handbookSystem !== 'undefined') handbookSystem.discoverFromGame(completedGame, s);
 
     // Check genre specialty for each staff member
     for (const member of s.staff) {

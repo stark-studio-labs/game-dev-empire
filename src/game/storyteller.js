@@ -316,6 +316,46 @@ const STORYTELLER_CATALYSTS = [
   },
 ];
 
+// ── Market Events (industry-wide, fire at year-end) ────────────
+const MARKET_EVENTS = [
+  {
+    id: 'mkt_console_wars', title: 'Console Wars Erupt!',
+    text: 'Two major platforms are locked in an all-out battle for market dominance. Console game sales are surging!',
+    badge: '📺', duration: 40,
+    effect: 'Console games get +30% revenue for 40 weeks',
+  },
+  {
+    id: 'mkt_indie_boom', title: 'Indie Game Renaissance',
+    text: 'Players are flocking to indie titles. Small games are selling better than ever!',
+    badge: '🎮', duration: 32,
+    effect: 'Small games get +40% revenue for 32 weeks',
+  },
+  {
+    id: 'mkt_market_crash', title: 'Market Downturn',
+    text: 'Consumer spending is down across the board. All game sales take a hit.',
+    badge: '📉', duration: 24,
+    effect: 'All revenue -25% for 24 weeks',
+  },
+  {
+    id: 'mkt_mobile_explosion', title: 'Mobile Gaming Explosion',
+    text: 'Mobile platform installations have skyrocketed. Mobile games are the hot market.',
+    badge: '📱', duration: 36,
+    effect: 'Mobile platform revenue +50% for 36 weeks',
+  },
+  {
+    id: 'mkt_streaming_wave', title: 'Streaming Revolution',
+    text: 'Game streaming platforms are changing how players discover games. Casual and Simulation genres are trending!',
+    badge: '📡', duration: 28,
+    effect: 'Casual and Simulation games get +25% revenue for 28 weeks',
+  },
+  {
+    id: 'mkt_nostalgia_trend', title: 'Retro Gaming Craze',
+    text: 'Players are hungry for nostalgia. RPG and Adventure games are making a comeback!',
+    badge: '🕹️', duration: 30,
+    effect: 'RPG and Adventure games get +35% revenue for 30 weeks',
+  },
+];
+
 // ── Storyteller System ──────────────────────────────────────────
 class StorytellerSystem {
   constructor() {
@@ -323,6 +363,7 @@ class StorytellerSystem {
     this.cooldowns = {};  // eventId -> earliest week it can fire
     this.history = [];
     this._lastCash = 70000;
+    this.activeMarketEvent = null;
   }
 
   /**
@@ -403,6 +444,29 @@ class StorytellerSystem {
   /** No-op: kept for backward compat with engine.newGame() */
   injectEvents() {}
 
+  evaluateMarketEvent(state) {
+    // 15% chance per year-end to trigger a market event
+    if (this.activeMarketEvent) return null; // only one at a time
+    if (Math.random() > 0.15) return null;
+
+    const event = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+    this.activeMarketEvent = {
+      ...event,
+      startWeek: state.totalWeeks,
+      endWeek: state.totalWeeks + event.duration,
+    };
+    return this.activeMarketEvent;
+  }
+
+  tickMarketEvent(state) {
+    if (!this.activeMarketEvent) return;
+    if (state.totalWeeks >= this.activeMarketEvent.endWeek) {
+      this.activeMarketEvent = null;
+    }
+  }
+
+  getActiveMarketEvent() { return this.activeMarketEvent; }
+
   /**
    * Called by eventSystem.checkEvents() to bias event selection.
    * Given eligible events, prefer ones matching current drama mode.
@@ -426,6 +490,7 @@ class StorytellerSystem {
       cooldowns: { ...this.cooldowns },
       history: [...this.history],
       _lastCash: this._lastCash,
+      activeMarketEvent: this.activeMarketEvent,
     };
   }
 
@@ -435,6 +500,7 @@ class StorytellerSystem {
     this.cooldowns = data.cooldowns || {};
     this.history = data.history || [];
     this._lastCash = data._lastCash || 70000;
+    this.activeMarketEvent = data.activeMarketEvent || null;
   }
 
   reset() {
@@ -442,6 +508,7 @@ class StorytellerSystem {
     this.cooldowns = {};
     this.history = [];
     this._lastCash = 70000;
+    this.activeMarketEvent = null;
   }
 }
 
