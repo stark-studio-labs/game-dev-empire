@@ -74,6 +74,9 @@ class GameEngine {
       // Genre usage tracking (for frequency penalty)
       genreUsage: {},
 
+      // Genre mastery tracking (for detailed post-game reports)
+      genreMastery: {}, // genre -> count of games shipped in that genre
+
       // Notifications queue
       notifications: [],
 
@@ -180,10 +183,13 @@ class GameEngine {
         if (this.state.staff) {
           for (const member of this.state.staff) {
             if (!member.role) member.role = assignStaffRole(member);
+            if (!member.xp) member.xp = {};
           }
         }
         // Migrate: Research Points (added in sprint-2)
         if (this.state.researchPoints === undefined) this.state.researchPoints = 0;
+        // Migrate: Genre mastery (added in sprint-3)
+        if (!this.state.genreMastery) this.state.genreMastery = {};
         if (!this.state.unlockedTopics) this.state.unlockedTopics = [];
         this._updateAvailablePlatforms();
         this._emit();
@@ -556,6 +562,7 @@ class GameEngine {
     if (s.finishingPhase) {
       s.bugs = Math.max(0, s.bugs - 5);
       s.devProgress = Math.round(((s.bugsInitial - s.bugs) / Math.max(s.bugsInitial, 1)) * 100);
+      if (typeof audioManager !== 'undefined' && s.bugs > 0) audioManager.playSFX('btn-click');
       if (s.bugs <= 0) {
         s.finishingPhase = false;
         this._releaseGame();
@@ -599,6 +606,13 @@ class GameEngine {
 
         s.devDesign += designPts;
         s.devTech += techPts;
+      }
+
+      // XP gain: staff gains XP in the genre they're working on
+      if (s.currentGame && s.currentGame.genre) {
+        if (!member.xp) member.xp = {};
+        const genre = s.currentGame.genre;
+        member.xp[genre] = (member.xp[genre] || 0) + 1;
       }
     });
 
@@ -732,6 +746,9 @@ class GameEngine {
     // Track genre usage
     s.genreUsage[game.genre] = (s.genreUsage[game.genre] || 0) + 1;
 
+    // Track genre mastery (for post-game report insights)
+    s.genreMastery[completedGame.genre] = (s.genreMastery[completedGame.genre] || 0) + 1;
+
     // Generate critic personality reviews (4 random critics)
     const selectedCritics = selectCritics(4);
     const criticReviews = generateCriticReviews(reviewResult.average, { ...game, size: game.size }, selectedCritics);
@@ -758,6 +775,17 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+
+    // Check genre specialty for each staff member
+    for (const member of s.staff) {
+      if (!member.xp || !completedGame.genre) continue;
+      const genreXP = member.xp[completedGame.genre] || 0;
+      if (genreXP >= 50 && !(member.genreSpecialties && member.genreSpecialties[completedGame.genre] >= 25)) {
+        if (!member.genreSpecialties) member.genreSpecialties = {};
+        member.genreSpecialties[completedGame.genre] = 25;
+        this._notify(member.name + ' gained ' + completedGame.genre + ' Specialty!');
+      }
+    }
 
     // Earn Research Points from shipping games
     const rpEarned = 10 + Math.floor(reviewResult.average * 2); // 12-30 RP per game
@@ -949,6 +977,7 @@ class GameEngine {
       isFounder: true,
       gamesWorked: 0,
       avatarId: this._pendingAvatarId || 0,
+      xp: {},
     };
     founder.role = assignStaffRole(founder);
     return founder;
@@ -971,12 +1000,31 @@ class GameEngine {
         salary: Math.round((baseStat * 150 + 3000) / 100) * 100,
         isFounder: false,
         gamesWorked: 0,
+        xp: {},
       };
       applicant.role = assignStaffRole(applicant);
       personalitySystem.assignTraits(applicant);
       applicants.push(applicant);
     }
     return applicants;
+  }
+
+  specializeStaff(staffId, type) {
+    const s = this.state;
+    const member = s.staff.find(m => m.id === staffId);
+    if (!member) return false;
+    const combined = (member.design || 0) + (member.tech || 0) + (member.speed || 0) + (member.research || 0);
+    if (combined < 300) return false; // Threshold for specialization
+    if (member.specialization) return false; // Already specialized
+    const rpCost = 20;
+    if ((s.researchPoints || 0) < rpCost) return false;
+    s.researchPoints -= rpCost;
+    member.specialization = type; // 'design' or 'tech'
+    if (type === 'design') { member.design += 30; }
+    else { member.tech += 30; }
+    this._notify(member.name + ' is now a ' + (type === 'design' ? 'Design' : 'Tech') + ' Specialist!');
+    this._emit(); this._save();
+    return true;
   }
 
   hireStaff(applicant) {
