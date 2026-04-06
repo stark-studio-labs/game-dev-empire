@@ -558,7 +558,7 @@ function App() {
         </div>
 
         {/* Version */}
-        <div style={{ position: 'fixed', bottom: '16px', fontSize: '11px', color: '#21262d' }}>
+        <div style={{ position: 'fixed', bottom: '16px', right: '16px', fontSize: '11px', color: '#21262d', pointerEvents: 'none' }}>
           v0.4.0
         </div>
       </div>

@@ -132,13 +132,22 @@ async def test_topic_system(ws):
     record("85 total topics exist", total == 85, f"got {total}")
 
     t1 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 1).length")
-    record("30 Tier 1 topics", t1 == 30, f"got {t1}")
+    record("10 Tier 1 topics", t1 == 10, f"got {t1}")
 
     t2 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 2).length")
-    record("26 Tier 2 topics", t2 == 26, f"got {t2}")
+    record("8 Tier 2 topics", t2 == 8, f"got {t2}")
 
     t3 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 3).length")
-    record("29 Tier 3 topics", t3 == 29, f"got {t3}")
+    record("12 Tier 3 topics", t3 == 12, f"got {t3}")
+
+    t4 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 4).length")
+    record("10 Tier 4 topics", t4 == 10, f"got {t4}")
+
+    t5 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 5).length")
+    record("16 Tier 5 topics", t5 == 16, f"got {t5}")
+
+    t6 = await cdp_run(ws, "TOPICS.filter(t => t.tier === 6).length")
+    record("29 Tier 6 topics", t6 == 29, f"got {t6}")
 
     all_genre = await cdp_run(ws, "TOPICS.every(t => Array.isArray(t.genreW) && t.genreW.length === 6)")
     record("All topics have 6 genre weightings", all_genre == True, f"got {all_genre}")
@@ -212,15 +221,22 @@ async def test_game_creation(ws):
     await cdp_run(ws, "engine.submitPhaseSliders([30, 40, 30])")
     await cdp_run(ws, "engine.setSpeed(0)")
 
-    # Tick through phase 2 to release
-    for _ in range(10):
-        released = await cdp_run(ws, "engine.state.currentGame === null")
+    # Tick through phase 2 + Polish phase to release
+    for i in range(50):
+        await _dismiss_blockers(ws)
+        released = await cdp_run(ws, "engine.state.currentGame === null && engine.state.games.length > 0")
         if released:
             break
+        # Debug: check state every 10 ticks
+        if i % 10 == 0:
+            dbg = await cdp_run(ws, "JSON.stringify({p:engine.state.devPhase,pr:Math.round(engine.state.devProgress),f:engine.state.finishingPhase,b:engine.state.bugs,w:engine.state.waitingForPhaseInput})")
+            print(f"    [tick {i}] {dbg}")
         await cdp_run(ws, "engine.tick()")
 
-    released = await cdp_run(ws, "engine.state.currentGame === null")
-    record("Phase 2 completion releases game", released == True, f"currentGame is null: {released}")
+    released = await cdp_run(ws, "engine.state.currentGame === null && engine.state.games.length > 0")
+    # Final debug
+    dbg = await cdp_run(ws, "JSON.stringify({p:engine.state.devPhase,pr:Math.round(engine.state.devProgress),f:engine.state.finishingPhase,b:engine.state.bugs,g:engine.state.games.length,cur:!!engine.state.currentGame})")
+    record("Phase 2 + Polish completion releases game", released == True, f"state: {dbg}")
 
 
 async def test_scoring(ws):
@@ -512,6 +528,8 @@ async def _dismiss_blockers(ws):
                 engine.submitPhaseSliders([33, 33, 34]);
                 engine.setSpeed(0);
             }
+            // Dismiss awards ceremony if pending
+            if (engine.state.pendingAwards) engine.state.pendingAwards = null;
             // In test context: prevent bankruptcy from halting ticks
             if (engine.state.gameOver && engine.state.gameOverReason === 'bankruptcy') {
                 engine.state.gameOver = false;

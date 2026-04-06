@@ -794,7 +794,7 @@ class GameEngine {
     s.genreUsage[game.genre] = (s.genreUsage[game.genre] || 0) + 1;
 
     // Track genre mastery (for post-game report insights)
-    s.genreMastery[completedGame.genre] = (s.genreMastery[completedGame.genre] || 0) + 1;
+    s.genreMastery[game.genre] = (s.genreMastery[game.genre] || 0) + 1;
 
     // Generate critic personality reviews (4 random critics)
     const selectedCritics = selectCritics(4);

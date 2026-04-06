@@ -1,9 +1,9 @@
 # Tech Empire -- Automated Test Results
 
-**Date:** 2026-04-05 18:32:17
+**Date:** 2026-04-05 21:58:26
 **Method:** Chrome DevTools Protocol (CDP) against live game instance
-**Total Tests:** 100
-**Passed:** 100
+**Total Tests:** 103
+**Passed:** 103
 **Failed:** 0
 **Pass Rate:** 100.0%
 
@@ -26,14 +26,17 @@
 | PASS | TICK_MS is 5000 | got 5000 |
 | PASS | Save/load roundtrips state correctly | before save: 70000, after load: 70000 |
 
-## Topic System (7/7 PASS)
+## Topic System (10/10 PASS)
 
 | Status | Test | Detail |
 |--------|------|--------|
 | PASS | 85 total topics exist | got 85 |
-| PASS | 30 Tier 1 topics | got 30 |
-| PASS | 26 Tier 2 topics | got 26 |
-| PASS | 29 Tier 3 topics | got 29 |
+| PASS | 10 Tier 1 topics | got 10 |
+| PASS | 8 Tier 2 topics | got 8 |
+| PASS | 12 Tier 3 topics | got 12 |
+| PASS | 10 Tier 4 topics | got 10 |
+| PASS | 16 Tier 5 topics | got 16 |
+| PASS | 29 Tier 6 topics | got 29 |
 | PASS | All topics have 6 genre weightings | got True |
 | PASS | All topics have 3 audience weightings | got True |
 | PASS | No topics without a tier | found 0 without tier |
@@ -51,23 +54,23 @@
 | PASS | Phase 0 completes and waits for input | waitingForPhaseInput = True |
 | PASS | nextPhaseIndex is 1 | got 1 |
 | PASS | submitPhaseSliders advances to phase 1 | got 1 |
-| PASS | Phase 2 completion releases game | currentGame is null: True |
+| PASS | Phase 2 + Polish completion releases game | state: {"p":null,"pr":0,"f":false,"b":0,"g":1,"cur":false} |
 
 ## Scoring (5/5 PASS)
 
 | Status | Test | Detail |
 |--------|------|--------|
 | PASS | At least 1 game released | games count: 1 |
-| PASS | Game has avgScore between 1-10 | reviewAvg = 10 |
-| PASS | Revenue is positive | totalRevenue = 78045 |
-| PASS | Fans gained on release | fansGained = 50270 |
+| PASS | Game has avgScore between 1-10 | reviewAvg = 9.8 |
+| PASS | Revenue is positive | totalRevenue = 122815 |
+| PASS | Fans gained on release | fansGained = 50250 |
 | PASS | Sequel modifier applies for same title | sequel multiplier = 1.0499999999999998 |
 
 ## Financial (10/10 PASS)
 
 | Status | Test | Detail |
 |--------|------|--------|
-| PASS | Cash changed from initial $70K after release | cash = 89511 |
+| PASS | Cash changed from initial $70K after release | cash = 100704 |
 | PASS | Monthly expenses function exists |  |
 | PASS | Salary/rent transactions recorded after month tick | salary/rent records = 0 |
 | PASS | Tax system tick function exists |  |
@@ -103,7 +106,7 @@
 | PASS | 5 victory paths loaded | got 5 |
 | PASS | Victory path IDs match expected | got ['brand_empire', 'innovation_leader', 'market_dominator', 'financial_titan', 'industry_kingmaker'] |
 | PASS | Storyteller loaded with dramaScore property |  |
-| PASS | Drama score is a number 0-100 | dramaScore = 73.28479999999999 |
+| PASS | Drama score is a number 0-100 | dramaScore = 99 |
 | PASS | Timeline events exist (20+) | got 29 |
 | PASS | Conferences defined (3) | got 3 |
 | PASS | IPO system loaded |  |
@@ -113,7 +116,7 @@
 | PASS | Marketing system loaded |  |
 | PASS | Campaign types defined (3+) | got 6 |
 | PASS | Research system loaded |  |
-| PASS | Research items defined (33+) | got 33 |
+| PASS | Research items defined (33+) | got 34 |
 
 ## Feature Gating (5/5 PASS)
 
@@ -130,8 +133,8 @@
 | Status | Test | Detail |
 |--------|------|--------|
 | PASS | After release, sellingGame exists | got True |
-| PASS | salesWeeksLeft is positive after release | got 10 |
-| PASS | salesWeeksLeft decreases after tick | before=10, after=9 |
+| PASS | salesWeeksLeft is positive after release | got 7 |
+| PASS | salesWeeksLeft decreases after tick | before=7, after=6 |
 | PASS | Sales eventually complete (sellingGame becomes null) | salesWeeksLeft=0 |
 
 ## Victory Balance (5/5 PASS)
