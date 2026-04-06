@@ -61,8 +61,24 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
             })}
           </div>
 
+          {/* Polish phase — bug-fixing before release */}
+          {state.finishingPhase && (
+            <div className="glass-card gs-info-card">
+              <div className="panel-header" style={{ marginBottom: '4px', color: 'var(--color-warning)' }}>
+                Polishing
+              </div>
+              <div className="gs-info-title">Fixing Bugs...</div>
+              <div className="gs-info-sub">
+                {state.bugs} bugs remaining (started with {state.bugsInitial})
+              </div>
+              <div className="progress-bar" style={{ height: '8px' }}>
+                <div className="progress-fill" style={{ width: `${state.devProgress}%`, background: 'linear-gradient(90deg, var(--color-warning), var(--color-success))' }} />
+              </div>
+            </div>
+          )}
+
           {/* Current activity */}
-          {state.currentGame && (
+          {state.currentGame && !state.finishingPhase && (
             <div className="glass-card gs-info-card">
               <div className="panel-header" style={{ marginBottom: '4px' }}>
                 Now Developing
@@ -80,14 +96,14 @@ function GameScreen({ state, onNewGame, onStaff, onUpgrade, fanMilestoneGlow }) 
                     <span className={`gs-phase-label ${i === state.devPhase ? 'gs-phase-label--active' : ''}`}>
                       {phase.name}
                     </span>
-                    {i < 2 && <div className={`gs-phase-line ${i < state.devPhase ? 'gs-phase-line--complete' : ''}`} />}
+                    {i < (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length - 1 : 2) && <div className={`gs-phase-line ${i < state.devPhase ? 'gs-phase-line--complete' : ''}`} />}
                   </React.Fragment>
                 ))}
               </div>
 
               {/* Progress bar */}
               <div className="progress-bar" style={{ height: '8px' }}>
-                <div className="progress-fill" style={{ width: `${(state.devPhase * 100 + state.devProgress) / 3}%` }} />
+                <div className="progress-fill" style={{ width: `${(state.devPhase * 100 + state.devProgress) / (typeof DEV_PHASES !== 'undefined' ? DEV_PHASES.length : 4)}%` }} />
               </div>
 
               {/* D/T points */}

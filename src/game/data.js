@@ -27,6 +27,7 @@ const DEV_PHASES = [
   { name: 'Phase 1', aspects: ['Engine', 'Gameplay', 'Story/Quests'] },
   { name: 'Phase 2', aspects: ['Dialogues', 'Level Design', 'AI'] },
   { name: 'Phase 3', aspects: ['World Design', 'Graphics', 'Sound'] },
+  { name: 'Polish', aspects: [] },
 ];
 
 // Design/Tech ratio for each aspect (from GDT source)
