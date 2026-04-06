@@ -12,10 +12,12 @@ function NewGameWizard({ state, onStart, onCancel }) {
   const [size, setSize] = React.useState('Small');
   const [selectedEngine, setSelectedEngine] = React.useState(null);
 
+  const canMultiPlatform = (state.level || 0) >= 3 || state.devMode;
   const togglePlatform = (id) => {
     setPlatformIds(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
-      if (prev.length >= 3) return prev; // max 3 platforms
+      if (!canMultiPlatform && prev.length >= 1) return [id]; // single-select before Large Office
+      if (prev.length >= 3) return prev;
       return [...prev, id];
     });
   };
@@ -359,8 +361,13 @@ function NewGameWizard({ state, onStart, onCancel }) {
 
             {/* Platform (multi-select, max 3) */}
             <label style={{ fontSize: '13px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
-              Platforms <span style={{ color: '#484f58' }}>(select 1–3)</span>
+              Platforms <span style={{ color: '#484f58' }}>{canMultiPlatform ? '(select 1–3)' : '(select 1)'}</span>
             </label>
+            {!canMultiPlatform && (
+              <div style={{ fontSize: '11px', color: '#484f58', marginTop: '4px', marginBottom: '4px' }}>
+                Multi-platform release unlocks at Large Office
+              </div>
+            )}
             {platformIds.length > 1 && (
               <div style={{ fontSize: '11px', color: '#d29922', marginBottom: '8px' }}>
                 +{Math.round(50 * (platformIds.length - 1))}% dev time for {platformIds.length} platforms
