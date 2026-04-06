@@ -772,6 +772,7 @@ class GameEngine {
       releaseYear: s.year,
       releaseMonth: s.month,
       breakdown: scoreResult.breakdown,
+      fanMail: (typeof fanMailSystem !== 'undefined') ? fanMailSystem.generateMail({ title: game.title, genre: game.genre, topic: game.topic, reviewAvg: criticAvg }) : [],
     };
 
     s.games.push(completedGame);
