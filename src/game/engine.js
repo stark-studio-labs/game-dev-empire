@@ -138,6 +138,10 @@ class GameEngine {
       // Victory tracking counters
       gamesHighScore: 0,     // games with reviewAvg >= 8.5
       moonshots: 0,          // AAA games with reviewAvg >= 9.5
+
+      // Research Points currency
+      researchPoints: 0,
+      unlockedTopics: [], // topic names manually unlocked with RP
     };
 
     this._updateAvailablePlatforms();
@@ -178,6 +182,9 @@ class GameEngine {
             if (!member.role) member.role = assignStaffRole(member);
           }
         }
+        // Migrate: Research Points (added in sprint-2)
+        if (this.state.researchPoints === undefined) this.state.researchPoints = 0;
+        if (!this.state.unlockedTopics) this.state.unlockedTopics = [];
         this._updateAvailablePlatforms();
         this._emit();
         return true;
@@ -751,6 +758,12 @@ class GameEngine {
     };
 
     s.games.push(completedGame);
+
+    // Earn Research Points from shipping games
+    const rpEarned = 10 + Math.floor(reviewResult.average * 2); // 12-30 RP per game
+    s.researchPoints = (s.researchPoints || 0) + rpEarned;
+    this._notify('Earned ' + rpEarned + ' Research Points!');
+
     if (typeof audioManager !== 'undefined') audioManager.playSFX('game-release');
 
     // Track victory counters

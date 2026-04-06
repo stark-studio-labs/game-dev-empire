@@ -120,6 +120,14 @@ function TopBar({ state, onSpeedChange, onToggleFinance, showFinance, onToggleRe
           </div>
         </div>
 
+        {/* Research Points */}
+        <div className="topbar__stat">
+          <div className="topbar__stat-label">RP</div>
+          <div className="topbar__stat-value" style={{ color: '#da7cff' }}>
+            {state.researchPoints || 0}
+          </div>
+        </div>
+
         {/* Games Made */}
         <div className="topbar__stat">
           <div className="topbar__stat-label">Games</div>

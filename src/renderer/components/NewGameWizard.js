@@ -28,6 +28,8 @@ function NewGameWizard({ state, onStart, onCancel }) {
   // Topic unlock logic — 6 tiers keyed to progression milestones
   const isTopicUnlocked = (t) => {
     if (state.devMode) return true;
+    // Check if manually unlocked via RP
+    if (state.unlockedTopics && state.unlockedTopics.includes(t.name)) return true;
     if (t.tier === 1) return true;
     if (t.tier === 2) return state.staff.length >= 2;
     if (t.tier === 3) return (state.level || 0) >= 1;
@@ -228,7 +230,23 @@ function NewGameWizard({ state, onStart, onCancel }) {
                     }}
                     title={unlocked ? t.name : `Unlock: ${t.unlockRequirement}`}
                   >
-                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{t.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 500 }}>{t.name}</span>
+                      {!unlocked && (t.tier === 5 || t.tier === 6) && (state.researchPoints || 0) >= (t.rpCost || 10) && (
+                        <button
+                          className="btn-secondary"
+                          style={{ fontSize: '10px', padding: '2px 6px', marginLeft: '4px' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            engine.state.researchPoints -= (t.rpCost || 10);
+                            engine.state.unlockedTopics.push(t.name);
+                            engine._emit(); engine._save();
+                          }}
+                        >
+                          Unlock ({t.rpCost || 10} RP)
+                        </button>
+                      )}
+                    </div>
                     {!unlocked && (
                       <div style={{ fontSize: '10px', color: '#6e7681', marginTop: '2px', lineHeight: 1.2 }}>
                         {t.unlockRequirement}
